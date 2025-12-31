@@ -15,3 +15,7 @@ python/.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Scratch / probe files (local-only)
+Scratch*.lean
+Probe*.lean
