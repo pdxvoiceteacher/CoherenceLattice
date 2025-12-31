@@ -1,14 +1,19 @@
 ﻿
-Reproducibility / Peer Review Checklist1)
+Reproducibility / Peer Review Checklist
 1) Build the project
+From the repo root:
 
-From the repo root:lake exe cache get
+powershell
+Copy code
+lake exe cache get
 lake build
 Expected result: Build completed successfully (...) jobs.
 
 2) Verify the paper-facing theorem names exist
-
 Create a temporary check file (do not commit it):
+
+powershell
+Copy code
 $s = @"
 import CoherenceLattice
 
@@ -24,6 +29,6 @@ import CoherenceLattice
 [System.IO.File]::WriteAllText((Join-Path $PWD "ReviewChecks.lean"), $s, [System.Text.UTF8Encoding]::new($false))
 lake env lean .\ReviewChecks.lean
 If Lean prints each #check signature with no errors, the theorem names are present.
-3) Read the claim map
 
+3) Read the claim map
 See: paper/theorem-map.md

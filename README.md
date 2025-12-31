@@ -15,7 +15,6 @@ From the repository root:
 lake exe cache get
 lake build
 Where the “paper claims” live
-
 Paper-facing theorem wrappers (stable citation names) are in:
 
 CoherenceLattice/Coherence/NarrativeGloss.lean
@@ -37,7 +36,6 @@ Coherence.PaperGloss.Theorem_DeltaSynETStep_Safe
 Coherence.PaperGloss.Corollary_TrajectoryET_ValidPath
 
 How to review
-
 Start here:
 
 paper/REPRODUCE.md — exact steps to build + verify the main claims
@@ -45,7 +43,6 @@ paper/REPRODUCE.md — exact steps to build + verify the main claims
 paper/theorem-map.md — informal claims ↔ Lean theorem names ↔ files
 
 Repo layout (high-level)
-
 CoherenceLattice/Coherence/Basic.lean — baseline Ψ, ΔSyn input + lemmas
 
 CoherenceLattice/Coherence/Lattice.lean — unit-square state model and Ψ properties
@@ -65,5 +62,4 @@ CoherenceLattice/Coherence/Interpretation.lean — interpretation lemmas
 CoherenceLattice/Coherence/NarrativeGloss.lean — wrapper theorem names for citation
 
 Contributing / Issues
-
 PRs are welcome. Please keep lake build green.
