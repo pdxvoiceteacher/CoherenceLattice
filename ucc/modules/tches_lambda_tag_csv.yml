@@ -1,0 +1,34 @@
+ucc_version: "0.1"
+module:
+  id: "tches.lambda_tag_csv"
+  version: "0.1.0"
+  title: "TCHES Lambda_T Tagger (CSV)"
+  intent: "Compute Lambda_T from a CSV timeseries (e.g., python/experiments/tches_ode outputs)."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  license: "CC-BY-4.0"
+  thresholds:
+    lambdaT_warn: 0.7
+    lambdaT_alarm: 1.0
+steps:
+  - type: ingest_csv
+    id: load_csv
+  - type: compute_lambdaT
+    id: lambdaT
+    params:
+      dT_design_C: 15.0
+      tau_res_s: 390.0
+      t_col: "t_s"
+      series_col: "T_block_C"
+  - type: threshold_flags
+    id: flags
+  - type: emit_report
+    id: emit
+    params:
+      report_name: "report.json"
+  - type: emit_threshold_table
+    id: thresh
+    params:
+      name_csv: "thresholds.csv"
+      name_md: "thresholds.md"

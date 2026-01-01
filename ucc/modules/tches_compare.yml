@@ -1,0 +1,27 @@
+ucc_version: "0.1"
+module:
+  id: "tches.compare_runs"
+  version: "0.1.0"
+  title: "TCHES Baseline vs Lambda Comparison"
+  intent: "Compare two TCHES ODE CSV runs and emit a delta report + audit bundle."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  thresholds:
+    lambdaT_warn: 0.7
+    lambdaT_alarm: 1.0
+    E_warn: 0.8
+    E_alarm: 0.6
+    T_warn: 0.85
+    T_alarm: 0.7
+    PsiTE_warn: 0.7
+    Es_alarm: 0.8
+steps:
+  - type: ingest_json
+    id: cfg
+  - type: compare_tches_runs
+    id: compare
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"

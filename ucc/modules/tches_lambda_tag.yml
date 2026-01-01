@@ -1,0 +1,40 @@
+ucc_version: "0.1"
+module:
+  id: "tches.lambda_tag"
+  version: "0.1.1"
+  title: "TCHES Lambda_T Tagger (Toy)"
+  intent: "Compute Lambda_T from a temperature series and emit thresholds + audit bundle."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  license: "CC-BY-4.0"
+  safety:
+    scope: "research"
+    disclaimers:
+      - "Research scaffold only; not medical, legal, or operational advice."
+      - "Do not run untrusted modules; this runner only executes built-in step types."
+    data_handling: "local-filesystem"
+  thresholds:
+    lambdaT_warn: 0.7
+    lambdaT_alarm: 1.0
+steps:
+  - type: ingest_json
+    id: load_input
+  - type: compute_lambdaT
+    id: lambdaT
+    params:
+      dT_design_C: 15.0
+      tau_res_s: 390.0
+      series_key: "T_block_C"
+      dt_key: "dt_s"
+  - type: threshold_flags
+    id: flags
+  - type: emit_report
+    id: emit
+    params:
+      report_name: "report.json"
+  - type: emit_threshold_table
+    id: thresh
+    params:
+      name_csv: "thresholds.csv"
+      name_md: "thresholds.md"

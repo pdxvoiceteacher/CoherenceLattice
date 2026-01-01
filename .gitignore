@@ -19,3 +19,15 @@ __pycache__/
 # Scratch / probe files (local-only)
 Scratch*.lean
 Probe*.lean
+
+# Python outputs (local)
+python/*.csv
+python/*.png
+python/*.pdf
+python/experiments/**/out/
+python/experiments/**/*.csv
+python/experiments/**/*.png
+
+# Local figures (optional)
+Figures/
+

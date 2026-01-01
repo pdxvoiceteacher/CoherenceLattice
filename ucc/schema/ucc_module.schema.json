@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UCC Module",
+  "type": "object",
+  "required": ["ucc_version", "module", "steps"],
+  "properties": {
+    "ucc_version": { "type": "string" },
+    "module": {
+      "type": "object",
+      "required": ["id", "version", "title", "intent"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+        "version": { "type": "string" },
+        "title": { "type": "string" },
+        "intent": { "type": "string" },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "orcid": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "license": { "type": "string" },
+        "safety": {
+          "type": "object",
+          "properties": {
+            "scope": { "type": "string" },
+            "disclaimers": { "type": "array", "items": { "type": "string" } },
+            "data_handling": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "inputs": { "type": "object", "additionalProperties": true },
+        "outputs": { "type": "object", "additionalProperties": true },
+        "thresholds": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": { "type": "string" },
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+$" },
+          "params": { "type": "object", "additionalProperties": true }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

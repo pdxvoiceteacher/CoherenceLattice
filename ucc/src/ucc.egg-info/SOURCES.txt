@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/ucc/__init__.py
+src/ucc/audit.py
+src/ucc/cli.py
+src/ucc/core.py
+src/ucc.egg-info/PKG-INFO
+src/ucc.egg-info/SOURCES.txt
+src/ucc.egg-info/dependency_links.txt
+src/ucc.egg-info/entry_points.txt
+src/ucc.egg-info/requires.txt
+src/ucc.egg-info/top_level.txt
+tests/test_ucc_smoke.py
