@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "module_id": "ucc.prisma.abstract.v0",
+    "name": "PRISMA Abstract (Example)",
+    "version": "0.1.0",
+    "domain": ["scholarship"],
+    "jurisdiction": ["global"],
+    "description": "Example UCC grammar module for a PRISMA-style abstract. Research scaffold only."
+  },
+  "authorities": [
+    {"type": "guideline", "id": "PRISMA-2020", "name": "PRISMA 2020", "url": "https://prisma-statement.org/"}
+  ],
+  "tasks": [
+    {"id": "prisma_abstract", "description": "Draft a structured abstract with PRISMA-style sections and disclosures."}
+  ],
+  "roles": ["drafter", "reviewer"],
+  "reasoning_steps": [
+    "State objective/question.",
+    "Describe methods and data sources.",
+    "Report results with counts and key outcomes.",
+    "State limitations and risk of bias.",
+    "Write conclusions with uncertainty/constraints."
+  ],
+  "evidence": {
+    "min_primary_sources": 1,
+    "recency_years": 5,
+    "require_trial_registry": false,
+    "hierarchy": ["peer_reviewed", "systematic_review_report", "registry"]
+  },
+  "validation_rules": [
+    {
+      "id": "check_limitations_nonempty",
+      "description": "Ensure limitations section is present and non-empty.",
+      "expression": "Limitations != empty"
+    }
+  ],
+  "reporting": {
+    "sections": ["Background", "Methods", "Results", "Conclusions", "Limitations"],
+    "disclaimers": ["This is a research scaffold; not clinical advice."]
+  },
+  "escalation_policy": [
+    {"condition": "insufficient_evidence OR user_requests_exaggeration", "action": "refuse"}
+  ]
+}

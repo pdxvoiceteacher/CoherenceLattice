@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "module_id": "ucc.coso.lm2.treasurer_memo.v0",
+    "name": "COSO/LM-2 Treasurer Vendor-Risk Memo (Example)",
+    "version": "0.1.0",
+    "domain": ["finance", "governance"],
+    "jurisdiction": ["US"],
+    "description": "Example UCC grammar module for a union vendor-risk memo. Research scaffold only."
+  },
+  "authorities": [
+    {"type": "standard", "id": "COSO-2013", "name": "COSO Internal Control—Integrated Framework (2013)"},
+    {"type": "regulation", "id": "DOL-LM2", "name": "U.S. Department of Labor LM-2 reporting"}
+  ],
+  "tasks": [
+    {"id": "vendor_risk_memo", "description": "Draft a vendor-risk memo aligned to COSO controls and LM-2 stewardship expectations."}
+  ],
+  "roles": ["drafter", "reviewer", "approver"],
+  "reasoning_steps": [
+    "Identify vendor, scope, and materiality.",
+    "List applicable authorities and summarize requirements.",
+    "Assess risks (fraud, privacy, operational, reputational).",
+    "Evaluate internal controls and segregation of duties.",
+    "List evidence used and identify missing evidence.",
+    "Draft recommendations and escalation triggers."
+  ],
+  "evidence": {
+    "min_primary_sources": 2,
+    "recency_years": 5,
+    "require_trial_registry": false,
+    "hierarchy": ["union_financial_records", "vendor_contracts", "regulator_docs", "independent_checks"]
+  },
+  "validation_rules": [
+    {
+      "id": "check_sections_present",
+      "description": "Ensure memo includes required sections.",
+      "expression": "sections >= {Background, Scope, Risk Assessment, Internal Control Evaluation, Recommendations, Limitations}"
+    }
+  ],
+  "reporting": {
+    "sections": ["Background", "Scope", "Vendor Profile", "Risk Assessment", "Internal Control Evaluation", "Recommendations", "Limitations"],
+    "disclaimers": [
+      "This memo is prepared for internal governance purposes and does not constitute legal advice.",
+      "Ultimate responsibility for decisions rests with the organization’s designated officers."
+    ]
+  },
+  "escalation_policy": [
+    {"condition": "evidence_missing_for_material_amounts", "action": "request_more_info"},
+    {"condition": "fraud_indicator_detected OR conflict_of_interest_detected", "action": "flag_for_review"}
+  ]
+}
