@@ -1,18 +1,17 @@
 ﻿ucc_version: "0.1"
 module:
   id: "ai_gov.nist_ai_600_1.genai_profile"
-  version: "0.1.0"
+  version: "0.2.0"
   title: "NIST AI 600-1 GenAI Profile Coverage Checklist (Pipeline)"
-  intent: "Check that a GenAI system dossier includes provenance, adaptation/fine-tuning, evaluation evidence, misuse monitoring, and disclosure. Emits checklist + audit bundle."
+  intent: "Check GenAI dossier coverage + evidence links + misuse taxonomy; emit checklist + audit bundle."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
-  license: "CC-BY-4.0"
   safety:
     scope: "research"
     disclaimers:
       - "Research scaffold only; not legal/compliance advice."
-      - "This checks presence of fields; it does not guarantee conformity to NIST guidance."
+      - "Field presence and keyword checks do not guarantee real-world safety or compliance."
 steps:
   - type: ingest_json
     id: ingest
@@ -26,10 +25,32 @@ steps:
         - "EVALUATION_EVIDENCE"
         - "MISUSE_MONITORING"
         - "DISCLOSURE"
+
+  - type: require_evidence_links
+    id: evidence_links
+    params:
+      sections_key: "genai_profile"
+      field_key: "EVALUATION_EVIDENCE"
+      min_links: 1
+      allow_explanation: true
+
+  - type: misuse_taxonomy_check
+    id: misuse_taxonomy
+    params:
+      sections_key: "genai_profile"
+      field_key: "MISUSE_MONITORING"
+      required_categories:
+        - "prompt_injection"
+        - "data_exfiltration"
+        - "policy_evasion"
+        - "harassment"
+        - "model_inversion"
+
   - type: emit_report
     id: report
     params:
       report_name: "report.json"
+
   - type: emit_checklist
     id: checklist
     params:

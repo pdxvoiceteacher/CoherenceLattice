@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import statistics
 from pathlib import Path
 from typing import Any, Dict, Tuple, List
@@ -23,6 +24,8 @@ BUILTIN_STEP_TYPES = {
     "check_required_sections",
     "emit_checklist",
     "compare_helmholtz_runs",
+    "require_evidence_links",
+    "misuse_taxonomy_check",
 }
 
 
@@ -61,7 +64,37 @@ def validate_module(module_doc: Dict[str, Any], schema_doc: Dict[str, Any]) -> N
             raise ValueError(f"Unknown/unsupported step type '{st}'. Allowed: {sorted(BUILTIN_STEP_TYPES)}")
 
 
-# ---------- ÃƒÅ½Ã¢â‚¬ÂºT computations (shared) ----------
+# ---------- generic helpers ----------
+
+def _get_text_field(input_doc: Dict[str, Any], sections_key: str, field_key: str) -> str:
+    sec = input_doc.get(sections_key, {})
+    if not isinstance(sec, dict):
+        raise ValueError(f"Expected '{sections_key}' to be a JSON object mapping key->text")
+    return str(sec.get(field_key, "") or "")
+
+
+def _extract_urls_and_dois(text: str) -> List[str]:
+    # URLs
+    urls = re.findall(r"https?://[^\s\)\]\}>\"']+", text, flags=re.IGNORECASE)
+    # DOIs (common pattern)
+    dois = re.findall(r"\b10\.\d{4,9}/[^\s\)\]\}>\"']+\b", text, flags=re.IGNORECASE)
+    # normalize
+    out = []
+    for u in urls:
+        out.append(u.strip().rstrip(".,;"))
+    for d in dois:
+        out.append("doi:" + d.strip().rstrip(".,;"))
+    # de-dup preserving order
+    seen = set()
+    uniq = []
+    for x in out:
+        if x not in seen:
+            seen.add(x)
+            uniq.append(x)
+    return uniq
+
+
+# ---------- ΛT computations (shared) ----------
 
 def compute_lambdaT(series: list[float], dt_s: float, dT_design_C: float, tau_res_s: float) -> Dict[str, float]:
     if dt_s <= 0:
@@ -167,7 +200,7 @@ def emit_threshold_table(
     return [p_csv, p_md]
 
 
-# ---------- PRISMA pipeline helpers ----------
+# ---------- PRISMA + coverage helper ----------
 
 def check_required_sections(input_doc: Dict[str, Any], sections_key: str, required: List[str]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     sec = input_doc.get(sections_key, {})
@@ -214,11 +247,83 @@ def emit_checklist(outdir: Path, metrics: Dict[str, Any], name_md: str = "checkl
             f.write(f"- missing sections: {', '.join(missing)}\n")
         else:
             f.write("- missing sections: (none)\n")
-        f.write("\n## Required sections\n\n")
+        f.write("\n## Required items\n\n")
         for s in required:
             mark = "x" if s in present else " "
             f.write(f"- [{mark}] {s}\n")
     return p
+
+
+# ---------- New: require_evidence_links ----------
+
+def require_evidence_links(input_doc: Dict[str, Any], sections_key: str, field_key: str, min_links: int, allow_explanation: bool) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    text = _get_text_field(input_doc, sections_key, field_key)
+    links = _extract_urls_and_dois(text)
+    n = len(links)
+
+    explained = False
+    if allow_explanation and n < min_links:
+        low = text.lower()
+        # "none + why" heuristic: presence of an explanation marker + some substance
+        markers = ["none", "no link", "no links", "no url", "not available", "n/a", "cannot", "unable", "restricted"]
+        explained = any(m in low for m in markers) and len(low.strip()) >= 30
+
+    ok = (n >= min_links) or explained
+
+    metrics = {
+        "evidence_field": f"{sections_key}.{field_key}",
+        "evidence_min_links": min_links,
+        "evidence_link_count": n,
+        "evidence_links": links,
+        "evidence_explained_no_links": explained,
+    }
+    flags = {
+        "evidence_links_ok": ok,
+        "evidence_links_sufficient": (n >= min_links),
+        "evidence_links_explained": explained,
+        "evidence_links_missing": (not ok),
+    }
+    return metrics, flags
+
+
+# ---------- New: misuse_taxonomy_check ----------
+
+DEFAULT_MISUSE_TAXONOMY = {
+    "prompt_injection": ["prompt injection", "jailbreak", "instruction override", "prompt attack"],
+    "data_exfiltration": ["data exfiltration", "exfiltrate", "secret leakage", "data leakage", "leak secrets"],
+    "policy_evasion": ["policy evasion", "bypass policy", "circumvent policy", "guardrail bypass", "policy bypass"],
+    "harassment": ["harassment", "abuse", "bullying", "hate", "toxicity"],
+    "model_inversion": ["model inversion", "membership inference", "training data extraction", "inversion attack"],
+}
+
+
+def misuse_taxonomy_check(input_doc: Dict[str, Any], sections_key: str, field_key: str, required_categories: List[str] | None) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    text = _get_text_field(input_doc, sections_key, field_key).lower()
+
+    required_categories = required_categories or list(DEFAULT_MISUSE_TAXONOMY.keys())
+
+    present = []
+    missing = []
+
+    for cat in required_categories:
+        syns = DEFAULT_MISUSE_TAXONOMY.get(cat, [cat.replace("_", " ")])
+        ok = any(s in text for s in syns)
+        (present if ok else missing).append(cat)
+
+    coverage = (len(present) / len(required_categories)) if required_categories else 0.0
+    complete = (len(missing) == 0)
+
+    metrics = {
+        "misuse_required_categories": required_categories,
+        "misuse_present_categories": present,
+        "misuse_missing_categories": missing,
+        "misuse_coverage": coverage,
+    }
+    flags = {
+        "misuse_taxonomy_complete": complete,
+        "misuse_missing_categories": missing,
+    }
+    return metrics, flags
 
 
 # ---------- TCHES comparison helpers ----------
@@ -343,16 +448,6 @@ def compare_tches_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, thresh
             f"- delta mean pump power (lambda - baseline): **{metrics['delta_mean_Ppump']:.4g}** kW",
             f"- delta mean chiller load (lambda - baseline): **{metrics['delta_mean_Qch']:.4g}** kW",
             "",
-            "## Summary table",
-            "| metric | baseline | lambda | delta |",
-            "|---|---:|---:|---:|",
-            f"| warn_LambdaT_steps | {base['warn_LambdaT_steps']} | {lam['warn_LambdaT_steps']} | {delta_warn} |",
-            f"| alarm_LambdaT_steps | {base['alarm_LambdaT_steps']} | {lam['alarm_LambdaT_steps']} | {delta_alarm} |",
-            f"| max_LambdaT | {base['max_LambdaT']:.6g} | {lam['max_LambdaT']:.6g} | {(lam['max_LambdaT']-base['max_LambdaT']):.6g} |",
-            f"| mean_LambdaT | {base['mean_LambdaT']:.6g} | {lam['mean_LambdaT']:.6g} | {(lam['mean_LambdaT']-base['mean_LambdaT']):.6g} |",
-            f"| mean_Ppump | {base['mean_Ppump']:.6g} | {lam['mean_Ppump']:.6g} | {metrics['delta_mean_Ppump']:.6g} |",
-            f"| mean_Qch | {base['mean_Qch']:.6g} | {lam['mean_Qch']:.6g} | {metrics['delta_mean_Qch']:.6g} |",
-            "",
             "## Integrity hashes",
             f"- baseline_sha256: `{metrics['baseline_sha256']}`",
             f"- lambda_sha256: `{metrics['lambda_sha256']}`",
@@ -367,15 +462,6 @@ def compare_tches_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, thresh
 # ---------- Helmholtz comparison helpers ----------
 
 def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, thresholds: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
-    """
-    Compare guided vs unguided coherence from a summary-by-step CSV.
-
-    Expected columns (defaults):
-      scenario, t, Psi_mean
-
-    Produces:
-      delta_curve.csv, delta_curve.md, comparison.md, comparison.json
-    """
     summary_path = Path(cfg["summary_csv"])
     if not summary_path.is_absolute():
         summary_path = (task_dir / summary_path).resolve()
@@ -419,10 +505,9 @@ def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, th
     delta_start = curve[0][3]
     t_end = curve[-1][0]
     delta_end = curve[-1][3]
-    t_peak, psi_g_peak, psi_u_peak, delta_peak = max(curve, key=lambda x: x[3])
-    auc = sum(d for (_, _, _, d) in curve)  # dt=1 per step
+    t_peak, _, _, delta_peak = max(curve, key=lambda x: x[3])
+    auc = sum(d for (_, _, _, d) in curve)
 
-    # thresholds (optional)
     start_min = thresholds.get("deltaPsi_start_min", None)
     peak_min = thresholds.get("deltaPsi_peak_min", None)
     end_abs_max = thresholds.get("deltaPsi_end_abs_max", None)
@@ -460,7 +545,6 @@ def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, th
 
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # delta_curve.csv
     p_curve = outdir / "delta_curve.csv"
     with p_curve.open("w", newline="") as f:
         w = csv.writer(f)
@@ -468,16 +552,14 @@ def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, th
         for t, g, u, d in curve:
             w.writerow([t, g, u, d])
 
-    # delta_curve.md
     p_curve_md = outdir / "delta_curve.md"
     with p_curve_md.open("w", encoding="utf-8") as f:
-        f.write("# ÃƒÅ½Ã¢â‚¬ÂÃƒÅ½Ã‚Â¨ Curve (guided ÃƒÂ¢Ã‹â€ Ã¢â‚¬â„¢ unguided)\n\n")
+        f.write("# DeltaPsi Curve (guided - unguided)\n\n")
         f.write("| t | psi_guided | psi_unguided | delta_psi |\n")
         f.write("|---:|---:|---:|---:|\n")
         for t, g, u, d in curve:
             f.write(f"| {t} | {g:.6g} | {u:.6g} | {d:.6g} |\n")
 
-    # comparison.md / json
     p_md = outdir / "comparison.md"
     p_js = outdir / "comparison.json"
 
@@ -489,22 +571,17 @@ def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, th
             f"- summary_csv: `{summary_path}`",
             "",
             "## Headline metrics",
-            f"- ÃƒÅ½Ã¢â‚¬ÂÃƒÅ½Ã‚Â¨_start (t={metrics['t_start']}): **{delta_start:.6g}**",
-            f"- ÃƒÅ½Ã¢â‚¬ÂÃƒÅ½Ã‚Â¨_peak (t={t_peak}): **{delta_peak:.6g}**",
-            f"- ÃƒÅ½Ã¢â‚¬ÂÃƒÅ½Ã‚Â¨_end (t={t_end}): **{delta_end:.6g}**",
-            f"- AUC(ÃƒÅ½Ã¢â‚¬ÂÃƒÅ½Ã‚Â¨): **{auc:.6g}** (sum over steps)",
+            f"- DeltaPsi_start (t={metrics['t_start']}): **{delta_start:.6g}**",
+            f"- DeltaPsi_peak (t={t_peak}): **{delta_peak:.6g}**",
+            f"- DeltaPsi_end (t={t_end}): **{delta_end:.6g}**",
+            f"- AUC(DeltaPsi): **{auc:.6g}**",
             "",
             "## Pass/Fail (module thresholds)",
-            f"- pass_start: {pass_start}",
-            f"- pass_peak: {pass_peak}",
-            f"- pass_end: {pass_end}",
-            f"- pass_auc: {pass_auc}",
             f"- overall_pass: {overall_pass}",
             "",
             "## Integrity hashes",
             f"- summary_sha256: `{metrics['summary_sha256']}`",
             "",
-            "See: delta_curve.md / delta_curve.csv for per-step details.",
         ]),
         encoding="utf-8",
     )
@@ -576,6 +653,29 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             sections_key = str(params.get("sections_key", "sections"))
             required = list(params.get("required_sections", []))
             m, fl = check_required_sections(context["input"], sections_key, required)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
+
+        elif stype == "require_evidence_links":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("require_evidence_links requires ingest_json of a structured document dict")
+            sections_key = str(params.get("sections_key", "genai_profile"))
+            field_key = str(params.get("field_key", "EVALUATION_EVIDENCE"))
+            min_links = int(params.get("min_links", 1))
+            allow_explanation = bool(params.get("allow_explanation", True))
+            m, fl = require_evidence_links(context["input"], sections_key, field_key, min_links, allow_explanation)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
+
+        elif stype == "misuse_taxonomy_check":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("misuse_taxonomy_check requires ingest_json of a structured document dict")
+            sections_key = str(params.get("sections_key", "genai_profile"))
+            field_key = str(params.get("field_key", "MISUSE_MONITORING"))
+            required_categories = params.get("required_categories", None)
+            if required_categories is not None:
+                required_categories = list(required_categories)
+            m, fl = misuse_taxonomy_check(context["input"], sections_key, field_key, required_categories)
             context["metrics"].update(m)
             context["flags"].update(fl)
 

@@ -4,13 +4,13 @@
     "intended_use": "Drafting/summarization under explicit governance modules.",
     "deployment_stage": "pilot",
     "stakeholders": ["users", "operators", "affected communities"],
-    "notes": "Sample dossier for demonstrating NIST AI 600-1 style coverage checks."
+    "notes": "Sample dossier for demonstrating NIST AI 600-1 flavored coverage checks."
   },
   "genai_profile": {
-    "DATA_PROVENANCE_SUMMARY": "High-level provenance summary: data types, licensing posture, exclusions, and known gaps (no raw training data included here).",
-    "ADAPTATION_FINETUNING_NOTES": "Model adaptation notes: fine-tuning approach, training objectives, and any post-training alignment methods (RLHF/RLAIF) at a high level.",
-    "EVALUATION_EVIDENCE": "Evaluation evidence: red-team summary, robustness checks, error analysis, and known failure modes; include uncertainty/limits.",
-    "MISUSE_MONITORING": "Misuse monitoring plan: abuse taxonomy, detection/response, rate limiting, incident logging, and escalation pathway.",
-    "DISCLOSURE": "Disclosure: user-facing notice of AI involvement, limitations, uncertainty, and reporting channel for harms."
+    "DATA_PROVENANCE_SUMMARY": "High-level provenance summary: data types, licensing posture, exclusions, and known gaps.",
+    "ADAPTATION_FINETUNING_NOTES": "Fine-tuning notes: method, objectives, and post-training alignment at a high level.",
+    "EVALUATION_EVIDENCE": "Red-team summary + robustness checks documented at https://example.org/redteam-report . DOI example: 10.5555/12345678 . Known failure modes and uncertainty are recorded.",
+    "MISUSE_MONITORING": "Misuse monitoring covers prompt injection/jailbreaks, data exfiltration/secret leakage, policy evasion/guardrail bypass, harassment/toxicity, and model inversion/membership inference. Includes escalation pathway + rate limiting.",
+    "DISCLOSURE": "User-facing disclosure of AI involvement, limitations/uncertainty, and a reporting channel for harms."
   }
 }
