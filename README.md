@@ -8,7 +8,8 @@ This repository contains a Lean 4 formalization of a “coherence lattice” mod
 - States are mapped into discrete **regimes** S0..S4 via Ψ bands
 - A regime **adjacency graph** constrains allowed transitions
 - ΔSyn-inspired dynamics (`stepPsi`, `stepET`) are proven to respect the regime graph (“no teleport”)
-
+- Quantum Mechanics is now wired.
+- 
 ## Quickstart (build locally)
 
 From the repository root:
