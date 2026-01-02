@@ -30,3 +30,10 @@ governance framework.
 - `Coherence.Quantum.trace_rho`
 
 Interpretation note (for paper/README): off-diagonal magnitude depends on basis; a basis change can move coherence from off-diagonal to diagonal. This is the standard “coherence is basis-relative” fact — our proxy demonstrates that without claiming any new QM.
+## Snapshot-robust choices (mathlib compatibility)
+
+Some mathlib snapshots vary in which convenience lemmas/names are available. To keep this repo build-stable across snapshots, we intentionally use:
+
+- **`absSq z = z.re^2 + z.im^2`** as a magnitude proxy in `Density.lean` instead of `Complex.abs`. This avoids dependency on a particular `Complex.abs` API surface while still providing a basis-relative “off-diagonal coherence” proxy.
+
+- **Algebraic partition-function analysis** in `ThermoExtras.lean` instead of a calculus proof of `⟨H⟩ = −∂β log Z`. The expected-energy identity is derived directly from Gibbs weights (still standard statistical mechanics), which avoids requiring specific derivative simp-lemmas that may differ across snapshots.
