@@ -149,16 +149,3 @@ Thank you for taking the time to review.
 
 ---
 
-## 2) PowerShell to write + commit + push
-
-```powershell
-cd C:\Users\pdxvo\Documents\Lean\CoherenceLattice
-
-@'
-<Paste the markdown content above here exactly>
-'@ | Set-Content -Encoding utf8 PEER_REVIEW_GUIDE.md
-
-git add PEER_REVIEW_GUIDE.md
-git commit -m "Docs: add peer review guide"
-git pull --rebase origin master
-git push
