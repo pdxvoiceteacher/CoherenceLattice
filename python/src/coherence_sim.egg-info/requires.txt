@@ -1,7 +1,0 @@
-
-[dev]
-pytest>=7
-hypothesis>=6
-
-[viz]
-matplotlib>=3.8
