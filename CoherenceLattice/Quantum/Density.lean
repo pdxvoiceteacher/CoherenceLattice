@@ -8,33 +8,35 @@ open Complex Matrix
 
 noncomputable section
 
-/-- Off-diagonal coherence proxy for a 2×2 density matrix ρ: |ρ₀₁| + |ρ₁₀|. -/
-def cohOffDiag (ρ : Mat2) : ℝ :=
-  Complex.abs (ρ 0 1) + Complex.abs (ρ 1 0)
+/-- Squared magnitude proxy for ℂ as ℝ: re^2 + im^2. -/
+def absSq (z : ℂ) : ℝ := z.re ^ 2 + z.im ^ 2
 
-/-- A “computational-basis” diagonal state has zero off-diagonal coherence. -/
-lemma cohOffDiag_of_diag (a b : ℂ) :
-    cohOffDiag (fun i j =>
+/-- Off-diagonal coherence proxy (basis-relative): absSq(ρ₀₁) + absSq(ρ₁₀). -/
+def cohOffDiagSq (ρ : Mat2) : ℝ := absSq (ρ 0 1) + absSq (ρ 1 0)
+
+/-- Coherence proxy is always nonnegative. -/
+lemma cohOffDiagSq_nonneg (ρ : Mat2) : 0 ≤ cohOffDiagSq ρ := by
+  unfold cohOffDiagSq absSq
+  have h1 : 0 ≤ (ρ 0 1).re ^ 2 := sq_nonneg _
+  have h2 : 0 ≤ (ρ 0 1).im ^ 2 := sq_nonneg _
+  have h3 : 0 ≤ (ρ 1 0).re ^ 2 := sq_nonneg _
+  have h4 : 0 ≤ (ρ 1 0).im ^ 2 := sq_nonneg _
+  nlinarith
+
+/-- A diagonal state in the computational basis has zero off-diagonal coherence proxy. -/
+lemma cohOffDiagSq_of_diag (a b : ℂ) :
+    cohOffDiagSq (fun i j =>
       if i = 0 ∧ j = 0 then a
       else if i = 1 ∧ j = 1 then b
       else 0) = 0 := by
-  simp [cohOffDiag]
+  simp [cohOffDiagSq, absSq]
 
-/--
-Example: pure |+⟩⟨+| has nonzero off-diagonal coherence in the computational basis.
-We model ρ = |v⟩⟨v| using the simple (non-conjugating) outer product vᵢ * vⱼ.
-This is a *proxy* demonstration (orthodox versions use conjugate transpose).
+/-
+Interpretation note (informal):
+This coherence proxy is basis-relative. A basis change can move “coherence” between diagonal and off-diagonal entries.
 -/
-def outer (v : Fin 2 → ℂ) : Mat2 := fun i j => v i * v j
 
-lemma cohOffDiag_outer_ketPlus_pos :
-    cohOffDiag (outer ketPlus) > 0 := by
-  -- ketPlus has equal nonzero components, so off-diagonals are positive magnitude.
-  -- We prove it by explicit evaluation.
-  simp [cohOffDiag, outer, ketPlus, ket0, ket1]  -- should reduce to abs(nonzero)+abs(nonzero)
-  -- if simp leaves a goal, paste it and I’ll tighten this lemma.
-
-end  -- noncomputable section
+end  -- closes noncomputable section
 
 end Quantum
 end Coherence

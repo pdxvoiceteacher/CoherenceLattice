@@ -3,13 +3,13 @@
     "PAULI_COMMUTATORS": "Lean: CoherenceLattice/Quantum/Pauli.lean lemmas: comm_sigmaX_sigmaY, comm_sigmaY_sigmaZ, comm_sigmaZ_sigmaX",
     "SIGMAZ_EIGENSTATES": "Lean: Pauli.lean lemmas: σz_mul_ket0, σz_mul_ket1; normalization: norm_ket0, norm_ket1; orthogonality: orth_ket0_ket1",
     "SIGMAX_EIGENSTATES": "Lean: Pauli.lean lemmas: σx_mul_ketPlus, σx_mul_ketMinus; normalization: norm_ketPlus, norm_ketMinus; orthogonality: orth_ketPlus_ketMinus",
-    "COHERENCE_PROXY_OFFDIAG": "Lean: CoherenceLattice/Quantum/Density.lean def: cohOffDiag; lemma: cohOffDiag_of_diag; example: cohOffDiag_outer_ketPlus_pos",
+    "COHERENCE_PROXY_OFFDIAG": "Lean: CoherenceLattice/Quantum/Density.lean defs/lemmas: cohOffDiagSq, cohOffDiagSq_nonneg, cohOffDiagSq_of_diag",
     "TWO_LEVEL_PARTITION_FUNCTION": "Lean: CoherenceLattice/Quantum/Thermal.lean lemma: Z_closed; defs: H, expNegβH, Z",
     "GIBBS_TRACE_ONE": "Lean: Thermal.lean lemma: trace_rho (assumes Z ≠ 0)",
-    "THERMO_EXPECTED_ENERGY": "Lean: CoherenceLattice/Quantum/ThermoExtras.lean lemma: neg_deriv_log_Z_real (or equivalent expected-energy identity)"
+    "THERMO_EXPECTED_ENERGY": "Lean: CoherenceLattice/Quantum/ThermoExtras.lean lemma: E_from_probs_eq_E_expected (algebraic partition-function analysis)"
   },
   "notes": {
     "scope": "Orthodox finite-dimensional (qubit) anchor; no new physics claims.",
-    "review_target": "eigenstates/commutators/normalization/partition function + thermo identity + basis-relative coherence proxy"
+    "review_target": "eigenstates/commutators/normalization/partition function + basis-relative coherence proxy + expected-energy identity"
   }
 }
