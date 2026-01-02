@@ -1,0 +1,35 @@
+﻿ucc_version: "0.1"
+module:
+  id: "mc_ai.salvage.coverage"
+  version: "0.1.0"
+  title: "MC AI Salvage Pack Coverage (Pipeline)"
+  intent: "Coverage checklist for parity/invertibility layer + harmonic recall (cos-sim) modules and tests."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  safety:
+    scope: "research"
+    disclaimers:
+      - "Coverage audit only (presence of declared components), not an endorsement of ontological claims."
+steps:
+  - type: ingest_json
+    id: ingest
+  - type: check_required_sections
+    id: check
+    params:
+      sections_key: "mc_ai_salvage"
+      required_sections:
+        - "PARITY_LAYER_LEAN"
+        - "PARITY_LAYER_PYTHON"
+        - "HARMONIC_RECALL_PYTHON"
+        - "TESTS"
+        - "ETHICS_NOTE"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"
+  - type: emit_checklist
+    id: checklist
+    params:
+      checklist_md: "mc_ai_salvage_checklist.md"
+      title: "MC AI Salvage Pack Coverage Checklist"

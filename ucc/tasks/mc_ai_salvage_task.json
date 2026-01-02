@@ -1,0 +1,13 @@
+﻿{
+  "mc_ai_salvage": {
+    "PARITY_LAYER_LEAN": "Lean: CoherenceLattice/Coherence/ParityLayer.lean lemmas: parity_inverse, drift_zero",
+    "PARITY_LAYER_PYTHON": "Python: coherence_sim/parity_layer.py functions: forward, reverse, drift",
+    "HARMONIC_RECALL_PYTHON": "Python: coherence_sim/harmonic_recall.py functions: frequency_signature, cosine_similarity, harmonic_recall",
+    "TESTS": "Python tests: python/tests/test_parity_layer.py and python/tests/test_harmonic_recall.py",
+    "ETHICS_NOTE": "If adopting user profiling ideas (neurodivergence indicators), require explicit opt-in, editability, deletion, and minimize storage."
+  },
+  "notes": {
+    "terminology": "Treat 'toroidal parity' as an invertible parity layer; 'harmonic recall' as cosine similarity on (optionally) frequency signatures.",
+    "purpose": "Provide rigor + reproducibility for salvageable MC AI components, compatible with UCC audit patterns."
+  }
+}
