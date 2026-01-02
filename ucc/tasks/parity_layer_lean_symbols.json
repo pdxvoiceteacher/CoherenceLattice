@@ -6,7 +6,7 @@
     "Coherence.Parity.parity_inverse",
     "Coherence.Parity.drift_zero"
   ],
-  "timeout_s": 15,
+  "timeout_s": 180,
   "strict": false,
   "scratch_name": "ScratchLeanSymbols.lean",
   "log_name": "lean_check.log"

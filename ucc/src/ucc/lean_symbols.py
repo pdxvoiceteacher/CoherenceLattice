@@ -53,6 +53,12 @@ def _extract_missing(stderr: str) -> List[str]:
     return out
 
 
+def _decode(b: bytes | None) -> str:
+    if not b:
+        return ""
+    return b.decode("utf-8", errors="replace")
+
+
 def check_lean_symbols_task(
     task_dir: Path,
     cfg: Dict[str, Any],
@@ -92,7 +98,7 @@ def check_lean_symbols_task(
         "lean_symbols": symbols,
     }
 
-    # Always provide these keys for tests/consumers
+    # Always present keys (CI/test friendly)
     flags: Dict[str, Any] = {
         "lean_symbols_skipped": False,
         "lean_symbols_ok": False,
@@ -112,19 +118,20 @@ def check_lean_symbols_task(
         proc = subprocess.run(
             [lake, "env", "lean", str(scratch_path)],
             cwd=str(repo_root),
-            capture_output=True,
-            text=True,
+            capture_output=True,   # BYTES, not text
             timeout=timeout_s,
         )
-    except subprocess.TimeoutExpired:
-        log_path.write_text("TIMEOUT\n", encoding="utf-8")
+        stdout = _decode(proc.stdout)
+        stderr = _decode(proc.stderr)
+    except subprocess.TimeoutExpired as e:
+        stdout = _decode(getattr(e, "stdout", None))
+        stderr = _decode(getattr(e, "stderr", None))
+        log_path.write_text("TIMEOUT\n\n" + stdout + "\n\n--- STDERR ---\n" + stderr, encoding="utf-8")
         metrics.update({"lean_check_status": "fail", "lean_check_reason": "timeout"})
         flags.update({"lean_symbols_ok": False, "lean_symbols_timeout": True})
         return metrics, flags, [scratch_path, log_path]
 
     elapsed = time.time() - t0
-    stdout = proc.stdout or ""
-    stderr = proc.stderr or ""
     log_path.write_text(stdout + "\n\n--- STDERR ---\n" + stderr, encoding="utf-8")
 
     missing = _extract_missing(stderr)
