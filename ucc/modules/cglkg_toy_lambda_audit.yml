@@ -1,0 +1,37 @@
+ucc_version: "0.1"
+module:
+  id: "cglkg.toy.lambda_audit"
+  version: "0.1.0"
+  title: "CGL–KG Toy Lambda Proxy Audit"
+  intent: "Compute a Lambda proxy (normalized max |d/dt u_mag_sq|) from the CGL–KG toy simulation and emit thresholds + audit bundle."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  safety:
+    scope: "research"
+    disclaimers:
+      - "Toy dynamical system used for stability experiments; not a consciousness model."
+  thresholds:
+    lambdaT_warn: 5.0
+    lambdaT_alarm: 10.0
+steps:
+  - type: ingest_csv
+    id: ingest
+  - type: compute_lambdaT
+    id: lambda_proxy
+    params:
+      series_col: "u_mag_sq"
+      t_col: "t_s"
+      dT_design_C: 1.0
+      tau_res_s: 1.0
+  - type: threshold_flags
+    id: flags
+  - type: emit_threshold_table
+    id: thresh
+    params:
+      name_csv: "thresholds.csv"
+      name_md: "thresholds.md"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"

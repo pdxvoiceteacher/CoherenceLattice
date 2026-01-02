@@ -547,6 +547,54 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
                                         str(params.get("name_csv","thresholds.csv")), str(params.get("name_md","thresholds.md")))
             context["output_files"].extend(outs)
 
+        elif stype == "compute_lambdaT":
+            if context["input"] is None:
+                raise ValueError("compute_lambdaT requires prior ingest step")
+
+            dT_design = float(params.get("dT_design_C", 1.0))
+            tau_res = float(params.get("tau_res_s", 1.0))
+            src = context["input"]
+
+            # Two supported shapes:
+            # - dict input: { series_key: [...], dt_key: ... }
+            # - list-of-dicts from ingest_csv: infer dt from t_col and read series_col
+            if isinstance(src, dict):
+                series_key = str(params.get("series_key", "T_block_C"))
+                dt_key = str(params.get("dt_key", "dt_s"))
+                series = [float(x) for x in src[series_key]]
+                dt_s = float(src[dt_key])
+
+            elif isinstance(src, list):
+                series_col = str(params.get("series_col", "u_mag_sq"))
+                t_col = str(params.get("t_col", "t_s"))
+
+                ts = [float(r[t_col]) for r in src if r.get(t_col, "") != ""]
+                dt_s = None
+                for i in range(1, len(ts)):
+                    d = ts[i] - ts[i - 1]
+                    if d > 0:
+                        dt_s = d
+                        break
+                if dt_s is None or dt_s <= 0:
+                    raise ValueError("Could not infer dt_s from t_col")
+
+                series = [float(r[series_col]) for r in src]
+
+            else:
+                raise ValueError("Unsupported input type for compute_lambdaT")
+
+            if dt_s <= 0:
+                raise ValueError("dt_s must be > 0")
+            if len(series) < 2:
+                raise ValueError("series must have >= 2 samples")
+
+            dTdt = [(series[i] - series[i - 1]) / dt_s for i in range(1, len(series))]
+            max_abs = max(abs(x) for x in dTdt) if dTdt else 0.0
+
+            denom = dT_design / max(tau_res, 1e-12)
+            lam = max_abs / max(denom, 1e-12)
+
+            context["metrics"].update({"max_abs_dTdt": max_abs, "Lambda_T": lam})
         elif stype == "threshold_flags":
             context["flags"].update(threshold_flags(context["metrics"], thresholds))
 
