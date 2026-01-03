@@ -13,6 +13,7 @@ from jsonschema import Draft202012Validator
 from .audit import AuditBundle, env_info, now_utc_iso, sha256_file, write_bundle
 from .lean_symbols import check_lean_symbols_task
 from .authority_validators import validate_authority_profile
+from .coherence_audit import coherence_audit_task
 
 
 BUILTIN_STEP_TYPES = {
@@ -31,6 +32,7 @@ BUILTIN_STEP_TYPES = {
     "disclosure_channel_check",
     "check_lean_symbols",
     "validate_authority_profile",
+    "coherence_audit",
 }
 
 
@@ -543,6 +545,14 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             m, fl = validate_authority_profile(context["input"], sections_key, min_links=min_links, require_review_dates=require_review, require_exception_items=require_exc)
             context["metrics"].update(m)
             context["flags"].update(fl)
+
+        elif stype == "coherence_audit":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("coherence_audit requires ingest_json of a dict")
+            m, fl, outs = coherence_audit_task(context["input"], outdir, thresholds, **params)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
+            context["output_files"].extend(outs)
 
         elif stype == "emit_report":
             report_name = str(params.get("report_name", "report.json"))

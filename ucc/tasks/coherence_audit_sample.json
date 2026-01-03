@@ -1,0 +1,50 @@
+{
+  "coherence_artifact": {
+    "id": "demo-001",
+    "domain": "research",
+    "question": "Does guided scheduling improve coherence compared to unguided in the Helmholtz toy?",
+    "answer": "Guided runs show a positive ΔΨ curve relative to unguided across early steps; see summary_by_step.csv and the UCC comparator output.",
+    "sections": {
+      "assumptions": "Toy system; proxies only; not a physics claim.",
+      "limitations": "Small toy; drift metric is token-based; not semantic truth.",
+      "uncertainty": "Results depend on chosen seeds and step caps.",
+      "disclosure": "Research scaffold; not operational advice. Report issues via repo."
+    },
+
+    "claims": [
+      { "id": "c1", "text": "Guided ΔΨ starts positive and peaks early.", "citations": ["s1"] },
+      { "id": "c2", "text": "The audit bundle binds outputs to commit + hashes.", "citations": ["s2"] }
+    ],
+
+    "sources": [
+      { "id": "s1", "title": "helmholtz summary_by_step.csv", "url": "local:python/experiments/helmholtz_toy/out/summary_by_step.csv" },
+      { "id": "s2", "title": "UCC helmholtz comparator audit_bundle.json", "url": "local:ucc/out/helmholtz_compare_v4/audit_bundle.json" }
+    ],
+
+    "evidence": {
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
+      "artifacts": ["summary_by_step.csv", "audit_bundle.json"]
+    },
+
+    "review_cycle": {
+      "cadence": "quarterly",
+      "owner": "maintainers",
+      "last_review_utc": "2026-01-01T00:00:00Z",
+      "next_review_utc": "2026-04-01T00:00:00Z"
+    },
+
+    "exceptions": {
+      "process": "Document exception, assign acceptor, expiry, and review.",
+      "items": [
+        { "id": "EX-1", "description": "Drift metric is proxy-only", "risk_acceptor": "maintainers", "issued_utc": "2026-01-01T00:00:00Z", "expires_utc": "2026-12-31T00:00:00Z" }
+      ]
+    },
+
+    "reporting_channel": { "primary": "github issues", "escalation": "maintainers" },
+
+    "perturbations": [
+      { "variant_id": "p1", "prompt_variant": "paraphrase-1", "answer": "Guided improves early ΔΨ; peak near t≈23.", "decision_label": "accept" },
+      { "variant_id": "p2", "prompt_variant": "paraphrase-2", "answer": "Guided shows higher ΔΨ early; later converges.", "decision_label": "accept" }
+    ]
+  }
+}
