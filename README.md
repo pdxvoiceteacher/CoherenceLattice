@@ -14,16 +14,10 @@ This repository is a reproducible research + governance scaffold that combines:
 
 <!-- Replace <OWNER>/<REPO> and workflow filenames if needed -->
 **Lean proofs:**  
-![Lean CI](https://github.com/<OWNER>/<REPO>/actions/workflows/lean.yml/badge.svg)
+![Lean CI](https://github.com/<OWNER>/<REPO>/actions/workflows/lean_action_ci.yml/badge.svg)
 
 **Python + UCC + KONOMI:**  
 ![Python/UCC CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)
-
-If you only have one workflow today, you can still keep both badges by splitting workflows later:
-- `lean.yml` → Lean-only
-- `ci.yml` → Python/UCC/KONOMI-only
-
----
 
 ## What’s implemented (high-level)
 
