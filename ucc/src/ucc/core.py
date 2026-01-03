@@ -12,6 +12,7 @@ from jsonschema import Draft202012Validator
 
 from .audit import AuditBundle, env_info, now_utc_iso, sha256_file, write_bundle
 from .lean_symbols import check_lean_symbols_task
+from .authority_validators import validate_authority_profile
 
 
 BUILTIN_STEP_TYPES = {
@@ -29,6 +30,7 @@ BUILTIN_STEP_TYPES = {
     "misuse_taxonomy_check",
     "disclosure_channel_check",
     "check_lean_symbols",
+    "validate_authority_profile",
 }
 
 
@@ -528,6 +530,19 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
         elif stype == "emit_checklist":
             p = emit_checklist(outdir, context["metrics"], str(params.get("checklist_md","checklist.md")), title=str(params.get("title","Checklist")))
             context["output_files"].append(p)
+
+        elif stype == "validate_authority_profile":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("validate_authority_profile requires ingest_json of a dict")
+            sections_key = str(params.get("sections_key", ""))
+            if not sections_key:
+                raise ValueError("validate_authority_profile requires params.sections_key")
+            min_links = int(params.get("min_links", 1))
+            require_review = bool(params.get("require_review_dates", True))
+            require_exc = bool(params.get("require_exception_items", True))
+            m, fl = validate_authority_profile(context["input"], sections_key, min_links=min_links, require_review_dates=require_review, require_exception_items=require_exc)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
 
         elif stype == "emit_report":
             report_name = str(params.get("report_name", "report.json"))
