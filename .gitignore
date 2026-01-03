@@ -53,3 +53,11 @@ python/.venv/
 python/.hypothesis/
 # Python packaging artifacts
 *.egg-info/
+# KONOMI runtime logs
+kontainer/logs/
+
+# Generated experiment outputs
+python/experiments/**/out/
+
+# UCC run outputs
+ucc/out/

@@ -1,0 +1,35 @@
+﻿ucc_version: "0.1"
+module:
+  id: "konomi.api.audit_summary_coverage"
+  version: "0.1.0"
+  title: "KONOMI API Audit Summary Coverage (JSON)"
+  intent: "Verify API audit summary records counts, latency, error rate, and provenance."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+steps:
+  - type: ingest_json
+    id: ingest
+  - type: check_required_sections
+    id: check
+    params:
+      sections_key: "api_audit_summary"
+      required_sections:
+        - "git_commit"
+        - "source_log"
+        - "events"
+        - "by_path"
+        - "by_status"
+        - "p95_latency_ms"
+        - "error_rate"
+        - "unique_callers"
+        - "notes"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"
+  - type: emit_checklist
+    id: checklist
+    params:
+      checklist_md: "api_audit_summary_checklist.md"
+      title: "KONOMI API Audit Summary Coverage Checklist"

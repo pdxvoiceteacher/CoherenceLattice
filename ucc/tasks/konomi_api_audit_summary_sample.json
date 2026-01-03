@@ -1,0 +1,13 @@
+﻿{
+  "api_audit_summary": {
+    "git_commit": "fixture",
+    "source_log": "fixture.jsonl",
+    "events": 3,
+    "by_path": {"/health": 1, "/v0/process": 1, "/v0/cube/send": 1},
+    "by_status": {"200": 3},
+    "p95_latency_ms": 2.0,
+    "error_rate": 0.0,
+    "unique_callers": 1,
+    "notes": "Fixture summary for CI/UCC coverage (does not require running the server)."
+  }
+}

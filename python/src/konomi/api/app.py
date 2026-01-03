@@ -8,12 +8,16 @@ from pydantic import BaseModel
 
 from konomi.femto.model import FemtoModel
 from konomi.api.security import require_api_key, enforce_rate_limit
+from konomi.api.audit import AuditLogger, make_audit_middleware
 from konomi.cube.runtime import CubeRuntime, route_index
 
 
 APP_VERSION = os.getenv("KONOMI_VERSION", "0.1.0-dev")
 
 app = FastAPI(title="KONOMI v0 API (Toy)", version=APP_VERSION)
+
+_audit = AuditLogger()
+app.middleware("http")(make_audit_middleware(_audit))
 
 _model = FemtoModel(dim=16, seed=0)
 _cube: Optional[CubeRuntime] = None
