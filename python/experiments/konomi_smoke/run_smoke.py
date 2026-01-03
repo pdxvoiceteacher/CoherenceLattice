@@ -36,6 +36,7 @@ def read_json(p: Path) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--python", type=str, default="", help="Path to python interpreter (defaults to current)")
     ap.add_argument("--outdir", type=str, default="python/experiments/konomi_smoke/out")
     ap.add_argument("--quick", action="store_true", help="small workloads for CI")
     ap.add_argument("--seed", type=int, default=0)
@@ -46,7 +47,8 @@ def main() -> int:
     outdir = (root / args.outdir).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    py = sys.executable
+    py = args.python.strip() or sys.executable
+    print("Using python:", py)
 
     # component outdirs
     evgpu_out = outdir / "evgpu"
