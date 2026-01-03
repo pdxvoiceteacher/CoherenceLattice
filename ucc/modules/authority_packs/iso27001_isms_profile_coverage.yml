@@ -1,17 +1,16 @@
 ucc_version: "0.1"
 module:
   id: "authority.iso27001.isms_profile_coverage"
-  version: "0.1.0"
+  version: "0.2.0"
   title: "ISO/IEC 27001 ISMS Profile Coverage (Template)"
-  intent: "Coverage checklist for an ISO 27001 ISMS profile artifact + Statement of Applicability (SoA) structure."
+  intent: "Coverage + deep validation (evidence links, review dates, exception expiries) for authority pack artifact."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
   safety:
     scope: "governance"
     disclaimers:
-      - "Checklist/coverage only; not a compliance determination."
-      - "Does not reproduce ISO text; fill control statements using licensed materials."
+      - "Checklist/validation only; not a compliance determination."
 steps:
   - type: ingest_json
     id: ingest
@@ -20,22 +19,29 @@ steps:
     params:
       sections_key: "iso27001_isms"
       required_sections:
-        - "authority"
-        - "version"
-        - "scope"
-        - "context"
-        - "leadership"
-        - "planning"
-        - "support"
-        - "operation"
-        - "performance_evaluation"
-        - "improvement"
-        - "statement_of_applicability"
-        - "annex_a_controls_index"
-        - "evidence"
-        - "review_cycle"
-        - "exceptions"
-        - "reporting_channel"
+        - authority
+        - version
+        - scope
+        - context
+        - leadership
+        - planning
+        - support
+        - operation
+        - performance_evaluation
+        - improvement
+        - statement_of_applicability
+        - annex_a_controls_index
+        - evidence
+        - review_cycle
+        - exceptions
+        - reporting_channel
+  - type: validate_authority_profile
+    id: deep_validate
+    params:
+      sections_key: "iso27001_isms"
+      min_links: 1
+      require_review_dates: true
+      require_exception_items: true
   - type: emit_report
     id: report
     params:
@@ -43,5 +49,5 @@ steps:
   - type: emit_checklist
     id: checklist
     params:
-      checklist_md: "iso27001_isms_profile_checklist.md"
-      title: "ISO/IEC 27001 ISMS Profile Coverage Checklist"
+      checklist_md: "iso27001_isms_checklist.md"
+      title: "ISO/IEC 27001 ISMS Profile Coverage (Template)"

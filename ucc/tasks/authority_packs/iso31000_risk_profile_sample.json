@@ -1,0 +1,18 @@
+{
+  "iso31000_risk_profile": {
+    "authority": "ISO 31000 Risk Management",
+    "version": "2018",
+    "scope": { "organization":"Example Org", "systems":["KONOMI + UCC"], "note":"Template; no ISO text." },
+    "principles": { "note":"principles referenced; fill from licensed sources if needed." },
+    "framework": { "note":"leadership + integration + design + evaluation + improvement" },
+    "process": { "steps":["scope","risk assessment","treatment","monitoring"] },
+    "risk_criteria": { "likelihood_scale":"1-5", "impact_scale":"1-5" },
+    "treatment": { "options":["avoid","mitigate","transfer","accept"] },
+    "evidence": { "artifacts":["risk_register.csv"], "links":["https://www.iso.org/iso-31000-risk-management.html"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"Risk owner", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"risk@org.example", "escalation":"exec sponsor" }
+  }
+}

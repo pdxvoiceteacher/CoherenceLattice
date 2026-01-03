@@ -1,0 +1,17 @@
+{
+  "cobit_profile": {
+    "authority": "COBIT",
+    "version": "2019",
+    "scope": { "organization":"Example Org", "systems":["KONOMI + UCC"], "note":"Template; do not reproduce guidance text." },
+    "governance_objectives": { "sample":["EDM01","EDM03"], "note":"List objective IDs + local control mappings." },
+    "management_objectives": { "sample":["APO01","BAI01","DSS02","MEA01"], "note":"IDs + evidence pointers only." },
+    "roles": { "owners":["IT governance","security"] },
+    "metrics": { "kpis":["coverage","incident rate"] },
+    "evidence": { "artifacts":["policies.md"], "links":["https://www.isaca.org/resources/cobit"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"IT governance", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"it-governance@org.example", "escalation":"exec sponsor" }
+  }
+}

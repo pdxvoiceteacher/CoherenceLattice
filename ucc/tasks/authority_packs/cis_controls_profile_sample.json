@@ -1,0 +1,16 @@
+{
+  "cis_controls_profile": {
+    "authority": "CIS Controls",
+    "version": "v8",
+    "scope": { "organization":"Example Org", "systems":["KONOMI API"], "note":"Template; cite CIS." },
+    "implementation_group": "IG1",
+    "controls_index": { "note":"List control IDs + local mappings; do not paste full text.", "sample":["1","2","3","4","5"] },
+    "coverage_method": { "note":"how controls are tracked (tickets, evidence, audits)" },
+    "evidence": { "artifacts":["inventory.csv","access.md"], "links":["https://www.cisecurity.org/controls"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"Security", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"security@org.example", "escalation":"exec sponsor" }
+  }
+}

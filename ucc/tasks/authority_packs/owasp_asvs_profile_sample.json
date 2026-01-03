@@ -1,0 +1,16 @@
+{
+  "owasp_asvs_profile": {
+    "authority": "OWASP ASVS",
+    "version": "4.x",
+    "scope": { "application":"KONOMI API", "note":"Template; cite OWASP ASVS." },
+    "asvs_level": "L2",
+    "categories_index": { "note":"List category IDs and local verification mapping.", "sample":["V1","V2","V3","V4","V5"] },
+    "verification_process": { "note":"how ASVS checks are verified (tests, reviews, tooling)" },
+    "evidence": { "artifacts":["tests/","ci.yml"], "links":["https://owasp.org/www-project-application-security-verification-standard/"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"AppSec", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"appsec@org.example", "escalation":"exec sponsor" }
+  }
+}

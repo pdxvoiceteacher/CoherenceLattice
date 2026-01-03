@@ -1,0 +1,21 @@
+{
+  "soc2_mapping_profile": {
+    "authority": "SOC 2 Trust Services Criteria mapping",
+    "version": "TSC categories (AICPA)",
+    "scope": { "organization":"Example Org", "systems":["KONOMI API"], "note":"Template; do not reproduce AICPA criteria text." },
+    "tsc_categories": ["Security","Availability","Processing Integrity","Confidentiality","Privacy"],
+    "control_mapping": {
+      "note":"Map local controls to TSC categories using your licensed criteria text.",
+      "sample": [
+        {"category":"Security","controls":["auth","rate_limit","audit_logs"],"evidence":["audit_summary.json"]},
+        {"category":"Availability","controls":["health_check","restart_policy"],"evidence":["kontainer/deployment.yaml"]}
+      ]
+    },
+    "evidence": { "artifacts":["audit bundles","deployment checklist"], "links":["https://www.aicpa.org/"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"Compliance", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"compliance@org.example", "escalation":"exec sponsor" }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "nist_ai_rmf_profile": {
+    "authority": "NIST AI RMF",
+    "version": "1.0",
+    "scope": { "organization":"Example Org", "systems":["KONOMI API"], "note":"Template fixture" },
+    "govern": { "roles":["AIMS owner","risk officer"], "policies":["disclosure","monitoring"] },
+    "map": { "context":"intended use + stakeholders", "system_inventory":["KONOMI"] },
+    "measure": { "evaluation":"test coverage + audit logs", "monitoring":"misuse taxonomy" },
+    "manage": { "controls":["auth","rate limit"], "incident_response":["revoke keys"] },
+    "evidence": { "artifacts":["model registry"], "links":["https://www.nist.gov/itl/ai-risk-management-framework"] },
+    "review_cycle": { "cadence":"quarterly", "owner":"AIMS owner", "last_review_utc":"2026-01-01T00:00:00Z", "next_review_utc":"2026-04-01T00:00:00Z" },
+    "exceptions": { "process":"risk acceptor sign-off + expiry",
+      "items":[{"id":"EX-1","description":"Example exception","risk_acceptor":"Exec Sponsor","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]
+    },
+    "reporting_channel": { "primary":"ai-risk@org.example", "escalation":"exec sponsor" }
+  }
+}

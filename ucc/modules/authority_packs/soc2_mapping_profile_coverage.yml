@@ -1,8 +1,8 @@
 ucc_version: "0.1"
 module:
-  id: "authority.iso42001.aims_profile_coverage"
+  id: "authority.soc2.mapping_profile_coverage"
   version: "0.2.0"
-  title: "ISO/IEC 42001 AIMS Profile Coverage (Template)"
+  title: "SOC 2 Mapping Profile Coverage (Template)"
   intent: "Coverage + deep validation (evidence links, review dates, exception expiries) for authority pack artifact."
   authors:
     - name: "Thomas Prislac"
@@ -17,26 +17,13 @@ steps:
   - type: check_required_sections
     id: check
     params:
-      sections_key: "iso42001_aims"
+      sections_key: "soc2_mapping_profile"
       required_sections:
         - authority
         - version
         - scope
-        - context
-        - leadership
-        - planning
-        - support
-        - operation
-        - performance_evaluation
-        - improvement
-        - ai_system_inventory
-        - risk_management
-        - data_governance
-        - monitoring
-        - incident_response
-        - human_oversight
-        - transparency
-        - supplier_management
+        - tsc_categories
+        - control_mapping
         - evidence
         - review_cycle
         - exceptions
@@ -44,7 +31,7 @@ steps:
   - type: validate_authority_profile
     id: deep_validate
     params:
-      sections_key: "iso42001_aims"
+      sections_key: "soc2_mapping_profile"
       min_links: 1
       require_review_dates: true
       require_exception_items: true
@@ -55,5 +42,5 @@ steps:
   - type: emit_checklist
     id: checklist
     params:
-      checklist_md: "iso42001_aims_checklist.md"
-      title: "ISO/IEC 42001 AIMS Profile Coverage (Template)"
+      checklist_md: "soc2_mapping_profile_checklist.md"
+      title: "SOC 2 Mapping Profile Coverage (Template)"

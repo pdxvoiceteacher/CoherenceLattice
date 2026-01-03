@@ -2,24 +2,21 @@
   "nist_csf_profile": {
     "authority": "NIST Cybersecurity Framework",
     "version": "2.0",
-    "scope": {
-      "organization": "Example Org",
-      "system_boundary": "KONOMI demo API + UCC pipelines",
-      "assets": ["API service", "audit logs", "UCC modules"],
-      "assumptions": ["Coverage template only; replace with real profile for adoption."]
+    "scope": { "organization": "Example Org", "system_boundary": "KONOMI + UCC", "notes": "Template fixture" },
+    "govern": {"owner":"GRC","categories":["policy","roles","risk_strategy"]},
+    "identify": {"owner":"Ops","categories":["asset_inventory","risk_assessment"]},
+    "protect": {"owner":"Eng","categories":["access_control","data_security"]},
+    "detect": {"owner":"Ops","categories":["monitoring","anomalies"]},
+    "respond": {"owner":"IR","categories":["response_planning","communications"]},
+    "recover": {"owner":"Ops","categories":["recovery_planning","improvements"]},
+    "evidence": { "artifacts": ["policies.md"], "links": ["https://www.nist.gov/cyberframework"] },
+    "review_cycle": { "cadence": "quarterly", "owner": "GRC", "last_review_utc": "2026-01-01T00:00:00Z", "next_review_utc": "2026-04-01T00:00:00Z" },
+    "exceptions": {
+      "process": "risk acceptor sign-off + expiry",
+      "items": [
+        { "id":"EX-1", "description":"Example exception", "risk_acceptor":"CISO", "issued_utc":"2026-01-01T00:00:00Z", "expires_utc":"2026-12-31T00:00:00Z" }
+      ]
     },
-    "govern": { "owner": "Security lead", "categories": ["policy", "roles", "risk_strategy", "oversight"] },
-    "identify": { "owner": "Ops", "categories": ["asset_inventory", "business_context", "risk_assessment"] },
-    "protect": { "owner": "Eng", "categories": ["access_control", "training", "data_security", "protective_tech"] },
-    "detect": { "owner": "Eng/Ops", "categories": ["monitoring", "anomalies"] },
-    "respond": { "owner": "IR", "categories": ["response_planning", "communications", "analysis", "mitigation"] },
-    "recover": { "owner": "Ops", "categories": ["recovery_planning", "improvements"] },
-    "evidence": {
-      "artifacts": ["policies.md", "runbooks.md", "audit_bundle.json samples"],
-      "links": ["https://www.nist.gov/cyberframework"]
-    },
-    "review_cycle": { "cadence": "quarterly", "owner": "GRC", "trigger_events": ["major change", "incident"] },
-    "exceptions": { "process": "document exception, risk acceptor sign-off, expiry date", "registry": "exceptions.csv" },
-    "reporting_channel": { "primary": "security@org.example", "escalation": "CISO/Board", "incident_hotline": "pager/oncall" }
+    "reporting_channel": { "primary":"security@org.example", "escalation":"exec sponsor" }
   }
 }

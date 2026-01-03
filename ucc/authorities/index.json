@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.1",
+  "notes": "Authority registry index (structural templates + UCC coverage). Not a compliance certification.",
+  "authorities": [
+    {
+      "id": "nist-csf-2.0",
+      "name": "NIST Cybersecurity Framework",
+      "version": "2.0",
+      "license_note": "US Government publication; cite NIST.",
+      "module": "ucc/modules/authority_packs/nist_csf_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/nist_csf_profile_sample.json"
+    },
+    {
+      "id": "nist-ai-rmf-1.0",
+      "name": "NIST AI Risk Management Framework",
+      "version": "1.0",
+      "license_note": "US Government publication; cite NIST.",
+      "module": "ucc/modules/authority_packs/nist_ai_rmf_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/nist_ai_rmf_profile_sample.json"
+    },
+    {
+      "id": "iso27001-2022",
+      "name": "ISO/IEC 27001 + 27002",
+      "version": "27001:2022 / 27002:2022",
+      "license_note": "Do not paste ISO text; store IDs + local mappings only.",
+      "module": "ucc/modules/authority_packs/iso27001_isms_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/iso27001_isms_profile_sample.json"
+    },
+    {
+      "id": "iso42001-2023",
+      "name": "ISO/IEC 42001",
+      "version": "42001:2023",
+      "license_note": "Do not paste ISO text; store clause/control IDs + local mappings only.",
+      "module": "ucc/modules/authority_packs/iso42001_aims_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/iso42001_aims_profile_sample.json"
+    },
+    {
+      "id": "iso31000-2018",
+      "name": "ISO 31000 Risk Management",
+      "version": "2018",
+      "license_note": "Do not paste ISO text; store structure + local mappings only.",
+      "module": "ucc/modules/authority_packs/iso31000_risk_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/iso31000_risk_profile_sample.json"
+    },
+    {
+      "id": "cobit-2019",
+      "name": "COBIT (governance/management objectives)",
+      "version": "2019",
+      "license_note": "Template only; do not reproduce copyrighted guidance text.",
+      "module": "ucc/modules/authority_packs/cobit_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/cobit_profile_sample.json"
+    },
+    {
+      "id": "cis-controls-v8",
+      "name": "CIS Controls",
+      "version": "v8",
+      "license_note": "Template only; cite CIS.",
+      "module": "ucc/modules/authority_packs/cis_controls_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/cis_controls_profile_sample.json"
+    },
+    {
+      "id": "owasp-asvs-4.x",
+      "name": "OWASP ASVS",
+      "version": "4.x",
+      "license_note": "Template only; cite OWASP ASVS.",
+      "module": "ucc/modules/authority_packs/owasp_asvs_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/owasp_asvs_profile_sample.json"
+    },
+    {
+      "id": "soc2-tsc",
+      "name": "SOC 2 Trust Services Criteria mapping",
+      "version": "TSC categories (AICPA)",
+      "license_note": "Template only; do not reproduce AICPA criteria text.",
+      "module": "ucc/modules/authority_packs/soc2_mapping_profile_coverage.yml",
+      "sample_task": "ucc/tasks/authority_packs/soc2_mapping_profile_sample.json"
+    }
+  ]
+}

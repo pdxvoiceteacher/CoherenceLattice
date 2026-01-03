@@ -1,16 +1,16 @@
 ucc_version: "0.1"
 module:
   id: "authority.nist_csf.profile_coverage"
-  version: "0.1.0"
+  version: "0.2.0"
   title: "NIST CSF Profile Coverage (Template)"
-  intent: "Coverage checklist for a NIST CSF profile artifact (functions, scope, evidence, review cycle)."
+  intent: "Coverage + deep validation (evidence links, review dates, exception expiries) for authority pack artifact."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
   safety:
     scope: "governance"
     disclaimers:
-      - "Checklist/coverage only; not a compliance determination."
+      - "Checklist/validation only; not a compliance determination."
 steps:
   - type: ingest_json
     id: ingest
@@ -19,19 +19,26 @@ steps:
     params:
       sections_key: "nist_csf_profile"
       required_sections:
-        - "authority"
-        - "version"
-        - "scope"
-        - "govern"
-        - "identify"
-        - "protect"
-        - "detect"
-        - "respond"
-        - "recover"
-        - "evidence"
-        - "review_cycle"
-        - "exceptions"
-        - "reporting_channel"
+        - authority
+        - version
+        - scope
+        - govern
+        - identify
+        - protect
+        - detect
+        - respond
+        - recover
+        - evidence
+        - review_cycle
+        - exceptions
+        - reporting_channel
+  - type: validate_authority_profile
+    id: deep_validate
+    params:
+      sections_key: "nist_csf_profile"
+      min_links: 1
+      require_review_dates: true
+      require_exception_items: true
   - type: emit_report
     id: report
     params:
@@ -40,4 +47,4 @@ steps:
     id: checklist
     params:
       checklist_md: "nist_csf_profile_checklist.md"
-      title: "NIST CSF Profile Coverage Checklist"
+      title: "NIST CSF Profile Coverage (Template)"
