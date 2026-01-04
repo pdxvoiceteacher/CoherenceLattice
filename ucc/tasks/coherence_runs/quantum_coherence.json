@@ -24,6 +24,13 @@
         ],
         "id": "q3",
         "text": "Thermal/Gibbs normalization is anchored by Lean thermal file and the UCC coverage report."
+      },
+      {
+        "citations": [
+          "q_audit"
+        ],
+        "id": "q7",
+        "text": "From audit_bundle.json: environment.git_commit ~ /^[0-9a-f]{40}$/i; module.sha256 ~ /^[0-9a-f]{64}$/i; input.sha256 ~ /^[0-9a-f]{64}$/i."
       }
     ],
     "domain": "research",
@@ -37,9 +44,9 @@
       "items": [
         {
           "description": "Coherence metrics are proxies; not a truth guarantee.",
-          "expires_utc": "2027-01-04T05:31:25Z",
+          "expires_utc": "2027-01-04T06:47:33Z",
           "id": "EX-1",
-          "issued_utc": "2026-01-04T05:31:25Z",
+          "issued_utc": "2026-01-04T06:47:33Z",
           "risk_acceptor": "maintainers"
         }
       ],
@@ -53,8 +60,8 @@
     },
     "review_cycle": {
       "cadence": "quarterly",
-      "last_review_utc": "2026-01-04T05:31:25Z",
-      "next_review_utc": "2026-04-04T05:31:25Z",
+      "last_review_utc": "2026-01-04T06:47:33Z",
+      "next_review_utc": "2026-04-04T06:47:33Z",
       "owner": "maintainers"
     },
     "sections": {

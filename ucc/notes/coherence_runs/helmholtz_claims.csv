@@ -5,3 +5,4 @@ h3,"delta_curve.csv contains the per-step ΔΨ(guided − unguided) sequence tha
 h4,"audit_bundle.json binds the run to a git_commit and includes sha256 hashes for module + inputs/outputs (provenance).",h_audit
 h5,"The module YAML and sample task define the comparator configuration and are part of the reproducibility chain.",h_mod;h_task
 h6,"From comparison.json: auc_deltaPsi > 0; deltaPsi_peak > 0; deltaPsi_start > 0.",h_cmp_json
+h7,"From audit_bundle.json: environment.git_commit ~ /^[0-9a-f]{40}$/i; module.sha256 ~ /^[0-9a-f]{64}$/i; input.sha256 ~ /^[0-9a-f]{64}$/i.",h_audit

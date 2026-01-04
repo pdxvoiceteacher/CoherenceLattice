@@ -46,6 +46,13 @@
         ],
         "id": "c6",
         "text": "From comparison.json: auc_deltaPsi > 0; deltaPsi_peak > 0; deltaPsi_start > 0."
+      },
+      {
+        "citations": [
+          "h_audit"
+        ],
+        "id": "c7",
+        "text": "From audit_bundle.json: environment.git_commit ~ /^[0-9a-f]{40}$/i; module.sha256 ~ /^[0-9a-f]{64}$/i; input.sha256 ~ /^[0-9a-f]{64}$/i."
       }
     ],
     "domain": "research",
@@ -59,9 +66,9 @@
       "items": [
         {
           "description": "Coherence metrics are proxies; not a truth guarantee.",
-          "expires_utc": "2027-01-04T05:31:25Z",
+          "expires_utc": "2027-01-04T06:47:32Z",
           "id": "EX-1",
-          "issued_utc": "2026-01-04T05:31:25Z",
+          "issued_utc": "2026-01-04T06:47:32Z",
           "risk_acceptor": "maintainers"
         }
       ],
@@ -75,8 +82,8 @@
     },
     "review_cycle": {
       "cadence": "quarterly",
-      "last_review_utc": "2026-01-04T05:31:25Z",
-      "next_review_utc": "2026-04-04T05:31:25Z",
+      "last_review_utc": "2026-01-04T06:47:32Z",
+      "next_review_utc": "2026-04-04T06:47:32Z",
       "owner": "maintainers"
     },
     "sections": {
