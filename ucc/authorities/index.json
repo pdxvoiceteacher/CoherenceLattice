@@ -122,6 +122,17 @@
                             "module":  "ucc/modules/authority_nist_sp800_53r5_profile_coverage.yml",
                             "publisher":  "NIST",
                             "path":  "ucc/authorities/nist_sp800_53r5/pack.json"
+                        },
+                        {
+                            "url":  "https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final",
+                            "id":  "nist.sp800_171",
+                            "license_note":  "Requirement IDs only; no NIST text embedded",
+                            "version":  "unspecified",
+                            "sample_task":  "ucc/tasks/authority_packs/nist_sp800_171_profile_task.json",
+                            "name":  "NIST SP 800-171 (Protecting CUI)",
+                            "module":  "ucc/modules/authority_nist_sp800_171_profile_coverage.yml",
+                            "publisher":  "NIST",
+                            "path":  "ucc/authorities/nist_sp800_171/pack.json"
                         }
                     ],
     "packs":  [
@@ -245,6 +256,17 @@
                       "module":  "ucc/modules/authority_nist_sp800_53r5_profile_coverage.yml",
                       "publisher":  "NIST",
                       "path":  "ucc/authorities/nist_sp800_53r5/pack.json"
+                  },
+                  {
+                      "url":  "https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final",
+                      "id":  "nist.sp800_171",
+                      "license_note":  "Requirement IDs only; no NIST text embedded",
+                      "version":  "unspecified",
+                      "sample_task":  "ucc/tasks/authority_packs/nist_sp800_171_profile_task.json",
+                      "name":  "NIST SP 800-171 (Protecting CUI)",
+                      "module":  "ucc/modules/authority_nist_sp800_171_profile_coverage.yml",
+                      "publisher":  "NIST",
+                      "path":  "ucc/authorities/nist_sp800_171/pack.json"
                   }
               ]
 }

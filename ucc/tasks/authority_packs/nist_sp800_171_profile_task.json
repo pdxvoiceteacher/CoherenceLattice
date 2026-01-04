@@ -1,0 +1,46 @@
+{
+  "authority_profile": {
+    "authority": {
+      "id": "nist.sp800_171",
+      "name": "NIST SP 800-171 (Protecting CUI)",
+      "publisher": "NIST",
+      "version": "unspecified",
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final"
+    },
+    "profile": {
+      "org": "UVLM",
+      "system": "CoherenceLattice",
+      "scope": "CUI protection template (IDs only)",
+      "jurisdiction": "global"
+    },
+    "controls": {
+      "selected_ids": ["3.1.1","3.1.2","3.3.1","3.4.1","3.5.1","3.6.1","3.12.1","3.13.1","3.14.1"],
+      "notes": "Sample requirement IDs only; expand via PR."
+    },
+    "evidence": {
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
+      "artifacts": [{"kind": "ci", "path": ".github/workflows/ci.yml"}]
+    },
+    "review_cycle": {
+      "owner": "maintainers",
+      "last_review_utc": "2026-01-01T00:00:00Z",
+      "next_review_utc": "2026-04-01T00:00:00Z"
+    },
+    "exceptions": {
+      "process": "Issues + PR review.",
+      "items": [
+        {
+          "id": "EX-800171-001",
+          "description": "IDs only; no NIST text embedded.",
+          "risk_acceptor": "maintainers",
+          "issued_utc": "2026-01-01T00:00:00Z",
+          "expires_utc": "2026-12-31T00:00:00Z"
+        }
+      ]
+    },
+    "reporting_channel": {
+      "primary": "github issues",
+      "escalation": "maintainers"
+    }
+  }
+}

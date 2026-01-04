@@ -1,0 +1,32 @@
+ucc_version: "0.1"
+module:
+  id: "authority.nist_sp800_171.profile_coverage"
+  version: "0.1.0"
+  title: "NIST SP 800-171 Profile Coverage (Requirement IDs Only)"
+  intent: "Validate a NIST SP 800-171 profile artifact for governance fields, evidence links, review cycle, and exception expiries (requirement IDs only)."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  safety:
+    scope: "governance"
+    disclaimers:
+      - "IDs-only validation; not compliance advice."
+steps:
+  - type: ingest_json
+    id: ingest
+  - type: validate_authority_profile
+    id: validate
+    params:
+      sections_key: "authority_profile"
+      min_links: 1
+      require_review_dates: true
+      require_exception_items: true
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"
+  - type: emit_checklist
+    id: checklist
+    params:
+      checklist_md: "authority_profile_checklist.md"
+      title: "NIST SP 800-171 Profile Coverage Checklist"

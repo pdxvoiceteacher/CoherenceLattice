@@ -1,0 +1,50 @@
+{
+  "pack_id": "nist.sp800_171",
+  "authority": {
+    "id": "nist.sp800_171",
+    "name": "NIST SP 800-171 (Protecting CUI)",
+    "publisher": "NIST",
+    "version": "unspecified",
+    "url": "https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final"
+  },
+  "control_namespace": {
+    "kind": "requirement_ids_only",
+    "ids": [
+      "3.1.1","3.1.2","3.1.3",
+      "3.3.1","3.3.2",
+      "3.4.1",
+      "3.5.1",
+      "3.6.1",
+      "3.7.1",
+      "3.8.1",
+      "3.9.1",
+      "3.10.1",
+      "3.11.1",
+      "3.12.1",
+      "3.13.1",
+      "3.14.1"
+    ],
+    "note": "Sample requirement IDs only. Expand via PR; no NIST text embedded."
+  },
+  "families": {
+    "3.1": "Access Control",
+    "3.2": "Awareness and Training",
+    "3.3": "Audit and Accountability",
+    "3.4": "Configuration Management",
+    "3.5": "Identification and Authentication",
+    "3.6": "Incident Response",
+    "3.7": "Maintenance",
+    "3.8": "Media Protection",
+    "3.9": "Personnel Security",
+    "3.10": "Physical Protection",
+    "3.11": "Risk Assessment",
+    "3.12": "Security Assessment",
+    "3.13": "System and Communications Protection",
+    "3.14": "System and Information Integrity"
+  },
+  "governance_defaults": {
+    "min_evidence_links": 1,
+    "require_review_cycle": true,
+    "require_exceptions": true
+  }
+}

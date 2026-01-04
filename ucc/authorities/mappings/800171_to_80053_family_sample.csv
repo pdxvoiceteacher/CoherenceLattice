@@ -1,0 +1,4 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link
+nist.sp800_171,3.1.1,nist.sp800_53r5,AC,"Access Control requirement maps to AC family (placeholder)",local:NA
+nist.sp800_171,3.3.1,nist.sp800_53r5,AU,"Audit requirement maps to AU family (placeholder)",local:NA
+nist.sp800_171,3.6.1,nist.sp800_53r5,IR,"Incident response requirement maps to IR family (placeholder)",local:NA
