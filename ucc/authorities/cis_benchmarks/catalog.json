@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "note": "IDs only; no CIS benchmark text redistributed. This is a lightweight catalog to drive UCC templates.",
+  "families": [
+    { "os": "windows_server", "ids": ["WIN-SRV-2019", "WIN-SRV-2022"] },
+    { "os": "windows_client", "ids": ["WIN10", "WIN11"] },
+    { "os": "ubuntu", "ids": ["UBU-20.04", "UBU-22.04"] },
+    { "os": "rhel", "ids": ["RHEL-8", "RHEL-9"] },
+    { "os": "macos", "ids": ["MACOS-13", "MACOS-14"] },
+    { "os": "kubernetes", "ids": ["K8S-1.27", "K8S-1.28"] },
+    { "os": "docker", "ids": ["DOCKER-24"] },
+    { "os": "cloud_providers", "ids": ["AWS", "AZURE", "GCP"] }
+  ]
+}

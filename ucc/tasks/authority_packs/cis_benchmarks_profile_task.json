@@ -10,16 +10,16 @@
     "profile": {
       "org": "UVLM",
       "system": "CoherenceLattice",
-      "scope": "Baseline hardening templates (expanded OS IDs)",
+      "scope": "Baseline hardening templates (OS-expanded IDs)",
       "jurisdiction": "global"
     },
     "controls": {
-      "selected_ids": ["WIN11","WIN2022","UBU22","RHEL9","K8S","AWS","AZURE"],
-      "notes": "Benchmark IDs only; expand via PR."
+      "selected_ids": ["WIN-SRV-2022","UBU-22.04","RHEL-9","MACOS-14","K8S-1.28","DOCKER-24","AWS","AZURE","GCP"],
+      "notes": "Benchmark IDs only; expand per OS/version via PR."
     },
     "evidence": {
       "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
-      "artifacts": [{"kind": "ci", "path": ".github/workflows/ci.yml"}]
+      "artifacts": [{ "kind": "ci", "path": ".github/workflows/ci.yml" }]
     },
     "review_cycle": {
       "owner": "maintainers",

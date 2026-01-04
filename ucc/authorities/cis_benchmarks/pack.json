@@ -9,8 +9,14 @@
   },
   "control_namespace": {
     "kind": "benchmark_ids_only",
-    "ids": ["WIN10","WIN11","WIN2022","UBU20","UBU22","DEBIAN12","RHEL8","RHEL9","AMZN2","MACOS14","K8S","DOCKER","AWS","AZURE","GCP"],
-    "note": "Benchmark IDs only (illustrative). No benchmark text redistributed."
+    "ids": [
+      "WIN-SRV-2019","WIN-SRV-2022","WIN10","WIN11",
+      "UBU-20.04","UBU-22.04","RHEL-8","RHEL-9",
+      "MACOS-13","MACOS-14","K8S-1.27","K8S-1.28",
+      "DOCKER-24","AWS","AZURE","GCP"
+    ],
+    "note": "Benchmark IDs only. No benchmark text redistributed.",
+    "catalog_path": "ucc/authorities/cis_benchmarks/catalog.json"
   },
   "governance_defaults": {
     "min_evidence_links": 1,
