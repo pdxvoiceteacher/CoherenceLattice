@@ -1,0 +1,5 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link
+nist.sp800_218,PO.1,owasp.samm.2,GOV,"Org preparation aligns with governance maturity (placeholder)",local:NA
+nist.sp800_218,PS.2,owasp.samm.2,OPS,"Protect software aligns with ops hardening (placeholder)",local:NA
+nist.sp800_218,PW.4,owasp.samm.2,IMP,"Secure build practices align with implementation maturity (placeholder)",local:NA
+nist.sp800_218,RV.1,owasp.samm.2,OPS,"Vulnerability response aligns with ops incident mgmt (placeholder)",local:NA

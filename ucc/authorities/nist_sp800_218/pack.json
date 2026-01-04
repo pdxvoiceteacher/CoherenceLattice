@@ -1,0 +1,31 @@
+{
+  "pack_id": "nist.sp800_218",
+  "authority": {
+    "id": "nist.sp800_218",
+    "name": "NIST SP 800-218 (SSDF)",
+    "publisher": "NIST",
+    "version": "1.1",
+    "url": "https://csrc.nist.gov/publications/detail/sp/800-218/final"
+  },
+  "control_namespace": {
+    "kind": "practice_ids_only",
+    "ids": [
+      "PO.1","PO.2","PO.3",
+      "PS.1","PS.2","PS.3",
+      "PW.1","PW.2","PW.3","PW.4","PW.5","PW.6","PW.7","PW.8",
+      "RV.1","RV.2","RV.3"
+    ],
+    "note": "Practice IDs only (illustrative). No NIST SSDF text embedded."
+  },
+  "groups": {
+    "PO": "Prepare the Organization",
+    "PS": "Protect the Software",
+    "PW": "Produce Well-Secured Software",
+    "RV": "Respond to Vulnerabilities"
+  },
+  "governance_defaults": {
+    "min_evidence_links": 1,
+    "require_review_cycle": true,
+    "require_exceptions": true
+  }
+}

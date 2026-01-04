@@ -1,0 +1,4 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link
+nist.sp800_218,PO.1,nist.ai_rmf,GOV,"Org governance for secure dev aligns with AI governance (placeholder)",local:NA
+nist.sp800_218,PW.6,nist.ai_rmf,MEASURE,"Verification/testing practices support measurement/evaluation (placeholder)",local:NA
+nist.sp800_218,RV.2,nist.ai_rmf,MANAGE,"Vuln response supports ongoing risk management (placeholder)",local:NA

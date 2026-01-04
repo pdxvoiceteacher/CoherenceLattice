@@ -1,0 +1,46 @@
+{
+  "authority_profile": {
+    "authority": {
+      "id": "nist.sp800_218",
+      "name": "NIST SP 800-218 (SSDF)",
+      "publisher": "NIST",
+      "version": "1.1",
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-218/final"
+    },
+    "profile": {
+      "org": "UVLM",
+      "system": "CoherenceLattice",
+      "scope": "SSDF practice coverage template (IDs only)",
+      "jurisdiction": "global"
+    },
+    "controls": {
+      "selected_ids": ["PO.1","PS.2","PW.4","PW.6","RV.1","RV.2"],
+      "notes": "Practice IDs only; expand via PR."
+    },
+    "evidence": {
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
+      "artifacts": [{"kind": "ci", "path": ".github/workflows/ci.yml"}]
+    },
+    "review_cycle": {
+      "owner": "maintainers",
+      "last_review_utc": "2026-01-01T00:00:00Z",
+      "next_review_utc": "2026-04-01T00:00:00Z"
+    },
+    "exceptions": {
+      "process": "Issues + PR review.",
+      "items": [
+        {
+          "id": "EX-SSDF-001",
+          "description": "IDs only; no SSDF text embedded.",
+          "risk_acceptor": "maintainers",
+          "issued_utc": "2026-01-01T00:00:00Z",
+          "expires_utc": "2026-12-31T00:00:00Z"
+        }
+      ]
+    },
+    "reporting_channel": {
+      "primary": "github issues",
+      "escalation": "maintainers"
+    }
+  }
+}

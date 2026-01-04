@@ -133,6 +133,17 @@
                             "module":  "ucc/modules/authority_nist_sp800_171_profile_coverage.yml",
                             "publisher":  "NIST",
                             "path":  "ucc/authorities/nist_sp800_171/pack.json"
+                        },
+                        {
+                            "url":  "https://csrc.nist.gov/publications/detail/sp/800-218/final",
+                            "id":  "nist.sp800_218",
+                            "license_note":  "Practice IDs only; no SSDF text embedded",
+                            "version":  "1.1",
+                            "sample_task":  "ucc/tasks/authority_packs/nist_sp800_218_ssdf_profile_task.json",
+                            "name":  "NIST SP 800-218 (SSDF)",
+                            "module":  "ucc/modules/authority_nist_sp800_218_ssdf_profile_coverage.yml",
+                            "publisher":  "NIST",
+                            "path":  "ucc/authorities/nist_sp800_218/pack.json"
                         }
                     ],
     "packs":  [
@@ -267,6 +278,17 @@
                       "module":  "ucc/modules/authority_nist_sp800_171_profile_coverage.yml",
                       "publisher":  "NIST",
                       "path":  "ucc/authorities/nist_sp800_171/pack.json"
+                  },
+                  {
+                      "url":  "https://csrc.nist.gov/publications/detail/sp/800-218/final",
+                      "id":  "nist.sp800_218",
+                      "license_note":  "Practice IDs only; no SSDF text embedded",
+                      "version":  "1.1",
+                      "sample_task":  "ucc/tasks/authority_packs/nist_sp800_218_ssdf_profile_task.json",
+                      "name":  "NIST SP 800-218 (SSDF)",
+                      "module":  "ucc/modules/authority_nist_sp800_218_ssdf_profile_coverage.yml",
+                      "publisher":  "NIST",
+                      "path":  "ucc/authorities/nist_sp800_218/pack.json"
                   }
               ]
 }
