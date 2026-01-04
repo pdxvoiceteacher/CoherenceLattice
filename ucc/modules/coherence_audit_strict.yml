@@ -1,0 +1,57 @@
+ucc_version: "0.1"
+module:
+  id: "coherence.audit.strict.v0"
+  version: "0.1.0"
+  title: "Coherence Audit STRICT (E/T/Ψ/ΔS/Λ/Eₛ)"
+  intent: "Stricter coherence audit requiring perturbations for ΔS/Λ; used for peer review readiness (not CI by default)."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  safety:
+    scope: "research"
+    disclaimers:
+      - "STRICT mode enforces perturbation-based stability checks; still a proxy, not truth."
+  thresholds:
+    evidence_min: 0.9
+    traceability_min: 0.9
+    psi_min: 0.81
+    deltaS_max: 0.75
+    lambda_flip_max: 0.1
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: coherence_audit
+    id: audit
+    params:
+      sections_key: "coherence_artifact"
+      required_sections: ["assumptions", "limitations", "uncertainty", "disclosure"]
+      min_citations_per_claim: 1
+      min_evidence_links: 1
+      compute_drift: true
+      compute_lambda: true
+      drift_base_path: "sections.summary"
+      min_perturbations: 2
+      require_drift: true
+      require_lambda: true
+      write_audit_json: true
+      write_audit_md: true
+      write_claims_csv: true
+
+  - type: verify_json_assertions
+    id: json_assert
+    params:
+      sections_key: "coherence_artifact"
+      abs_tol: 0.001
+      rel_tol: 0.001
+      require_any: true
+      fail_on_unresolved: true
+      name_json: "json_assertions.json"
+      name_md: "json_assertions.md"
+
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"

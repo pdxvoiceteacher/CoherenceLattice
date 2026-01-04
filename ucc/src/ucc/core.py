@@ -14,6 +14,7 @@ from .audit import AuditBundle, env_info, now_utc_iso, sha256_file, write_bundle
 from .lean_symbols import check_lean_symbols_task
 from .authority_validators import validate_authority_profile
 from .coherence_audit import coherence_audit_task
+from .json_assertions import verify_json_assertions_task
 
 
 BUILTIN_STEP_TYPES = {
@@ -33,6 +34,7 @@ BUILTIN_STEP_TYPES = {
     "check_lean_symbols",
     "validate_authority_profile",
     "coherence_audit",
+    "verify_json_assertions",
 }
 
 
@@ -550,6 +552,14 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             if context["input"] is None or not isinstance(context["input"], dict):
                 raise ValueError("coherence_audit requires ingest_json of a dict")
             m, fl, outs = coherence_audit_task(context["input"], outdir, thresholds, **params)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
+            context["output_files"].extend(outs)
+
+        elif stype == "verify_json_assertions":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("verify_json_assertions requires ingest_json of a dict")
+            m, fl, outs = verify_json_assertions_task(context["input"], outdir, thresholds, **params)
             context["metrics"].update(m)
             context["flags"].update(fl)
             context["output_files"].extend(outs)
