@@ -34,3 +34,14 @@ From repo root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File ucc\notes\coherence_runs\MakeCoherenceRuns.ps1
+
+### Strict mode (peer-review readiness)
+
+Strict mode uses:
+- `ucc/modules/coherence_audit_strict.yml`
+- perturbations JSON files for ΔS/Λ
+
+Run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ucc\notes\coherence_runs\MakeCoherenceRuns.ps1 -PythonExe .\python\.venv\Scripts\python.exe -Strict
