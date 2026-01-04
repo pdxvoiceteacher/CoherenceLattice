@@ -1,0 +1,101 @@
+{
+  "coherence_artifact": {
+    "answer": "# Summary\nThis coherence run audits the repo artifacts for the orthodox qubit anchor: Lean sources plus UCC coverage outputs.\n\n# Assumptions\nOrthodox qubit anchor; no new physics claims. Audit is structural/traceability proxy.\n\n# Limitations\nCoherence audit does not execute Lean; it audits references and UCC outputs.\n\n# Uncertainty\nRerun if Lean files or coverage module changes.\n\n# Disclosure\nResearch scaffold only. Report issues via GitHub.\n\n# Results\nQuantum anchor coverage emits a report and audit bundle proving required theorem anchors are tracked.",
+    "claims": [
+      {
+        "citations": [
+          "q_report",
+          "q_audit"
+        ],
+        "id": "q1",
+        "text": "Quantum anchor coverage reports required sections present (coverage checklist/report)."
+      },
+      {
+        "citations": [
+          "q_pauli"
+        ],
+        "id": "q2",
+        "text": "Lean Pauli file anchors commutator and \u03c3x eigenstate lemmas."
+      },
+      {
+        "citations": [
+          "q_thermal",
+          "q_report"
+        ],
+        "id": "q3",
+        "text": "Thermal/Gibbs normalization is anchored by Lean thermal file and the UCC coverage report."
+      }
+    ],
+    "domain": "research",
+    "evidence": {
+      "artifacts": [],
+      "links": [
+        "https://github.com/pdxvoiceteacher/CoherenceLattice"
+      ]
+    },
+    "exceptions": {
+      "items": [
+        {
+          "description": "Coherence metrics are proxies; not a truth guarantee.",
+          "expires_utc": "2027-01-04T01:11:42Z",
+          "id": "EX-1",
+          "issued_utc": "2026-01-04T01:11:42Z",
+          "risk_acceptor": "maintainers"
+        }
+      ],
+      "process": "Document exception, assign acceptor, set expiry, review on cadence."
+    },
+    "id": "quantum-001",
+    "question": "Audit quantum anchor artifacts (Lean sources + UCC coverage outputs) for coherence and traceability.",
+    "reporting_channel": {
+      "escalation": "maintainers",
+      "primary": "github issues"
+    },
+    "review_cycle": {
+      "cadence": "quarterly",
+      "last_review_utc": "2026-01-04T01:11:42Z",
+      "next_review_utc": "2026-04-04T01:11:42Z",
+      "owner": "maintainers"
+    },
+    "sections": {
+      "assumptions": "Orthodox qubit anchor; no new physics claims. Audit is structural/traceability proxy.",
+      "disclosure": "Research scaffold only. Report issues via GitHub.",
+      "limitations": "Coherence audit does not execute Lean; it audits references and UCC outputs.",
+      "results": "Quantum anchor coverage emits a report and audit bundle proving required theorem anchors are tracked.",
+      "summary": "This coherence run audits the repo artifacts for the orthodox qubit anchor: Lean sources plus UCC coverage outputs.",
+      "uncertainty": "Rerun if Lean files or coverage module changes."
+    },
+    "sources": [
+      {
+        "id": "q_mod",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "quantum_anchor_coverage.yml"
+      },
+      {
+        "id": "q_task",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "quantum_anchor_task.json"
+      },
+      {
+        "id": "q_report",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "report.json"
+      },
+      {
+        "id": "q_audit",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "audit_bundle.json"
+      },
+      {
+        "id": "q_pauli",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "Pauli.lean"
+      },
+      {
+        "id": "q_thermal",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "Thermal.lean"
+      }
+    ]
+  }
+}

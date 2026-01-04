@@ -1,0 +1,7 @@
+id,title,url,path,retrieved_utc
+q_mod,quantum_anchor_coverage.yml,,ucc/modules/quantum_anchor_coverage.yml,2026-01-03T00:00:00Z
+q_task,quantum_anchor_task.json,,ucc/tasks/quantum_anchor_task.json,2026-01-03T00:00:00Z
+q_report,report.json,,ucc/out/quantum_anchor_sample/report.json,2026-01-03T00:00:00Z
+q_audit,audit_bundle.json,,ucc/out/quantum_anchor_sample/audit_bundle.json,2026-01-03T00:00:00Z
+q_pauli,Pauli.lean,,CoherenceLattice/Quantum/Pauli.lean,2026-01-03T00:00:00Z
+q_thermal,Thermal.lean,,CoherenceLattice/Quantum/Thermal.lean,2026-01-03T00:00:00Z

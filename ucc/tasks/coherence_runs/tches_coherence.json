@@ -1,0 +1,90 @@
+{
+  "coherence_artifact": {
+    "answer": "# Summary\nThis coherence run audits the repo artifacts for the TCHES baseline-vs-lambda comparison produced by UCC.\n\n# Assumptions\nToy ODE system; proxy audit only; not operational advice.\n\n# Limitations\nChecks traceability and evidence structure, not real-world validity.\n\n# Uncertainty\nOutputs depend on referenced CSV inputs and thresholds.\n\n# Disclosure\nResearch scaffold only. Report issues via GitHub.\n\n# Results\nCompare module emits comparison.md and audit_bundle.json with hashes.",
+    "claims": [
+      {
+        "citations": [
+          "t_cmp_md",
+          "t_audit"
+        ],
+        "id": "t1",
+        "text": "TCHES compare run emits a comparison report and audit bundle."
+      },
+      {
+        "citations": [
+          "t_audit"
+        ],
+        "id": "t2",
+        "text": "Audit bundle includes input SHA256 hashes for baseline and lambda runs."
+      },
+      {
+        "citations": [
+          "t_cmp_md"
+        ],
+        "id": "t3",
+        "text": "Comparison reports key deltas (warn-time and mean power proxies)."
+      }
+    ],
+    "domain": "research",
+    "evidence": {
+      "artifacts": [],
+      "links": [
+        "https://github.com/pdxvoiceteacher/CoherenceLattice"
+      ]
+    },
+    "exceptions": {
+      "items": [
+        {
+          "description": "Coherence metrics are proxies; not a truth guarantee.",
+          "expires_utc": "2027-01-04T01:11:41Z",
+          "id": "EX-1",
+          "issued_utc": "2026-01-04T01:11:41Z",
+          "risk_acceptor": "maintainers"
+        }
+      ],
+      "process": "Document exception, assign acceptor, set expiry, review on cadence."
+    },
+    "id": "tches-001",
+    "question": "Audit TCHES baseline vs lambda artifacts for coherence and traceability.",
+    "reporting_channel": {
+      "escalation": "maintainers",
+      "primary": "github issues"
+    },
+    "review_cycle": {
+      "cadence": "quarterly",
+      "last_review_utc": "2026-01-04T01:11:41Z",
+      "next_review_utc": "2026-04-04T01:11:41Z",
+      "owner": "maintainers"
+    },
+    "sections": {
+      "assumptions": "Toy ODE system; proxy audit only; not operational advice.",
+      "disclosure": "Research scaffold only. Report issues via GitHub.",
+      "limitations": "Checks traceability and evidence structure, not real-world validity.",
+      "results": "Compare module emits comparison.md and audit_bundle.json with hashes.",
+      "summary": "This coherence run audits the repo artifacts for the TCHES baseline-vs-lambda comparison produced by UCC.",
+      "uncertainty": "Outputs depend on referenced CSV inputs and thresholds."
+    },
+    "sources": [
+      {
+        "id": "t_mod",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "tches_compare.yml"
+      },
+      {
+        "id": "t_task",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "tches_compare_sample.json"
+      },
+      {
+        "id": "t_cmp_md",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "comparison.md"
+      },
+      {
+        "id": "t_audit",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "audit_bundle.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+claim_id,claim_text,citations
+h1,"Helmholtz comparator produces a comparison report and audit bundle.",h_cmp_md;h_audit
+h2,"Comparator exports a per-step delta curve artifact for inspection.",h_delta_csv;h_cmp_md
+h3,"Audit bundle binds module+input hashes to a git commit (traceability).",h_audit

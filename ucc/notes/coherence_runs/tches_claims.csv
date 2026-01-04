@@ -1,0 +1,4 @@
+claim_id,claim_text,citations
+t1,"TCHES compare run emits a comparison report and audit bundle.",t_cmp_md;t_audit
+t2,"Audit bundle includes input SHA256 hashes for baseline and lambda runs.",t_audit
+t3,"Comparison reports key deltas (warn-time and mean power proxies).",t_cmp_md

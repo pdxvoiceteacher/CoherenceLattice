@@ -1,0 +1,96 @@
+{
+  "coherence_artifact": {
+    "answer": "# Summary\nThis coherence run audits the repo artifacts for the Helmholtz toy guided-vs-unguided comparison using UCC outputs.\n\n# Assumptions\n- Toy experiment; proxy coherence only; not a physics claim.\n- Coherence audit improves traceability, not truth guarantees.\n\n# Limitations\n- Comparator summarizes a specific input CSV; results depend on that summary.\n- Drift/criticality are token/label proxies.\n\n# Uncertainty\n- Outputs depend on the summary file and thresholds. Rerun if artifacts change.\n\n# Disclosure\nResearch scaffold only. Report issues via GitHub.\n\n# Results\n- Comparator emits comparison.md and audit_bundle.json.\n- Delta curve artifact is preserved for inspection.",
+    "claims": [
+      {
+        "citations": [
+          "h_cmp_md",
+          "h_audit"
+        ],
+        "id": "h1",
+        "text": "Helmholtz comparator produces a comparison report and audit bundle."
+      },
+      {
+        "citations": [
+          "h_delta_csv",
+          "h_cmp_md"
+        ],
+        "id": "h2",
+        "text": "Comparator exports a per-step delta curve artifact for inspection."
+      },
+      {
+        "citations": [
+          "h_audit"
+        ],
+        "id": "h3",
+        "text": "Audit bundle binds module+input hashes to a git commit (traceability)."
+      }
+    ],
+    "domain": "research",
+    "evidence": {
+      "artifacts": [],
+      "links": [
+        "https://github.com/pdxvoiceteacher/CoherenceLattice"
+      ]
+    },
+    "exceptions": {
+      "items": [
+        {
+          "description": "Coherence metrics are proxies; not a truth guarantee.",
+          "expires_utc": "2027-01-04T01:11:40Z",
+          "id": "EX-1",
+          "issued_utc": "2026-01-04T01:11:40Z",
+          "risk_acceptor": "maintainers"
+        }
+      ],
+      "process": "Document exception, assign acceptor, set expiry, review on cadence."
+    },
+    "id": "helmholtz-001",
+    "question": "Audit Helmholtz guided vs unguided artifacts for coherence and traceability.",
+    "reporting_channel": {
+      "escalation": "maintainers",
+      "primary": "github issues"
+    },
+    "review_cycle": {
+      "cadence": "quarterly",
+      "last_review_utc": "2026-01-04T01:11:40Z",
+      "next_review_utc": "2026-04-04T01:11:40Z",
+      "owner": "maintainers"
+    },
+    "sections": {
+      "assumptions": "- Toy experiment; proxy coherence only; not a physics claim.\n- Coherence audit improves traceability, not truth guarantees.",
+      "disclosure": "Research scaffold only. Report issues via GitHub.",
+      "limitations": "- Comparator summarizes a specific input CSV; results depend on that summary.\n- Drift/criticality are token/label proxies.",
+      "results": "- Comparator emits comparison.md and audit_bundle.json.\n- Delta curve artifact is preserved for inspection.",
+      "summary": "This coherence run audits the repo artifacts for the Helmholtz toy guided-vs-unguided comparison using UCC outputs.",
+      "uncertainty": "- Outputs depend on the summary file and thresholds. Rerun if artifacts change."
+    },
+    "sources": [
+      {
+        "id": "h_mod",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "helmholtz_compare.yml"
+      },
+      {
+        "id": "h_task",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "helmholtz_compare_sample.json"
+      },
+      {
+        "id": "h_cmp_md",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "comparison.md"
+      },
+      {
+        "id": "h_delta_csv",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "delta_curve.csv"
+      },
+      {
+        "id": "h_audit",
+        "retrieved_utc": "2026-01-03T00:00:00Z",
+        "title": "audit_bundle.json"
+      }
+    ]
+  }
+}

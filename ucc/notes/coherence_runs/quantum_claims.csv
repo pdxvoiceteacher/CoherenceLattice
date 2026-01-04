@@ -1,0 +1,4 @@
+claim_id,claim_text,citations
+q1,"Quantum anchor coverage reports required sections present (coverage checklist/report).",q_report;q_audit
+q2,"Lean Pauli file anchors commutator and σx eigenstate lemmas.",q_pauli
+q3,"Thermal/Gibbs normalization is anchored by Lean thermal file and the UCC coverage report.",q_thermal;q_report
