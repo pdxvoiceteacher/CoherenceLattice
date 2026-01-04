@@ -1,6 +1,9 @@
-id,title,url,path,retrieved_utc
-h_mod,helmholtz_compare.yml,,ucc/modules/helmholtz_compare.yml,2026-01-03T00:00:00Z
-h_task,helmholtz_compare_sample.json,,ucc/tasks/helmholtz_compare_sample.json,2026-01-03T00:00:00Z
-h_cmp_md,comparison.md,,ucc/out/helmholtz_compare_sample/comparison.md,2026-01-03T00:00:00Z
-h_delta_csv,delta_curve.csv,,ucc/out/helmholtz_compare_sample/delta_curve.csv,2026-01-03T00:00:00Z
-h_audit,audit_bundle.json,,ucc/out/helmholtz_compare_sample/audit_bundle.json,2026-01-03T00:00:00Z
+﻿id,title,url,path,retrieved_utc
+h_mod,helmholtz_compare.yml,,..\..\..\ucc\modules\helmholtz_compare.yml,2026-01-03T00:00:00Z
+h_task,helmholtz_compare_sample.json,,..\..\..\ucc\tasks\helmholtz_compare_sample.json,2026-01-03T00:00:00Z
+h_summary_csv,helmholtz_summary_sample.csv,,..\..\..\ucc\tasks\helmholtz_summary_sample.csv,2026-01-03T00:00:00Z
+h_cmp_json,comparison.json,,..\..\..\ucc\out\helmholtz_compare_sample\comparison.json,2026-01-03T00:00:00Z
+h_cmp_md,comparison.md,,..\..\..\ucc\out\helmholtz_compare_sample\comparison.md,2026-01-03T00:00:00Z
+h_delta_csv,delta_curve.csv,,..\..\..\ucc\out\helmholtz_compare_sample\delta_curve.csv,2026-01-03T00:00:00Z
+h_audit,audit_bundle.json,,..\..\..\ucc\out\helmholtz_compare_sample\audit_bundle.json,2026-01-03T00:00:00Z
+h_report,report.json,,..\..\..\ucc\out\helmholtz_compare_sample\report.json,2026-01-03T00:00:00Z

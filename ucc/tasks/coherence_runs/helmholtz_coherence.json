@@ -1,29 +1,44 @@
 {
   "coherence_artifact": {
-    "answer": "# Summary\nThis coherence run audits the repo artifacts for the Helmholtz toy guided-vs-unguided comparison using UCC outputs.\n\n# Assumptions\n- Toy experiment; proxy coherence only; not a physics claim.\n- Coherence audit improves traceability, not truth guarantees.\n\n# Limitations\n- Comparator summarizes a specific input CSV; results depend on that summary.\n- Drift/criticality are token/label proxies.\n\n# Uncertainty\n- Outputs depend on the summary file and thresholds. Rerun if artifacts change.\n\n# Disclosure\nResearch scaffold only. Report issues via GitHub.\n\n# Results\n- Comparator emits comparison.md and audit_bundle.json.\n- Delta curve artifact is preserved for inspection.",
+    "answer": "\ufeff# Summary\nThis coherence run audits the Helmholtz guided-vs-unguided \u0394\u03a8 comparator artifacts produced by UCC:\ncomparison.json/.md, delta_curve.csv, and audit_bundle.json.\n\n# Assumptions\n- Toy experiment; proxy coherence only; not a physics claim.\n- Audit improves traceability; it is not a truth guarantee.\n\n# Limitations\n- Comparator summarizes a specific input summary CSV; results depend on that artifact.\n- \u0394S/\u039b are proxy stability checks on paraphrases.\n\n# Uncertainty\n- If the comparator outputs change, rerun this audit.\n\n# Disclosure\nResearch scaffold only. Report issues via GitHub.\n\n# Results\nThe comparator records \u0394\u03a8_start/peak/end, AUC(\u0394\u03a8), and pass/fail flags in comparison.json and binds provenance in audit_bundle.json.",
     "claims": [
+      {
+        "citations": [
+          "h_cmp_json"
+        ],
+        "id": "c1",
+        "text": "comparison.json records steps_count, t_start/t_end, and the headline \u0394\u03a8 metrics (start/peak/end) plus AUC(\u0394\u03a8)."
+      },
       {
         "citations": [
           "h_cmp_md",
           "h_audit"
         ],
-        "id": "h1",
-        "text": "Helmholtz comparator produces a comparison report and audit bundle."
+        "id": "c2",
+        "text": "overall_pass is true only when pass_start, pass_peak, pass_end, and pass_auc satisfy the module thresholds."
       },
       {
         "citations": [
           "h_delta_csv",
           "h_cmp_md"
         ],
-        "id": "h2",
-        "text": "Comparator exports a per-step delta curve artifact for inspection."
+        "id": "c3",
+        "text": "delta_curve.csv contains the per-step \u0394\u03a8(guided \u2212 unguided) sequence that the report summarizes."
       },
       {
         "citations": [
           "h_audit"
         ],
-        "id": "h3",
-        "text": "Audit bundle binds module+input hashes to a git commit (traceability)."
+        "id": "c4",
+        "text": "audit_bundle.json binds the run to a git_commit and includes sha256 hashes for module + inputs/outputs (provenance)."
+      },
+      {
+        "citations": [
+          "h_mod",
+          "h_task"
+        ],
+        "id": "c5",
+        "text": "The module YAML and sample task define the comparator configuration and are part of the reproducibility chain."
       }
     ],
     "domain": "research",
@@ -37,9 +52,9 @@
       "items": [
         {
           "description": "Coherence metrics are proxies; not a truth guarantee.",
-          "expires_utc": "2027-01-04T03:22:51Z",
+          "expires_utc": "2027-01-04T03:43:13Z",
           "id": "EX-1",
-          "issued_utc": "2026-01-04T03:22:51Z",
+          "issued_utc": "2026-01-04T03:43:13Z",
           "risk_acceptor": "maintainers"
         }
       ],
@@ -53,44 +68,18 @@
     },
     "review_cycle": {
       "cadence": "quarterly",
-      "last_review_utc": "2026-01-04T03:22:51Z",
-      "next_review_utc": "2026-04-04T03:22:51Z",
+      "last_review_utc": "2026-01-04T03:43:13Z",
+      "next_review_utc": "2026-04-04T03:43:13Z",
       "owner": "maintainers"
     },
     "sections": {
-      "assumptions": "- Toy experiment; proxy coherence only; not a physics claim.\n- Coherence audit improves traceability, not truth guarantees.",
+      "assumptions": "- Toy experiment; proxy coherence only; not a physics claim.\n- Audit improves traceability; it is not a truth guarantee.",
+      "body": "\ufeff# Summary\nThis coherence run audits the Helmholtz guided-vs-unguided \u0394\u03a8 comparator artifacts produced by UCC:\ncomparison.json/.md, delta_curve.csv, and audit_bundle.json.",
       "disclosure": "Research scaffold only. Report issues via GitHub.",
-      "limitations": "- Comparator summarizes a specific input CSV; results depend on that summary.\n- Drift/criticality are token/label proxies.",
-      "results": "- Comparator emits comparison.md and audit_bundle.json.\n- Delta curve artifact is preserved for inspection.",
-      "summary": "This coherence run audits the repo artifacts for the Helmholtz toy guided-vs-unguided comparison using UCC outputs.",
-      "uncertainty": "- Outputs depend on the summary file and thresholds. Rerun if artifacts change."
+      "limitations": "- Comparator summarizes a specific input summary CSV; results depend on that artifact.\n- \u0394S/\u039b are proxy stability checks on paraphrases.",
+      "results": "The comparator records \u0394\u03a8_start/peak/end, AUC(\u0394\u03a8), and pass/fail flags in comparison.json and binds provenance in audit_bundle.json.",
+      "uncertainty": "- If the comparator outputs change, rerun this audit."
     },
-    "sources": [
-      {
-        "id": "h_mod",
-        "retrieved_utc": "2026-01-03T00:00:00Z",
-        "title": "helmholtz_compare.yml"
-      },
-      {
-        "id": "h_task",
-        "retrieved_utc": "2026-01-03T00:00:00Z",
-        "title": "helmholtz_compare_sample.json"
-      },
-      {
-        "id": "h_cmp_md",
-        "retrieved_utc": "2026-01-03T00:00:00Z",
-        "title": "comparison.md"
-      },
-      {
-        "id": "h_delta_csv",
-        "retrieved_utc": "2026-01-03T00:00:00Z",
-        "title": "delta_curve.csv"
-      },
-      {
-        "id": "h_audit",
-        "retrieved_utc": "2026-01-03T00:00:00Z",
-        "title": "audit_bundle.json"
-      }
-    ]
+    "sources": []
   }
 }

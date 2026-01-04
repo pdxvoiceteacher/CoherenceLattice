@@ -1,4 +1,6 @@
-claim_id,claim_text,citations
-h1,"Helmholtz comparator produces a comparison report and audit bundle.",h_cmp_md;h_audit
-h2,"Comparator exports a per-step delta curve artifact for inspection.",h_delta_csv;h_cmp_md
-h3,"Audit bundle binds module+input hashes to a git commit (traceability).",h_audit
+﻿claim_id,claim_text,citations
+h1,"comparison.json records steps_count, t_start/t_end, and the headline ΔΨ metrics (start/peak/end) plus AUC(ΔΨ).",h_cmp_json
+h2,"overall_pass is true only when pass_start, pass_peak, pass_end, and pass_auc satisfy the module thresholds.",h_cmp_md;h_audit
+h3,"delta_curve.csv contains the per-step ΔΨ(guided − unguided) sequence that the report summarizes.",h_delta_csv;h_cmp_md
+h4,"audit_bundle.json binds the run to a git_commit and includes sha256 hashes for module + inputs/outputs (provenance).",h_audit
+h5,"The module YAML and sample task define the comparator configuration and are part of the reproducibility chain.",h_mod;h_task

@@ -1,0 +1,14 @@
+﻿[
+  {
+    "variant_id": "h_p1",
+    "prompt_variant": "paraphrase-1",
+    "answer": "This audit checks Helmholtz comparator artifacts: comparison.json/.md, delta_curve.csv, and audit_bundle.json.",
+    "decision_label": "accept"
+  },
+  {
+    "variant_id": "h_p2",
+    "prompt_variant": "paraphrase-2",
+    "answer": "We verify traceability of the Helmholtz guided-vs-unguided ΔΨ comparator via comparison.json and the provenance bundle.",
+    "decision_label": "accept"
+  }
+]
