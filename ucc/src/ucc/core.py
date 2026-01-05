@@ -19,6 +19,7 @@ from .coherence_audit import coherence_audit_task
 from .json_patterns import verify_json_patterns_task
 from .json_patterns import verify_json_patterns_task
 from .json_assertions import verify_json_assertions_task
+from .json_extract import extract_json_fields_task
 
 
 BUILTIN_STEP_TYPES = {
@@ -42,7 +43,8 @@ BUILTIN_STEP_TYPES = {
     "verify_json_patterns",
 
     "validate_mapping_table",
-    "validate_mapping_index",}
+    "validate_mapping_index",    "extract_json_fields",
+}
 
 
 def load_yaml(path: Path) -> Dict[str, Any]:
@@ -615,6 +617,14 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             context["output_files"].extend(outs)
 
 
+
+        elif stype == "extract_json_fields":
+            if context["input"] is None or not isinstance(context["input"], dict):
+                raise ValueError("extract_json_fields requires ingest_json of a dict")
+            m, fl, outs = extract_json_fields_task(context["input"], outdir, thresholds, **params)
+            context["metrics"].update(m)
+            context["flags"].update(fl)
+            context["output_files"].extend(outs)
 
         elif stype == "emit_report":
             report_name = str(params.get("report_name", "report.json"))
