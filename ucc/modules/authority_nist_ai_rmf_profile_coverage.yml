@@ -2,15 +2,11 @@ ucc_version: "0.1"
 module:
   id: "authority.nist_ai_rmf.profile_coverage"
   version: "0.1.0"
-  title: "NIST AI RMF Profile Coverage (Template)"
-  intent: "Validate a NIST AI RMF profile artifact for governance fields, evidence links, review cycle, and exception expiries."
+  title: "NIST AI RMF Profile Coverage (Functions Only)"
+  intent: "Validate an AI RMF profile artifact for governance fields, evidence links, review cycle, and exception expiries (functions only)."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
-  safety:
-    scope: "governance"
-    disclaimers:
-      - "Template validation only; not legal or compliance advice."
 steps:
   - type: ingest_json
     id: ingest
@@ -23,8 +19,7 @@ steps:
       require_exception_items: true
   - type: emit_report
     id: report
-    params:
-      report_name: "report.json"
+    params: { report_name: "report.json" }
   - type: emit_checklist
     id: checklist
     params:

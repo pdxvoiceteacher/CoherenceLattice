@@ -2,7 +2,7 @@
   "authority_profile": {
     "authority": {
       "id": "iso.31000",
-      "name": "ISO 31000 (Risk Management)",
+      "name": "ISO 31000 Risk Management",
       "publisher": "ISO",
       "version": "unspecified",
       "url": "https://www.iso.org/iso-31000-risk-management.html"
@@ -10,16 +10,15 @@
     "profile": {
       "org": "UVLM",
       "system": "CoherenceLattice",
-      "scope": "Risk management governance templates",
+      "scope": "Risk management template (sections only)",
       "jurisdiction": "global"
     },
     "controls": {
-      "selected_ids": ["4", "5", "6", "7", "8"],
-      "notes": "Clause IDs only; no ISO text redistributed."
+      "selected_ids": ["PRINCIPLES","FRAMEWORK","PROCESS"],
+      "notes": "Section IDs only; expand via PR."
     },
     "evidence": {
-      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
-      "artifacts": [{"kind": "ci", "path": ".github/workflows/ci.yml"}]
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"]
     },
     "review_cycle": {
       "owner": "maintainers",
@@ -30,8 +29,8 @@
       "process": "Issues + PR review.",
       "items": [
         {
-          "id": "EX-31000-001",
-          "description": "ISO text not redistributed; IDs only.",
+          "id": "EX-ISO31000-001",
+          "description": "IDs only; no ISO text embedded.",
           "risk_acceptor": "maintainers",
           "issued_utc": "2026-01-01T00:00:00Z",
           "expires_utc": "2026-12-31T00:00:00Z"
@@ -41,7 +40,6 @@
     "reporting_channel": {
       "primary": "github issues",
       "escalation": "maintainers"
-    },
-    "notes": "IDs + structure only."
+    }
   }
 }

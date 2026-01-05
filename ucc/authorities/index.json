@@ -144,6 +144,28 @@
                             "module":  "ucc/modules/authority_nist_sp800_218_ssdf_profile_coverage.yml",
                             "publisher":  "NIST",
                             "path":  "ucc/authorities/nist_sp800_218/pack.json"
+                        },
+                        {
+                            "url":  "https://www.nist.gov/itl/ai-risk-management-framework",
+                            "id":  "nist.ai_rmf",
+                            "license_note":  "Function IDs only; no framework text",
+                            "version":  "1.0",
+                            "sample_task":  "ucc/tasks/authority_packs/nist_ai_rmf_profile_task.json",
+                            "name":  "NIST AI Risk Management Framework (AI RMF)",
+                            "module":  "ucc/modules/authority_nist_ai_rmf_profile_coverage.yml",
+                            "publisher":  "NIST",
+                            "path":  "ucc/authorities/nist_ai_rmf/pack.json"
+                        },
+                        {
+                            "url":  "https://www.iso.org/iso-31000-risk-management.html",
+                            "id":  "iso.31000",
+                            "license_note":  "Section IDs only; no ISO text",
+                            "version":  "unspecified",
+                            "sample_task":  "ucc/tasks/authority_packs/iso31000_profile_task.json",
+                            "name":  "ISO 31000 Risk Management",
+                            "module":  "ucc/modules/authority_iso31000_profile_coverage.yml",
+                            "publisher":  "ISO",
+                            "path":  "ucc/authorities/iso31000/pack.json"
                         }
                     ],
     "packs":  [
@@ -289,6 +311,28 @@
                       "module":  "ucc/modules/authority_nist_sp800_218_ssdf_profile_coverage.yml",
                       "publisher":  "NIST",
                       "path":  "ucc/authorities/nist_sp800_218/pack.json"
+                  },
+                  {
+                      "url":  "https://www.nist.gov/itl/ai-risk-management-framework",
+                      "id":  "nist.ai_rmf",
+                      "license_note":  "Function IDs only; no framework text",
+                      "version":  "1.0",
+                      "sample_task":  "ucc/tasks/authority_packs/nist_ai_rmf_profile_task.json",
+                      "name":  "NIST AI Risk Management Framework (AI RMF)",
+                      "module":  "ucc/modules/authority_nist_ai_rmf_profile_coverage.yml",
+                      "publisher":  "NIST",
+                      "path":  "ucc/authorities/nist_ai_rmf/pack.json"
+                  },
+                  {
+                      "url":  "https://www.iso.org/iso-31000-risk-management.html",
+                      "id":  "iso.31000",
+                      "license_note":  "Section IDs only; no ISO text",
+                      "version":  "unspecified",
+                      "sample_task":  "ucc/tasks/authority_packs/iso31000_profile_task.json",
+                      "name":  "ISO 31000 Risk Management",
+                      "module":  "ucc/modules/authority_iso31000_profile_coverage.yml",
+                      "publisher":  "ISO",
+                      "path":  "ucc/authorities/iso31000/pack.json"
                   }
               ]
 }

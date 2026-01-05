@@ -2,15 +2,11 @@ ucc_version: "0.1"
 module:
   id: "authority.iso31000.profile_coverage"
   version: "0.1.0"
-  title: "ISO 31000 Profile Coverage (Template)"
-  intent: "Validate an ISO 31000 profile artifact for governance fields, evidence links, review cycle, and exception expiries."
+  title: "ISO 31000 Profile Coverage (Sections Only)"
+  intent: "Validate an ISO 31000 profile artifact for governance fields, evidence links, review cycle, and exception expiries (sections only)."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
-  safety:
-    scope: "governance"
-    disclaimers:
-      - "Template validation only; ISO text not redistributed."
 steps:
   - type: ingest_json
     id: ingest
@@ -23,8 +19,7 @@ steps:
       require_exception_items: true
   - type: emit_report
     id: report
-    params:
-      report_name: "report.json"
+    params: { report_name: "report.json" }
   - type: emit_checklist
     id: checklist
     params:

@@ -2,7 +2,7 @@
   "authority_profile": {
     "authority": {
       "id": "nist.ai_rmf",
-      "name": "NIST AI Risk Management Framework (AI RMF)",
+      "name": "NIST AI RMF",
       "publisher": "NIST",
       "version": "1.0",
       "url": "https://www.nist.gov/itl/ai-risk-management-framework"
@@ -10,16 +10,15 @@
     "profile": {
       "org": "UVLM",
       "system": "CoherenceLattice",
-      "scope": "AI governance + auditability templates",
+      "scope": "AI governance template (functions only)",
       "jurisdiction": "global"
     },
     "controls": {
-      "selected_ids": ["GOV", "MAP", "MEASURE", "MANAGE"],
+      "selected_ids": ["GOV","MAP","MEASURE","MANAGE"],
       "notes": "Function IDs only; expand via PR."
     },
     "evidence": {
-      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
-      "artifacts": [{"kind": "ci", "path": ".github/workflows/ci.yml"}]
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"]
     },
     "review_cycle": {
       "owner": "maintainers",
@@ -30,8 +29,8 @@
       "process": "Issues + PR review.",
       "items": [
         {
-          "id": "EX-AIRM-001",
-          "description": "Template pack stores IDs only; no long text.",
+          "id": "EX-AIRMF-001",
+          "description": "IDs only; no long text embedded.",
           "risk_acceptor": "maintainers",
           "issued_utc": "2026-01-01T00:00:00Z",
           "expires_utc": "2026-12-31T00:00:00Z"
@@ -41,7 +40,6 @@
     "reporting_channel": {
       "primary": "github issues",
       "escalation": "maintainers"
-    },
-    "notes": "IDs + structure only."
+    }
   }
 }

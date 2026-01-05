@@ -9,8 +9,8 @@
   },
   "control_namespace": {
     "kind": "function_ids_only",
-    "ids": ["GOV", "MAP", "MEASURE", "MANAGE"],
-    "note": "Function-level IDs only (no long text). Subcategories can be added via PR."
+    "ids": ["GOV","MAP","MEASURE","MANAGE"],
+    "note": "Function IDs only; no framework text embedded."
   },
   "governance_defaults": {
     "min_evidence_links": 1,

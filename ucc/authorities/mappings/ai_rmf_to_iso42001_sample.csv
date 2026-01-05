@@ -1,0 +1,4 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link
+nist.ai_rmf,GOV,iso.42001,CLAUSE-4,"Govern function aligns with governance context (placeholder)",local:NA
+nist.ai_rmf,MEASURE,iso.42001,CLAUSE-9,"Measure aligns with evaluation/monitoring (placeholder)",local:NA
+nist.ai_rmf,MANAGE,iso.42001,CLAUSE-10,"Manage aligns with improvement/corrective actions (placeholder)",local:NA

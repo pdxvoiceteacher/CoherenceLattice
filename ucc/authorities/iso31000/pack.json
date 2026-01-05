@@ -2,15 +2,15 @@
   "pack_id": "iso.31000",
   "authority": {
     "id": "iso.31000",
-    "name": "ISO 31000 (Risk Management)",
+    "name": "ISO 31000 Risk Management",
     "publisher": "ISO",
     "version": "unspecified",
     "url": "https://www.iso.org/iso-31000-risk-management.html"
   },
   "control_namespace": {
-    "kind": "clause_ids_only",
-    "ids": ["1", "2", "3", "4", "5", "6", "7", "8"],
-    "note": "Clause IDs only. ISO standard text is not redistributed."
+    "kind": "section_ids_only",
+    "ids": ["PRINCIPLES","FRAMEWORK","PROCESS"],
+    "note": "Section IDs only; no ISO text embedded."
   },
   "governance_defaults": {
     "min_evidence_links": 1,
