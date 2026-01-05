@@ -1,4 +1,4 @@
 source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
-iso.27001_27002,A.5,aicpa.soc2.tsc,CC1,"Organizational controls ↔ control environment (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-iso.27001_27002,A.8,aicpa.soc2.tsc,CC6,"Technological controls ↔ logical access (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-iso.27001_27002,A.8,aicpa.soc2.tsc,CC7,"Technological controls ↔ monitoring/ops (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+iso.27001_27002,A.5,aicpa.soc2.tsc,CC1,Organizational controls ↔ control environment (placeholder),https://www.iso.org,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+iso.27001_27002,A.8,aicpa.soc2.tsc,CC6,Technological controls ↔ logical access (placeholder),https://www.iso.org,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+iso.27001_27002,A.8,aicpa.soc2.tsc,CC7,Technological controls ↔ monitoring/ops (placeholder),https://www.iso.org,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

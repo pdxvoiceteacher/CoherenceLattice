@@ -1,6 +1,6 @@
 source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
-cobit.2019,EDM01,nist.sp800_53r5,PM,"Governance system objective ↔ program management family (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-cobit.2019,APO12,nist.sp800_53r5,RA,"Risk management objective ↔ risk assessment family (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-cobit.2019,BAI06,nist.sp800_53r5,CM,"Change management objective ↔ configuration management family (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-cobit.2019,DSS02,nist.sp800_53r5,IR,"Incident/service objective ↔ incident response family (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-cobit.2019,MEA01,nist.sp800_53r5,CA,"Performance/conformance objective ↔ assessment family (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,EDM01,nist.sp800_53r5,PM,Governance system objective ↔ program management family (placeholder),https://www.isaca.org/resources/cobit,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,APO12,nist.sp800_53r5,RA,Risk management objective ↔ risk assessment family (placeholder),https://www.isaca.org/resources/cobit,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,BAI06,nist.sp800_53r5,CM,Change management objective ↔ configuration management family (placeholder),https://www.isaca.org/resources/cobit,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,DSS02,nist.sp800_53r5,IR,Incident/service objective ↔ incident response family (placeholder),https://www.isaca.org/resources/cobit,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,MEA01,nist.sp800_53r5,CA,Performance/conformance objective ↔ assessment family (placeholder),https://www.isaca.org/resources/cobit,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

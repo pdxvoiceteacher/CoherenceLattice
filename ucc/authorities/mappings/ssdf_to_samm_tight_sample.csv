@@ -1,9 +1,9 @@
 source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
-nist.sp800_218,PO.1,owasp.samm.2,GOV,"Prepare org ↔ governance maturity (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,PO.2,owasp.samm.2,GOV,"Policy/roles ↔ governance maturity (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,PS.1,owasp.samm.2,DES,"Protect requirements ↔ design security (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,PS.2,owasp.samm.2,OPS,"Protect build/release ↔ ops hardening (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,PW.4,owasp.samm.2,IMP,"Secure implementation practices (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,PW.6,owasp.samm.2,VER,"Verification/testing maturity (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,RV.1,owasp.samm.2,OPS,"Vuln response ↔ ops response (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-nist.sp800_218,RV.2,owasp.samm.2,OPS,"Continuous monitoring/response (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PO.1,owasp.samm.2,GOV,Prepare org ↔ governance maturity (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PO.2,owasp.samm.2,GOV,Policy/roles ↔ governance maturity (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PS.1,owasp.samm.2,DES,Protect requirements ↔ design security (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PS.2,owasp.samm.2,OPS,Protect build/release ↔ ops hardening (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PW.4,owasp.samm.2,IMP,Secure implementation practices (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,PW.6,owasp.samm.2,VER,Verification/testing maturity (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,RV.1,owasp.samm.2,OPS,Vuln response ↔ ops response (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+nist.sp800_218,RV.2,owasp.samm.2,OPS,Continuous monitoring/response (placeholder),https://csrc.nist.gov/publications/detail/sp/800-218/final,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

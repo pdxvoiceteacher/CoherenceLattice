@@ -1,0 +1,21 @@
+ucc_version: "0.1"
+module:
+  id: "mapping.registry_check"
+  version: "0.1.0"
+  title: "Mapping Registry Check"
+  intent: "Validate every mapping listed in ucc/authorities/mappings/index.json passes mapping_table validation (strict evidence for strict mode)."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+steps:
+  - type: ingest_json
+    id: ingest
+  - type: validate_mapping_index
+    id: validate
+    params:
+      registry_index_path: "ucc/authorities/index.json"
+      enforced_key: "enforced"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"

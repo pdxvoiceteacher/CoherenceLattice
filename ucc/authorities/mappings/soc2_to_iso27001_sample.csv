@@ -1,5 +1,5 @@
 source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
-aicpa.soc2.tsc,CC1,iso.27001_27002,A.5,"Common Criteria control environment ↔ organizational controls (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-aicpa.soc2.tsc,CC2,iso.27001_27002,A.5,"Communication/information ↔ organizational controls (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-aicpa.soc2.tsc,CC6,iso.27001_27002,A.8,"Logical access ↔ technological controls (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
-aicpa.soc2.tsc,CC7,iso.27001_27002,A.8,"System operations/monitoring ↔ technological controls (placeholder)",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+aicpa.soc2.tsc,CC1,iso.27001_27002,A.5,Common Criteria control environment ↔ organizational controls (placeholder),https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+aicpa.soc2.tsc,CC2,iso.27001_27002,A.5,Communication/information ↔ organizational controls (placeholder),https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+aicpa.soc2.tsc,CC6,iso.27001_27002,A.8,Logical access ↔ technological controls (placeholder),https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+aicpa.soc2.tsc,CC7,iso.27001_27002,A.8,System operations/monitoring ↔ technological controls (placeholder),https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
