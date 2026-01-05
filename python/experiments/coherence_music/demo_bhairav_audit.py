@@ -1,0 +1,37 @@
+from pathlib import Path
+
+from coherence_music.raga import bhairav_profile
+from coherence_music.engine import EngineConfig, CoherenceMusicEngine
+from coherence_music.midi import write_midi
+from coherence_music.analyze import write_trace_and_audit
+
+out = Path("python/experiments/coherence_music/out")
+out.mkdir(parents=True, exist_ok=True)
+
+# toy coherence metrics (0..1), 16 steps
+metrics = {
+    "E":        [0.2,0.2,0.3,0.4,0.6,0.8,0.9,0.7,0.4,0.3,0.2,0.2,0.3,0.4,0.5,0.6],
+    "T":        [0.1,0.1,0.2,0.3,0.3,0.4,0.6,0.7,0.5,0.4,0.3,0.2,0.2,0.2,0.3,0.3],
+    "DELTA_S":  [0.1,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.6,0.8,0.7,0.5,0.3,0.2,0.2,0.1],
+    "E_SYM":    [0.4,0.41,0.42,0.43,0.44,0.46,0.48,0.47,0.45,0.44,0.43,0.42,0.41,0.40,0.39,0.38],
+    "LAMBDA":   [0.2,0.2,0.25,0.3,0.35,0.5,0.65,0.72,0.8,0.9,0.6,0.4,0.3,0.2,0.2,0.2],
+}
+
+profile = bhairav_profile(tonic_midi=60)  # C4 tonic
+cfg = EngineConfig(bpm=92, seed=7)
+engine = CoherenceMusicEngine(profile, cfg)
+
+seq = engine.generate(metrics, name="bhairav_guft_demo")
+midi_path = write_midi(seq.flatten_notes(), out / "bhairav_guft_demo.mid", bpm=seq.bpm)
+
+paths = write_trace_and_audit(
+    outdir=out,
+    metrics=metrics,
+    seq=seq,
+    midi_path=midi_path,
+    evidence_links=["https://github.com/pdxvoiceteacher/CoherenceLattice"],
+)
+
+print("Wrote MIDI:", midi_path)
+for k, p in paths.items():
+    print("Wrote", f"{k}:", p)
