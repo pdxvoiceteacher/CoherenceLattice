@@ -1,0 +1,29 @@
+ucc_version: "0.1"
+module:
+  id: "mapping.validate_table"
+  version: "0.1.0"
+  title: "Mapping Table Validator"
+  intent: "Validate mapping CSV rows against authority registry + pack IDs, including evidence links and optional review/expiry metadata."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+steps:
+  - type: ingest_csv
+    id: ingest
+  - type: validate_mapping_table
+    id: validate
+    params:
+      registry_index_path: "ucc/authorities/index.json"
+      require_evidence_link: true
+      allow_local_na: true
+      require_review_utc: true
+      require_expires_utc: true
+      enforce_not_expired: true
+      write_validation_md: true
+      write_validation_csv: true
+      md_name: "mapping_validation.md"
+      csv_name: "mapping_validation.csv"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"
