@@ -1,9 +1,9 @@
 ucc_version: "0.1"
 module:
-  id: "authority.cobit2019.profile_coverage"
+  id: "authority.owasp_asvs4.profile_coverage"
   version: "0.1.0"
-  title: "COBIT 2019 Profile Coverage (IDs Only)"
-  intent: "Validate a COBIT 2019 profile artifact for governance fields, evidence links, review cycle, and exception expiries (IDs only)."
+  title: "OWASP ASVS v4 Profile Coverage (IDs Only)"
+  intent: "Validate an OWASP ASVS v4 profile artifact for governance fields, evidence links, review cycle, and exception expiries (IDs only)."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
@@ -18,4 +18,4 @@ steps:
     params: { report_name: "report.json" }
   - type: emit_checklist
     id: checklist
-    params: { checklist_md: "authority_profile_checklist.md", title: "COBIT 2019 Profile Coverage Checklist" }
+    params: { checklist_md: "authority_profile_checklist.md", title: "OWASP ASVS v4 Profile Coverage Checklist" }

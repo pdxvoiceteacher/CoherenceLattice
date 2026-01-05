@@ -1,11 +1,11 @@
 {
   "authority_profile": {
-    "authority": { "id": "cis.controls.v8", "name": "CIS Controls v8", "publisher": "CIS", "version": "8", "url": "https://www.cisecurity.org/controls" },
-    "profile": { "org": "UVLM", "system": "CoherenceLattice", "scope": "Security baseline template", "jurisdiction": "global" },
-    "controls": { "selected_ids": ["CIS-1","CIS-2","CIS-3","CIS-4","CIS-5"] },
-    "evidence": { "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"], "artifacts": [{"kind":"ci","path":".github/workflows/ci.yml"}] },
-    "review_cycle": { "owner": "maintainers", "last_review_utc": "2026-01-01T00:00:00Z", "next_review_utc": "2026-04-01T00:00:00Z" },
-    "exceptions": { "process": "Issues + PR review.", "items": [{ "id": "EX-CIS-001", "description": "IDs only; no CIS text.", "risk_acceptor": "maintainers", "issued_utc": "2026-01-01T00:00:00Z", "expires_utc": "2026-12-31T00:00:00Z" }] },
-    "reporting_channel": { "primary": "github issues", "escalation": "maintainers" }
+    "authority": {"id":"cis.controls.v8","name":"CIS Controls v8","publisher":"CIS","version":"v8","url":"https://www.cisecurity.org/controls"},
+    "profile": {"org":"UVLM","system":"CoherenceLattice","scope":"Security baseline template (IDs only)","jurisdiction":"global"},
+    "controls": {"selected_ids":["CIS-1","CIS-4","CIS-6","CIS-8","CIS-12","CIS-16"],"notes":"Control IDs only; expand via PR."},
+    "evidence": {"links":["https://github.com/pdxvoiceteacher/CoherenceLattice"]},
+    "review_cycle": {"owner":"maintainers","last_review_utc":"2026-01-01T00:00:00Z","next_review_utc":"2026-04-01T00:00:00Z"},
+    "exceptions": {"process":"Issues + PR review.","items":[{"id":"EX-CISCTRLS-001","description":"IDs only; no CIS text embedded.","risk_acceptor":"maintainers","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]},
+    "reporting_channel": {"primary":"github issues","escalation":"maintainers"}
   }
 }

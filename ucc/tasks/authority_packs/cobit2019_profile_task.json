@@ -1,11 +1,11 @@
 {
   "authority_profile": {
-    "authority": { "id": "cobit.2019", "name": "COBIT 2019", "publisher": "ISACA", "version": "2019", "url": "https://www.isaca.org/resources/cobit" },
-    "profile": { "org": "UVLM", "system": "CoherenceLattice", "scope": "IT governance template", "jurisdiction": "global" },
-    "controls": { "selected_ids": ["EDM01","APO01","BAI01","DSS01","MEA01"] },
-    "evidence": { "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"], "artifacts": [{"kind":"ci","path":".github/workflows/ci.yml"}] },
-    "review_cycle": { "owner": "maintainers", "last_review_utc": "2026-01-01T00:00:00Z", "next_review_utc": "2026-04-01T00:00:00Z" },
-    "exceptions": { "process": "Issues + PR review.", "items": [{ "id": "EX-COBIT-001", "description": "IDs only; no COBIT text.", "risk_acceptor": "maintainers", "issued_utc": "2026-01-01T00:00:00Z", "expires_utc": "2026-12-31T00:00:00Z" }] },
-    "reporting_channel": { "primary": "github issues", "escalation": "maintainers" }
+    "authority": {"id":"cobit.2019","name":"COBIT 2019","publisher":"ISACA","version":"2019","url":"https://www.isaca.org/resources/cobit"},
+    "profile": {"org":"UVLM","system":"CoherenceLattice","scope":"IT governance template (IDs only)","jurisdiction":"global"},
+    "controls": {"selected_ids":["EDM01","APO12","BAI06","DSS02","MEA01"],"notes":"Objective IDs only; expand via PR."},
+    "evidence": {"links":["https://github.com/pdxvoiceteacher/CoherenceLattice"]},
+    "review_cycle": {"owner":"maintainers","last_review_utc":"2026-01-01T00:00:00Z","next_review_utc":"2026-04-01T00:00:00Z"},
+    "exceptions": {"process":"Issues + PR review.","items":[{"id":"EX-COBIT-001","description":"IDs only; no COBIT text embedded.","risk_acceptor":"maintainers","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]},
+    "reporting_channel": {"primary":"github issues","escalation":"maintainers"}
   }
 }

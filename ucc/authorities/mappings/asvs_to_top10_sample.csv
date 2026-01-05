@@ -1,0 +1,4 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
+owasp.asvs.4,V2,owasp.top10.2021,A07:2021,"Auth/session coverage placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+owasp.asvs.4,V5,owasp.top10.2021,A02:2021,"Crypto/data protection placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+owasp.asvs.4,V14,owasp.top10.2021,A05:2021,"Testing/verification placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

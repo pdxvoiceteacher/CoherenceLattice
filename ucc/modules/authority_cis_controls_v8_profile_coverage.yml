@@ -2,8 +2,8 @@ ucc_version: "0.1"
 module:
   id: "authority.cis_controls_v8.profile_coverage"
   version: "0.1.0"
-  title: "CIS Controls v8 Profile Coverage (Template)"
-  intent: "Validate a CIS Controls profile artifact for governance fields, evidence links, review cycle, and exception expiries."
+  title: "CIS Controls v8 Profile Coverage (IDs Only)"
+  intent: "Validate a CIS Controls v8 profile artifact for governance fields, evidence links, review cycle, and exception expiries (IDs only)."
   authors:
     - name: "Thomas Prislac"
     - name: "Envoy Echo"
@@ -12,16 +12,10 @@ steps:
     id: ingest
   - type: validate_authority_profile
     id: validate
-    params:
-      sections_key: "authority_profile"
-      min_links: 1
-      require_review_dates: true
-      require_exception_items: true
+    params: { sections_key: "authority_profile", min_links: 1, require_review_dates: true, require_exception_items: true }
   - type: emit_report
     id: report
     params: { report_name: "report.json" }
   - type: emit_checklist
     id: checklist
-    params:
-      checklist_md: "authority_profile_checklist.md"
-      title: "CIS Controls v8 Profile Coverage Checklist"
+    params: { checklist_md: "authority_profile_checklist.md", title: "CIS Controls v8 Profile Coverage Checklist" }

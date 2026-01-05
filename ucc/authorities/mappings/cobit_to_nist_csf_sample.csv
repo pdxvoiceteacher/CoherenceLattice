@@ -1,0 +1,3 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
+cobit.2019,EDM01,nist.csf,GV,"Governance objective aligns to CSF governance placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,DSS02,nist.csf,RS,"Incident/service request handling aligns to response placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

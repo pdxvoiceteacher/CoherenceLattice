@@ -1,11 +1,11 @@
 {
   "authority_profile": {
-    "authority": { "id": "aicpa.soc2.tsc", "name": "SOC 2 Trust Services Criteria", "publisher": "AICPA", "version": "unspecified", "url": "https://www.aicpa.org" },
-    "profile": { "org": "UVLM", "system": "CoherenceLattice", "scope": "Audit template", "jurisdiction": "global" },
-    "controls": { "selected_ids": ["CC1","CC2","CC3","CC4","CC5","CC6","CC7"] },
-    "evidence": { "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"], "artifacts": [{"kind":"ci","path":".github/workflows/ci.yml"}] },
-    "review_cycle": { "owner": "maintainers", "last_review_utc": "2026-01-01T00:00:00Z", "next_review_utc": "2026-04-01T00:00:00Z" },
-    "exceptions": { "process": "Issues + PR review.", "items": [{ "id": "EX-SOC2-001", "description": "IDs only; no AICPA text.", "risk_acceptor": "maintainers", "issued_utc": "2026-01-01T00:00:00Z", "expires_utc": "2026-12-31T00:00:00Z" }] },
-    "reporting_channel": { "primary": "github issues", "escalation": "maintainers" }
+    "authority": {"id":"aicpa.soc2.tsc","name":"SOC 2 Trust Services Criteria","publisher":"AICPA","version":"unspecified","url":"https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services"},
+    "profile": {"org":"UVLM","system":"CoherenceLattice","scope":"SOC 2 mapping template (IDs only)","jurisdiction":"global"},
+    "controls": {"selected_ids":["CC1","CC2","CC6","CC7","CC9","A1"],"notes":"Criteria IDs only; expand via PR."},
+    "evidence": {"links":["https://github.com/pdxvoiceteacher/CoherenceLattice"]},
+    "review_cycle": {"owner":"maintainers","last_review_utc":"2026-01-01T00:00:00Z","next_review_utc":"2026-04-01T00:00:00Z"},
+    "exceptions": {"process":"Issues + PR review.","items":[{"id":"EX-SOC2-001","description":"IDs only; no AICPA text embedded.","risk_acceptor":"maintainers","issued_utc":"2026-01-01T00:00:00Z","expires_utc":"2026-12-31T00:00:00Z"}]},
+    "reporting_channel": {"primary":"github issues","escalation":"maintainers"}
   }
 }

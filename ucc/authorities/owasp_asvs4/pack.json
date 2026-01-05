@@ -1,0 +1,20 @@
+{
+  "pack_id": "owasp.asvs.4",
+  "authority": {
+    "id": "owasp.asvs.4",
+    "name": "OWASP ASVS v4 (Chapter IDs Only)",
+    "publisher": "OWASP",
+    "version": "4",
+    "url": "https://owasp.org/www-project-application-security-verification-standard/"
+  },
+  "control_namespace": {
+    "kind": "chapter_ids_only",
+    "ids": ["V1","V2","V3","V4","V5","V6","V7","V8","V9","V10","V11","V12","V13","V14"],
+    "note": "Chapter IDs only; no long text embedded."
+  },
+  "governance_defaults": {
+    "min_evidence_links": 1,
+    "require_review_cycle": true,
+    "require_exceptions": true
+  }
+}

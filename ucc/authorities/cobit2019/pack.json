@@ -2,15 +2,21 @@
   "pack_id": "cobit.2019",
   "authority": {
     "id": "cobit.2019",
-    "name": "COBIT 2019",
+    "name": "COBIT 2019 (Objectives IDs Only)",
     "publisher": "ISACA",
     "version": "2019",
     "url": "https://www.isaca.org/resources/cobit"
   },
   "control_namespace": {
     "kind": "objective_ids_only",
-    "ids": ["EDM01", "APO01", "BAI01", "DSS01", "MEA01"],
-    "note": "Objective IDs only; no copyrighted COBIT text redistributed."
+    "ids": [
+      "EDM01","EDM02","EDM03","EDM04","EDM05",
+      "APO01","APO02","APO03","APO04","APO05","APO06","APO07","APO08","APO09","APO10","APO11","APO12","APO13","APO14",
+      "BAI01","BAI02","BAI03","BAI04","BAI05","BAI06","BAI07","BAI08","BAI09","BAI10","BAI11",
+      "DSS01","DSS02","DSS03","DSS04","DSS05","DSS06",
+      "MEA01","MEA02","MEA03"
+    ],
+    "note": "Objective IDs only; no COBIT text embedded."
   },
   "governance_defaults": {
     "min_evidence_links": 1,

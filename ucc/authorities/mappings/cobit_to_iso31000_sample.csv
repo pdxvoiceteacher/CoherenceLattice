@@ -1,3 +1,3 @@
-source_authority,source_id,target_authority,target_id,rationale,evidence_link
-cobit.2019,EDM01,iso.31000,5,"Risk governance crosswalk placeholder",local:NA
-cobit.2019,MEA01,iso.31000,6,"Monitoring/review crosswalk placeholder",local:NA
+source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
+cobit.2019,EDM03,iso.31000,PROCESS,"Risk optimization aligns to risk process placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cobit.2019,APO12,iso.31000,PROCESS,"Risk management objective aligns to risk process placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

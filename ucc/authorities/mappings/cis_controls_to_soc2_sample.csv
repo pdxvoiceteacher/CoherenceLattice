@@ -1,0 +1,4 @@
+source_authority,source_id,target_authority,target_id,rationale,evidence_link,review_utc,expires_utc
+cis.controls.v8,CIS-1,aicpa.soc2.tsc,CC1,"Inventory/asset governance placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cis.controls.v8,CIS-6,aicpa.soc2.tsc,CC6,"Access management placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z
+cis.controls.v8,CIS-8,aicpa.soc2.tsc,CC7,"Audit/log monitoring placeholder",local:NA,2026-01-01T00:00:00Z,2026-12-31T00:00:00Z

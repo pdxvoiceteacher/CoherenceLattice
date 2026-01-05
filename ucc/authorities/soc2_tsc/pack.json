@@ -2,15 +2,15 @@
   "pack_id": "aicpa.soc2.tsc",
   "authority": {
     "id": "aicpa.soc2.tsc",
-    "name": "SOC 2 Trust Services Criteria (TSC)",
+    "name": "SOC 2 Trust Services Criteria (IDs Only)",
     "publisher": "AICPA",
     "version": "unspecified",
-    "url": "https://www.aicpa.org"
+    "url": "https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services"
   },
   "control_namespace": {
-    "kind": "criteria_ids_only",
-    "ids": ["CC1","CC2","CC3","CC4","CC5","CC6","CC7","CC8","CC9"],
-    "note": "Criteria IDs only; no copyrighted AICPA text redistributed."
+    "kind": "tsc_ids_only",
+    "ids": ["CC1","CC2","CC3","CC4","CC5","CC6","CC7","CC8","CC9","A1","C1","PI1","P1"],
+    "note": "Criteria IDs only; no AICPA text embedded."
   },
   "governance_defaults": {
     "min_evidence_links": 1,
