@@ -59,6 +59,9 @@ jobs:
           python -m ucc.cli run ucc/modules/mc_ai_salvage_coverage.yml --input ucc/tasks/mc_ai_salvage_task.json --outdir ucc/out/ci_mc_ai_salvage
           python -m ucc.cli run ucc/modules/kontainer_deploy_coverage.yml --input ucc/tasks/kontainer_deploy_task.json --outdir ucc/out/ci_kontainer
           python -m ucc.cli run ucc/modules/konomi_api_security_coverage.yml --input ucc/tasks/konomi_api_security_task.json --outdir ucc/out/ci_api_security
-          
+
+      - name: Registry walker (all packs + enforced mappings)
+        run: python ucc/tools/run_registry_walker.py
+
       - name: Registry walker (all packs + enforced mappings)
         run: python ucc/tools/run_registry_walker.py
