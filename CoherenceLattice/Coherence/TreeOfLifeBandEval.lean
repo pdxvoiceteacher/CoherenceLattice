@@ -9,37 +9,32 @@ namespace Coherence
 namespace TreeOfLifeBandEval
 
 /-!
-# TreeOfLifeBandEval
+# TreeOfLifeBandEval (synced)
 
 Float-only sanity output (NOT a theorem).
-Prints for each Sephira:
-- name
-- E,T
-- psi = E*T
-- band based on thresholds 0.2,0.4,0.6,0.8
+
+This file derives E/T from TreeOfLifeAddons.EFrac/TFrac, so it stays synced.
+To tweak thresholds, edit `thr0` below.
 -/
 
 open Coherence.TreeOfLife
 
-def bandF (psi : Float) : Nat :=
-  if psi < 0.2 then 0
-  else if psi < 0.4 then 1
-  else if psi < 0.6 then 2
-  else if psi < 0.8 then 3
-  else 4
+structure BandThresholds where
+  t0 : Float
+  t1 : Float
+  t2 : Float
+  t3 : Float
+deriving Repr
 
--- Mirror the TreeOfLifeAddons mapping as Float (so we can #eval)
-def sephiraETF : Sephira -> (Float × Float)
-  | .keter     => (1.0, 1.0)
-  | .chokmah   => (0.9, 0.7)
-  | .binah     => (0.7, 0.9)
-  | .chesed    => (0.8, 0.6)
-  | .gevurah   => (0.6, 0.8)
-  | .tiphereth => (0.75, 0.75)
-  | .netzach   => (0.6, 0.4)
-  | .hod       => (0.4, 0.6)
-  | .yesod     => (0.5, 0.5)
-  | .malkuth   => (0.2, 0.2)
+-- TWEAK THRESHOLDS HERE (default: 0.2/0.4/0.6/0.8)
+def thr0 : BandThresholds := { t0 := 0.2, t1 := 0.4, t2 := 0.6, t3 := 0.8 }
+
+def bandF (thr : BandThresholds) (psi : Float) : Nat :=
+  if psi < thr.t0 then 0
+  else if psi < thr.t1 then 1
+  else if psi < thr.t2 then 2
+  else if psi < thr.t3 then 3
+  else 4
 
 def sephiraName : Sephira -> String
   | .keter     => "keter"
@@ -53,6 +48,9 @@ def sephiraName : Sephira -> String
   | .yesod     => "yesod"
   | .malkuth   => "malkuth"
 
+def EFloat (s : Sephira) : Float := (EFrac s).toFloat
+def TFloat (s : Sephira) : Float := (TFrac s).toFloat
+
 structure Row where
   name : String
   E : Float
@@ -61,17 +59,16 @@ structure Row where
   band : Nat
 deriving Repr
 
-def row (s : Sephira) : Row :=
-  let et := sephiraETF s
-  let e := et.1
-  let t := et.2
+def row (thr : BandThresholds) (s : Sephira) : Row :=
+  let e := EFloat s
+  let t := TFloat s
   let p := e * t
-  { name := sephiraName s, E := e, T := t, psi := p, band := bandF p }
+  { name := sephiraName s, E := e, T := t, psi := p, band := bandF thr p }
 
 def all : List Sephira :=
   [.keter, .chokmah, .binah, .chesed, .gevurah, .tiphereth, .netzach, .hod, .yesod, .malkuth]
 
-def rows : List Row := all.map row
+def rows : List Row := all.map (row thr0)
 
 def csvHeader : String := "name,E,T,psi,band"
 def csvLine (r : Row) : String :=
@@ -79,6 +76,7 @@ def csvLine (r : Row) : String :=
 
 def csv : String := String.intercalate "\n" (csvHeader :: rows.map csvLine)
 
+#eval thr0
 #eval rows
 #eval csv
 
