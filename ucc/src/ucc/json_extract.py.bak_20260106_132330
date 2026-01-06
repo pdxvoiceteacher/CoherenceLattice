@@ -1,0 +1,285 @@
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+
+def _repo_root() -> Path:
+    # .../ucc/src/ucc/json_extract.py -> repo root
+    return Path(__file__).resolve().parents[3]
+
+
+def _load_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def _normalize_path(p: str) -> str:
+    s = (p or "").strip()
+    if s.startswith("$."):
+        s = s[2:]
+    if s.startswith("."):
+        s = s[1:]
+    return s
+
+
+def _get_path(obj: Any, path: str) -> Any:
+    cur = obj
+    p = _normalize_path(path)
+    if not p:
+        return cur
+    for part in p.split("."):
+        if part == "":
+            continue
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+            continue
+        # allow list indexing via numeric segment
+        if isinstance(cur, list) and part.isdigit():
+            i = int(part)
+            if 0 <= i < len(cur):
+                cur = cur[i]
+                continue
+        return None
+    return cur
+
+
+def _deep_find_unique_key(obj: Any, key: str, max_hits: int = 2) -> Any:
+    hits: List[Any] = []
+
+    def rec(x: Any) -> None:
+        if len(hits) >= max_hits:
+            return
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if k == key:
+                    hits.append(v)
+                    if len(hits) >= max_hits:
+                        return
+                rec(v)
+        elif isinstance(x, list):
+            for v in x:
+                rec(v)
+
+    rec(obj)
+    if len(hits) == 1:
+        return hits[0]
+    return None
+
+
+def _get_with_fallback(doc: Any, path: str) -> Any:
+    p = _normalize_path(path)
+    v = _get_path(doc, p)
+    if v is not None:
+        return v
+
+    # Common wrappers: metrics.*, report.metrics.*, comparison.metrics.*
+    alts: List[str] = []
+
+    if p.startswith("metrics."):
+        alts.append(p[len("metrics."):])
+    else:
+        alts.append("metrics." + p)
+
+    if p.startswith("report.metrics."):
+        alts.append(p[len("report."):])
+    if p.startswith("comparison.metrics."):
+        alts.append(p[len("comparison."):])
+
+    # Try alts
+    for a in alts:
+        vv = _get_path(doc, a)
+        if vv is not None:
+            return vv
+
+    # If still missing, try deep unique key search on last segment
+    last = p.split(".")[-1] if p else ""
+    if last:
+        vv = _deep_find_unique_key(doc, last)
+        if vv is not None:
+            return vv
+
+    return None
+
+
+def _coerce(val: Any, typ: str) -> Tuple[bool, Any]:
+    t = (typ or "").strip().lower()
+    try:
+        if t in {"int", "integer"}:
+            if val is None or val == "":
+                return False, None
+            return True, int(val)
+        if t in {"number", "float"}:
+            if val is None or val == "":
+                return False, None
+            return True, float(val)
+        if t in {"bool", "boolean"}:
+            if isinstance(val, bool):
+                return True, val
+            s = str(val).strip().lower()
+            if s in {"1", "true", "yes", "y", "on"}:
+                return True, True
+            if s in {"0", "false", "no", "n", "off"}:
+                return True, False
+            return False, None
+        if val is None:
+            return True, ""
+        return True, str(val)
+    except Exception:
+        return False, None
+
+
+def extract_json_fields_task(
+    task_doc: Dict[str, Any],
+    outdir: Path,
+    thresholds: Dict[str, Any],
+    *,
+    sections_key: str = "json_extract",
+    name_json: str = "extracted_metrics.json",
+    name_csv: str = "extracted_metrics.csv",
+    name_md: str = "extracted_metrics.md",
+    **kwargs: Any,
+) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
+    """
+    UCC step: extract_json_fields
+
+    Default sections_key="json_extract" so callers don't have to pass it.
+
+    Writes:
+      - extracted_metrics.json  (top-level key "extracted")
+      - extracted_metrics.csv
+      - extracted_metrics.md
+    """
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    cfg: Any = task_doc.get(sections_key) if isinstance(task_doc, dict) else None
+
+    # If missing, allow single-key dict payloads
+    if cfg is None and isinstance(task_doc, dict) and len(task_doc) == 1:
+        v = next(iter(task_doc.values()))
+        if isinstance(v, dict):
+            cfg = v
+
+    if not isinstance(cfg, dict):
+        metrics = {"json_extract_error": "missing/invalid json_extract config"}
+        flags = {"json_extract_ok": False}
+        p = outdir / name_json
+        p.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")
+        return metrics, flags, [p]
+
+    source_json = cfg.get("source_json")
+    if not source_json:
+        metrics = {"json_extract_error": "source_json required"}
+        flags = {"json_extract_ok": False}
+        p = outdir / name_json
+        p.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")
+        return metrics, flags, [p]
+
+    src_path = Path(str(source_json))
+    if not src_path.is_absolute():
+        src_path = _repo_root() / src_path
+
+    doc = _load_json(src_path)
+
+    fields = cfg.get("fields", [])
+    if not isinstance(fields, list):
+        fields = []
+
+    out_json = str(cfg.get("out_json") or name_json)
+    out_csv = str(cfg.get("out_csv") or name_csv)
+    out_md = str(cfg.get("out_md") or name_md)
+
+    extracted: Dict[str, Any] = {}
+    missing: List[str] = []
+    type_errors: List[str] = []
+
+    for f in fields:
+        if not isinstance(f, dict):
+            continue
+        fid = str(f.get("id") or "").strip()
+        fpath = str(f.get("path") or "").strip()
+        ftype = str(f.get("type") or "string")
+        required = bool(f.get("required", False))
+        if not fid:
+            continue
+
+        raw = _get_with_fallback(doc, fpath)
+
+        if raw is None:
+            if required:
+                missing.append(fid)
+            extracted[fid] = None
+            continue
+
+        ok, coerced = _coerce(raw, ftype)
+        if not ok:
+            type_errors.append(fid)
+            extracted[fid] = None
+        else:
+            extracted[fid] = coerced
+
+    ok_all = (len(missing) == 0 and len(type_errors) == 0)
+
+    metrics: Dict[str, Any] = {
+        "json_extract_fields": len(fields),
+        "json_extract_missing": len(missing),
+        "json_extract_type_errors": len(type_errors),
+        "json_extract_source": str(src_path),
+    }
+    flags: Dict[str, Any] = {"json_extract_ok": bool(ok_all)}
+
+    p_json = outdir / out_json
+    p_csv = outdir / out_csv
+    p_md = outdir / out_md
+
+    p_json.write_text(
+        json.dumps(
+            {
+                "extracted": extracted,
+                "missing": missing,
+                "type_errors": type_errors,
+                "metrics": metrics,
+                "flags": flags,
+            },
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    with p_csv.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["id", "value", "status"])
+        for k, v in extracted.items():
+            if k in missing:
+                w.writerow([k, "", "missing"])
+            elif k in type_errors:
+                w.writerow([k, "", "type_error"])
+            else:
+                w.writerow([k, v, "ok"])
+
+    lines = [
+        "# JSON Extract Fields",
+        "",
+        f"- ok: **{ok_all}**",
+        f"- missing: **{len(missing)}**",
+        f"- type_errors: **{len(type_errors)}**",
+        "",
+        "| id | value | status |",
+        "|---|---:|---|",
+    ]
+    for k, v in extracted.items():
+        status = "ok"
+        vv = v
+        if k in missing:
+            status = "missing"
+            vv = ""
+        elif k in type_errors:
+            status = "type_error"
+            vv = ""
+        lines.append(f"| {k} | {vv} | {status} |")
+    lines.append("")
+    p_md.write_text("\n".join(lines), encoding="utf-8")
+
+    return metrics, flags, [p_json, p_csv, p_md]

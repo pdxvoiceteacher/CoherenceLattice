@@ -8,14 +8,14 @@ namespace Coherence
 namespace MusicScaffoldEval
 
 /-!
-# MusicScaffoldEval
+# MusicScaffoldEval (with summaries)
 
 Float-only eval (non-proof) that prints:
-- applyScale for a base frequency
-- chord OK flags
-- CSV output for Python diffing
+1) Scale table CSV: name,ratio,freqHz
+2) Chord table CSV: chord,expectedOk,ok,ratios,freqsHz
+3) Global summary row: chord="__SUMMARY__", okAll
 
-We use Rat for exact ratios and convert Rat -> Float for frequency outputs.
+This is a regression-friendly artifact for Python diffing and engine validation.
 -/
 
 def ratToFloat (r : Rat) : Float :=
@@ -39,36 +39,69 @@ def consonantSet : List Rat := [unison, M3, P4, P5, octave]
 def isConsonant (r : Rat) : Bool := decide (r ∈ consonantSet)
 def chordOK (rs : List Rat) : Bool := rs.all isConsonant
 
-def baseF : Float := 440.0
+def joinComma (xs : List String) : String := String.intercalate "," xs
 
+def baseF : Float := 440.0
 def freqOf (r : Rat) : Float := baseF * ratToFloat r
 
+-- -------------------------
+-- Scale CSV
+-- -------------------------
 def csvHeaderScale : String := "name,ratio,freqHz"
 def csvLineScale (p : String × Rat) : String :=
   s!"{p.1},{ratToString p.2},{freqOf p.2}"
 
-def csvHeaderChord : String := "chord,ok,ratios,freqsHz"
-def joinComma (xs : List String) : String := String.intercalate "," xs
+-- -------------------------
+-- Chord CSV + summaries
+-- -------------------------
+structure ChordCase where
+  name : String
+  expectedOk : Bool
+  ratios : List Rat
+deriving Repr
 
-def chordLine (name : String) (rs : List Rat) : String :=
-  let ok := chordOK rs
-  let rsS := joinComma (rs.map ratToString)
-  let fsS := joinComma (rs.map (fun r => s!"{freqOf r}"))
-  s!"{name},{ok},{rsS},{fsS}"
+def chordCases : List ChordCase :=
+  [ { name := "fifth+octave", expectedOk := true,  ratios := [unison, P5, octave] }
+  , { name := "majorTriad",   expectedOk := true,  ratios := [unison, M3, P5] }
+  , { name := "minorTriad",   expectedOk := false, ratios := [unison, m3, P5] }  -- m3 not in consonantSet stub
+  , { name := "mixed",        expectedOk := false, ratios := [unison, m3, P4] }  -- m3 not in consonantSet stub
+  ]
+
+def csvHeaderChord : String := "chord,expectedOk,ok,ratios,freqsHz"
+
+def chordLine (c : ChordCase) : String :=
+  let ok := chordOK c.ratios
+  let rsS := joinComma (c.ratios.map ratToString)
+  let fsS := joinComma (c.ratios.map (fun r => s!"{freqOf r}"))
+  s!"{c.name},{c.expectedOk},{ok},{rsS},{fsS}"
+
+def okCase (c : ChordCase) : Bool :=
+  (chordOK c.ratios) == c.expectedOk
+
+def okAll : Bool :=
+  chordCases.all okCase
+
+def summaryLine : String :=
+  s!"__SUMMARY__,,{okAll},,"
 
 def emit : IO Unit := do
   -- Scale table
+  IO.println "# SCALE"
   IO.println csvHeaderScale
   for p in scale0 do
     IO.println (csvLineScale p)
 
   IO.println ""
-  -- Chord flags
+  -- Chord table
+  IO.println "# CHORDS"
   IO.println csvHeaderChord
-  IO.println (chordLine "fifth+octave" [unison, P5, octave])
-  IO.println (chordLine "majorTriad" [unison, M3, P5])
-  IO.println (chordLine "minorTriad" [unison, m3, P5])
-  IO.println (chordLine "mixed" [unison, m3, P4])
+  for c in chordCases do
+    IO.println (chordLine c)
+
+  -- Global summary row
+  IO.println "# SUMMARY"
+  IO.println csvHeaderChord
+  IO.println summaryLine
 
 #eval emit
 

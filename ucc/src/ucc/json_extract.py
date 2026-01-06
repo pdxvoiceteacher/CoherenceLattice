@@ -2,12 +2,24 @@ from __future__ import annotations
 
 import csv
 import json
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+
+# -------------------------------
+# Helpers
+# -------------------------------
+
+class _Missing:
+    pass
+
+
+MISSING = _Missing()
 
 
 def _repo_root() -> Path:
-    # .../ucc/src/ucc/json_extract.py -> repo root
+    # .../CoherenceLattice/ucc/src/ucc/json_extract.py -> parents[3] is repo root
     return Path(__file__).resolve().parents[3]
 
 
@@ -15,120 +27,124 @@ def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
-def _normalize_path(p: str) -> str:
-    s = (p or "").strip()
-    if s.startswith("$."):
-        s = s[2:]
-    if s.startswith("."):
-        s = s[1:]
-    return s
+def _resolve_path(p: str) -> Path:
+    pp = Path(str(p))
+    if pp.is_absolute():
+        return pp
+    # Interpret as repo-root-relative (so "ucc/tasks/..." works)
+    return (_repo_root() / pp).resolve()
 
 
-def _get_path(obj: Any, path: str) -> Any:
+def _parse_path(expr: str) -> List[Union[str, int]]:
+    """
+    Parse dotted path with optional list indices.
+
+    Examples:
+      metrics.delta_mean_Ppump        -> ["metrics","delta_mean_Ppump"]
+      nested.arr[1].x                 -> ["nested","arr",1,"x"]
+      a.b[0][2].c                     -> ["a","b",0,2,"c"]
+    """
+    s = str(expr).strip()
+    if not s:
+        raise ValueError("empty path")
+
+    parts: List[Union[str, int]] = []
+    buf: List[str] = []
+    i = 0
+    n = len(s)
+
+    def flush_key() -> None:
+        nonlocal buf
+        if buf:
+            k = "".join(buf).strip()
+            if k:
+                parts.append(k)
+            buf = []
+
+    while i < n:
+        ch = s[i]
+        if ch == ".":
+            flush_key()
+            i += 1
+            continue
+        if ch == "[":
+            flush_key()
+            j = s.find("]", i + 1)
+            if j == -1:
+                raise ValueError(f"unclosed '[' in path: {s}")
+            idx_raw = s[i + 1 : j].strip()
+            if not idx_raw.isdigit():
+                raise ValueError(f"non-integer index [{idx_raw}] in path: {s}")
+            parts.append(int(idx_raw))
+            i = j + 1
+            continue
+        buf.append(ch)
+        i += 1
+
+    flush_key()
+    return parts
+
+
+def _get_by_parts(obj: Any, parts: List[Union[str, int]]) -> Any:
     cur = obj
-    p = _normalize_path(path)
-    if not p:
-        return cur
-    for part in p.split("."):
-        if part == "":
-            continue
-        if isinstance(cur, dict) and part in cur:
-            cur = cur[part]
-            continue
-        # allow list indexing via numeric segment
-        if isinstance(cur, list) and part.isdigit():
-            i = int(part)
-            if 0 <= i < len(cur):
-                cur = cur[i]
-                continue
-        return None
+    for p in parts:
+        if isinstance(p, int):
+            if not isinstance(cur, list):
+                return MISSING
+            if p < 0 or p >= len(cur):
+                return MISSING
+            cur = cur[p]
+        else:
+            if not isinstance(cur, dict):
+                return MISSING
+            if p not in cur:
+                return MISSING
+            cur = cur[p]
     return cur
 
 
-def _deep_find_unique_key(obj: Any, key: str, max_hits: int = 2) -> Any:
-    hits: List[Any] = []
+def _coerce_type(val: Any, typ: str) -> Tuple[bool, Any, str]:
+    """
+    Returns (ok, coerced_value, reason_if_bad)
+    """
+    t = str(typ).strip().lower()
 
-    def rec(x: Any) -> None:
-        if len(hits) >= max_hits:
-            return
-        if isinstance(x, dict):
-            for k, v in x.items():
-                if k == key:
-                    hits.append(v)
-                    if len(hits) >= max_hits:
-                        return
-                rec(v)
-        elif isinstance(x, list):
-            for v in x:
-                rec(v)
+    if t in {"any", "raw"}:
+        return True, val, ""
 
-    rec(obj)
-    if len(hits) == 1:
-        return hits[0]
-    return None
+    if t in {"bool", "boolean"}:
+        if isinstance(val, bool):
+            return True, val, ""
+        return False, None, f"expected bool, got {type(val).__name__}"
 
+    if t in {"int", "integer"}:
+        # bool is a subclass of int in Python; reject it explicitly
+        if isinstance(val, bool):
+            return False, None, "expected int, got bool"
+        if isinstance(val, int):
+            return True, val, ""
+        if isinstance(val, float) and val.is_integer():
+            return True, int(val), ""
+        return False, None, f"expected int, got {type(val).__name__}"
 
-def _get_with_fallback(doc: Any, path: str) -> Any:
-    p = _normalize_path(path)
-    v = _get_path(doc, p)
-    if v is not None:
-        return v
+    if t in {"number", "float", "real"}:
+        if isinstance(val, bool):
+            return False, None, "expected number, got bool"
+        if isinstance(val, (int, float)):
+            return True, val, ""
+        return False, None, f"expected number, got {type(val).__name__}"
 
-    # Common wrappers: metrics.*, report.metrics.*, comparison.metrics.*
-    alts: List[str] = []
+    if t in {"str", "string", "text"}:
+        if isinstance(val, str):
+            return True, val, ""
+        return False, None, f"expected string, got {type(val).__name__}"
 
-    if p.startswith("metrics."):
-        alts.append(p[len("metrics."):])
-    else:
-        alts.append("metrics." + p)
-
-    if p.startswith("report.metrics."):
-        alts.append(p[len("report."):])
-    if p.startswith("comparison.metrics."):
-        alts.append(p[len("comparison."):])
-
-    # Try alts
-    for a in alts:
-        vv = _get_path(doc, a)
-        if vv is not None:
-            return vv
-
-    # If still missing, try deep unique key search on last segment
-    last = p.split(".")[-1] if p else ""
-    if last:
-        vv = _deep_find_unique_key(doc, last)
-        if vv is not None:
-            return vv
-
-    return None
+    return False, None, f"unknown type '{typ}'"
 
 
-def _coerce(val: Any, typ: str) -> Tuple[bool, Any]:
-    t = (typ or "").strip().lower()
-    try:
-        if t in {"int", "integer"}:
-            if val is None or val == "":
-                return False, None
-            return True, int(val)
-        if t in {"number", "float"}:
-            if val is None or val == "":
-                return False, None
-            return True, float(val)
-        if t in {"bool", "boolean"}:
-            if isinstance(val, bool):
-                return True, val
-            s = str(val).strip().lower()
-            if s in {"1", "true", "yes", "y", "on"}:
-                return True, True
-            if s in {"0", "false", "no", "n", "off"}:
-                return True, False
-            return False, None
-        if val is None:
-            return True, ""
-        return True, str(val)
-    except Exception:
-        return False, None
-
+# -------------------------------
+# UCC step
+# -------------------------------
 
 def extract_json_fields_task(
     task_doc: Dict[str, Any],
@@ -136,150 +152,171 @@ def extract_json_fields_task(
     thresholds: Dict[str, Any],
     *,
     sections_key: str = "json_extract",
-    name_json: str = "extracted_metrics.json",
-    name_csv: str = "extracted_metrics.csv",
-    name_md: str = "extracted_metrics.md",
+    name_json: Optional[str] = None,
+    name_csv: Optional[str] = None,
+    name_md: Optional[str] = None,
     **kwargs: Any,
 ) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
     """
     UCC step: extract_json_fields
 
-    Default sections_key="json_extract" so callers don't have to pass it.
+    Expects task_doc[sections_key] like:
+      {
+        "source_json": "...",
+        "fields": [{"id","path","type","required"}, ...],
+        "out_json": "extracted_metrics.json",
+        "out_csv":  "extracted_metrics.csv",
+        "out_md":   "extracted_metrics.md"
+      }
 
-    Writes:
-      - extracted_metrics.json  (top-level key "extracted")
-      - extracted_metrics.csv
-      - extracted_metrics.md
+    Writes out_json with top-level key "extracted" (required by tests).
     """
     outdir.mkdir(parents=True, exist_ok=True)
 
-    cfg: Any = task_doc.get(sections_key) if isinstance(task_doc, dict) else None
-
-    # If missing, allow single-key dict payloads
-    if cfg is None and isinstance(task_doc, dict) and len(task_doc) == 1:
-        v = next(iter(task_doc.values()))
-        if isinstance(v, dict):
-            cfg = v
-
+    cfg = task_doc.get(sections_key)
     if not isinstance(cfg, dict):
-        metrics = {"json_extract_error": "missing/invalid json_extract config"}
+        metrics = {"json_extract_error": f"missing or non-dict section '{sections_key}'"}
         flags = {"json_extract_ok": False}
-        p = outdir / name_json
-        p.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")
-        return metrics, flags, [p]
+        return metrics, flags, []
 
-    source_json = cfg.get("source_json")
-    if not source_json:
-        metrics = {"json_extract_error": "source_json required"}
-        flags = {"json_extract_ok": False}
-        p = outdir / name_json
-        p.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")
-        return metrics, flags, [p]
-
-    src_path = Path(str(source_json))
-    if not src_path.is_absolute():
-        src_path = _repo_root() / src_path
-
-    doc = _load_json(src_path)
-
+    source_json = cfg.get("source_json", "")
     fields = cfg.get("fields", [])
-    if not isinstance(fields, list):
-        fields = []
+    if not source_json or not isinstance(source_json, str):
+        metrics = {"json_extract_error": "source_json missing/invalid"}
+        flags = {"json_extract_ok": False}
+        return metrics, flags, []
+    if not isinstance(fields, list) or not fields:
+        metrics = {"json_extract_error": "fields missing/invalid"}
+        flags = {"json_extract_ok": False}
+        return metrics, flags, []
 
-    out_json = str(cfg.get("out_json") or name_json)
-    out_csv = str(cfg.get("out_csv") or name_csv)
-    out_md = str(cfg.get("out_md") or name_md)
+    src_path = _resolve_path(source_json)
+    if not src_path.exists():
+        metrics = {"json_extract_error": f"source_json not found: {src_path}"}
+        flags = {"json_extract_ok": False}
+        return metrics, flags, []
+
+    data = _load_json(src_path)
 
     extracted: Dict[str, Any] = {}
-    missing: List[str] = []
+    missing_required: List[str] = []
     type_errors: List[str] = []
+    path_errors: List[str] = []
 
-    for f in fields:
-        if not isinstance(f, dict):
+    # track per-field info for CSV/MD
+    per_field_rows: List[Dict[str, Any]] = []
+
+    for spec in fields:
+        if not isinstance(spec, dict):
             continue
-        fid = str(f.get("id") or "").strip()
-        fpath = str(f.get("path") or "").strip()
-        ftype = str(f.get("type") or "string")
-        required = bool(f.get("required", False))
-        if not fid:
-            continue
+        fid = str(spec.get("id", "")).strip()
+        path = str(spec.get("path", "")).strip()
+        typ = str(spec.get("type", "any")).strip()
+        required = bool(spec.get("required", False))
 
-        raw = _get_with_fallback(doc, fpath)
-
-        if raw is None:
+        if not fid or not path:
             if required:
-                missing.append(fid)
-            extracted[fid] = None
+                missing_required.append(fid or "(missing-id)")
             continue
 
-        ok, coerced = _coerce(raw, ftype)
-        if not ok:
-            type_errors.append(fid)
-            extracted[fid] = None
-        else:
-            extracted[fid] = coerced
+        try:
+            parts = _parse_path(path)
+        except Exception as e:
+            if required:
+                path_errors.append(fid)
+            per_field_rows.append(
+                {"id": fid, "path": path, "type": typ, "required": required, "status": "bad_path", "value": "", "error": str(e)}
+            )
+            continue
 
-    ok_all = (len(missing) == 0 and len(type_errors) == 0)
+        val = _get_by_parts(data, parts)
+        if val is MISSING:
+            if required:
+                missing_required.append(fid)
+            per_field_rows.append(
+                {"id": fid, "path": path, "type": typ, "required": required, "status": "missing", "value": "", "error": ""}
+            )
+            continue
+
+        ok_t, coerced, reason = _coerce_type(val, typ)
+        if not ok_t:
+            if required:
+                type_errors.append(fid)
+            per_field_rows.append(
+                {"id": fid, "path": path, "type": typ, "required": required, "status": "bad_type", "value": json.dumps(val), "error": reason}
+            )
+            continue
+
+        extracted[fid] = coerced
+        per_field_rows.append(
+            {"id": fid, "path": path, "type": typ, "required": required, "status": "ok", "value": json.dumps(coerced), "error": ""}
+        )
+
+    ok = (len(missing_required) == 0 and len(type_errors) == 0 and len(path_errors) == 0)
 
     metrics: Dict[str, Any] = {
-        "json_extract_fields": len(fields),
-        "json_extract_missing": len(missing),
-        "json_extract_type_errors": len(type_errors),
         "json_extract_source": str(src_path),
+        "json_extract_total_fields": len([f for f in fields if isinstance(f, dict)]),
+        "json_extract_extracted": len(extracted),
+        "json_extract_missing_required": len(missing_required),
+        "json_extract_type_errors": len(type_errors),
+        "json_extract_path_errors": len(path_errors),
     }
-    flags: Dict[str, Any] = {"json_extract_ok": bool(ok_all)}
+    flags: Dict[str, Any] = {
+        "json_extract_ok": bool(ok),
+        "json_extract_missing_required_ids": missing_required,
+        "json_extract_type_error_ids": type_errors,
+        "json_extract_path_error_ids": path_errors,
+    }
 
-    p_json = outdir / out_json
-    p_csv = outdir / out_csv
-    p_md = outdir / out_md
+    out_json_name = str(cfg.get("out_json") or name_json or "extracted_metrics.json")
+    out_csv_name = str(cfg.get("out_csv") or name_csv or "extracted_metrics.csv")
+    out_md_name = str(cfg.get("out_md") or name_md or "extracted_metrics.md")
 
-    p_json.write_text(
-        json.dumps(
-            {
-                "extracted": extracted,
-                "missing": missing,
-                "type_errors": type_errors,
-                "metrics": metrics,
-                "flags": flags,
-            },
-            indent=2,
-            sort_keys=True,
-        ),
-        encoding="utf-8",
-    )
+    p_json = outdir / out_json_name
+    p_csv = outdir / out_csv_name
+    p_md = outdir / out_md_name
 
+    # JSON output must have top-level "extracted" (tests depend on it)
+    payload = {
+        "extracted": extracted,
+        "missing_required": missing_required,
+        "type_errors": type_errors,
+        "path_errors": path_errors,
+        "source_json": str(src_path),
+        "metrics": metrics,
+        "flags": flags,
+    }
+    p_json.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+    # CSV output (for humans/CI artifacts)
     with p_csv.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["id", "value", "status"])
-        for k, v in extracted.items():
-            if k in missing:
-                w.writerow([k, "", "missing"])
-            elif k in type_errors:
-                w.writerow([k, "", "type_error"])
-            else:
-                w.writerow([k, v, "ok"])
+        w.writerow(["id", "path", "type", "required", "status", "value", "error"])
+        for r in per_field_rows:
+            w.writerow([r["id"], r["path"], r["type"], str(r["required"]), r["status"], r["value"], r["error"]])
 
-    lines = [
+    # Markdown output
+    md_lines = [
         "# JSON Extract Fields",
         "",
-        f"- ok: **{ok_all}**",
-        f"- missing: **{len(missing)}**",
-        f"- type_errors: **{len(type_errors)}**",
+        f"- source_json: `{src_path}`",
+        f"- ok: **{ok}**",
+        "",
+        "## Extracted",
         "",
         "| id | value | status |",
         "|---|---:|---|",
     ]
-    for k, v in extracted.items():
-        status = "ok"
-        vv = v
-        if k in missing:
-            status = "missing"
-            vv = ""
-        elif k in type_errors:
-            status = "type_error"
-            vv = ""
-        lines.append(f"| {k} | {vv} | {status} |")
-    lines.append("")
-    p_md.write_text("\n".join(lines), encoding="utf-8")
+    # show extracted first
+    for r in per_field_rows:
+        val = r["value"]
+        md_lines.append(f"| `{r['id']}` | {val} | {r['status']} |")
+    md_lines.append("")
+    p_md.write_text("\n".join(md_lines), encoding="utf-8")
 
     return metrics, flags, [p_json, p_csv, p_md]
+
+
+# Alias for convenience
+extract_json_fields = extract_json_fields_task
