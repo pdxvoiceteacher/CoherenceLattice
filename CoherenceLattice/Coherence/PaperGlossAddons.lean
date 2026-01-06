@@ -1,3 +1,4 @@
+import CoherenceLattice.Coherence.PaperGlossDistanceAddons
 import Mathlib
 import CoherenceLattice.Coherence.PhyllotaxisDiskAddons
 import CoherenceLattice.Coherence.PhyllotaxisDiskSuccessorAddons
