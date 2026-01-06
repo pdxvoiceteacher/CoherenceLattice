@@ -9,11 +9,10 @@ namespace Coherence
 
 noncomputable section
 
-example (n1 n2 N : Nat) (hN0 : N = 0 -> False)
-    (h12 : n1 <= n2) (h1N : n1 <= N) (h2N : n2 <= N) :
-    And (Coherence.PaperGloss.CorollaryToBundle3 n1 n2 N hN0 h12 h1N h2N)
-        (Coherence.PaperGloss.BundleToCorollary3 n1 n2 N hN0 h12 h1N h2N) :=
-  Coherence.PaperGloss.Lemma_BundleEquivCorollary3 n1 n2 N hN0 h12 h1N h2N
+-- Successor lemma compiles: n and n+1
+example (n N : Nat) (hN0 : N = 0 -> False) (hn1N : n + 1 <= N) :
+    Coherence.PaperGloss.CorollaryProp3 n (n + 1) N :=
+  Coherence.PaperGloss.Corollary_SunflowerPackingSucc n N hN0 hn1N
 
 end
 end Coherence

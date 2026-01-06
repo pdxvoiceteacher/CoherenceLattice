@@ -1,5 +1,6 @@
 import Mathlib
 import CoherenceLattice.Coherence.PhyllotaxisDiskAddons
+import CoherenceLattice.Coherence.PhyllotaxisDiskSuccessorAddons
 import CoherenceLattice.Coherence.PaperGlossSunflowerPointAddons
 import CoherenceLattice.Coherence.PaperGlossPackingBundleAddons
 
@@ -15,12 +16,8 @@ noncomputable section
 /-!
 # PaperGlossAddons (surface)
 
-We keep everything ASCII-safe in public signatures:
-- hN0 : (N = 0 -> False)
-- <= for ordering
-- And for conjunction
-
-Bridge lemma provides two implications (corollary -> bundle-facts) and (bundle-facts -> corollary).
+Paper-facing definitions and successor lemma wrapper.
+All public hypotheses are ASCII-safe: hN0 : (N = 0 -> False), ordering uses <=.
 -/
 
 /-- Inequality/corollary statement (Prop). -/
@@ -52,56 +49,19 @@ theorem Corollary_SunflowerPacking3
   have hN0' : Ne N 0 := by
     intro h
     exact hN0 h
-  refine And.intro (Coherence.PhyllotaxisDisk.radius_mono_of_le n1 n2 N hN0' h12) ?_
-  refine And.intro
-    (Coherence.PhyllotaxisDisk.normSq_le_one_of_le n1 N hN0' h1N)
-    (Coherence.PhyllotaxisDisk.normSq_le_one_of_le n2 N hN0' h2N)
+  exact Coherence.PhyllotaxisDisk.sunflower_packing_corollary3 n1 n2 N hN0' h12 h1N h2N
 
-/-- Prop: inequality form implies bundle form. -/
-def CorollaryToBundle3
-    (n1 n2 N : Nat)
-    (hN0 : N = 0 -> False)
-    (h12 : n1 <= n2)
-    (h1N : n1 <= N)
-    (h2N : n2 <= N) : Prop :=
-  CorollaryProp3 n1 n2 N -> BundleFacts3 n1 n2 N hN0 h12 h1N h2N
-
-/-- Prop: bundle form implies inequality form. -/
-def BundleToCorollary3
-    (n1 n2 N : Nat)
-    (hN0 : N = 0 -> False)
-    (h12 : n1 <= n2)
-    (h1N : n1 <= N)
-    (h2N : n2 <= N) : Prop :=
-  BundleFacts3 n1 n2 N hN0 h12 h1N h2N -> CorollaryProp3 n1 n2 N
-
-/-- Bridge: both implications in one And. -/
-theorem Lemma_BundleEquivCorollary3
-    (n1 n2 N : Nat)
-    (hN0 : N = 0 -> False)
-    (h12 : n1 <= n2)
-    (h1N : n1 <= N)
-    (h2N : n2 <= N) :
-    And (CorollaryToBundle3 n1 n2 N hN0 h12 h1N h2N)
-        (BundleToCorollary3 n1 n2 N hN0 h12 h1N h2N) := by
-  refine And.intro ?_ ?_
-  · intro _hc
-    -- Goal is BundleFacts3 ... ; do not unfold CorollaryToBundle3 here.
-    -- Use the bundle lemmas and simp with a local abbreviation.
-    let b := sunflowerPackingBundle n1 n2 N hN0 h12 h1N h2N
-    have hr0 :=
-      Lemma_PackingBundleRadiusMono n1 n2 N hN0 h12 h1N h2N
-    have hb0 :=
-      Lemma_PackingBundleBounds n1 n2 N hN0 h12 h1N h2N
-    -- Reduce the goal to And (b.p1.r <= b.p2.r) (And ...)
-    -- by unfolding BundleFacts3 and rewriting the internal let to our local b.
-    simp [BundleFacts3, b]
-    refine And.intro ?_ ?_
-    · simpa [b] using hr0
-    · simpa [b] using hb0
-  · intro _hb
-    -- Goal is CorollaryProp3 ... ; no need to unfold BundleToCorollary3 here.
-    exact Corollary_SunflowerPacking3 n1 n2 N hN0 h12 h1N h2N
+/-- Successor-specialized PaperGloss wrapper: n and (n+1). -/
+theorem Corollary_SunflowerPackingSucc
+    (n N : Nat) (hN0 : N = 0 -> False) (hn1N : n + 1 <= N) :
+    CorollaryProp3 n (n + 1) N := by
+  have hN0' : Ne N 0 := by
+    intro h
+    exact hN0 h
+  -- Use the disk successor lemma and rewrite into CorollaryProp3
+  have hs :=
+    Coherence.PhyllotaxisDisk.sunflower_packing_corollary_succ n N hN0' hn1N
+  simpa [CorollaryProp3] using hs
 
 end
 end PaperGloss
