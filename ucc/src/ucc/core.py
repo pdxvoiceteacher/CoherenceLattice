@@ -411,6 +411,47 @@ def compare_tches_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, thresh
     p_js.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")
     p_md.write_text(f"delta_warn_LambdaT_steps: {delta_warn}\n", encoding="utf-8")
 
+    # --- CI/Parser alignment: ensure comparison.md contains stable Summary table rows
+    # Some builds accidentally emit only a single delta line (e.g. 'delta_warn_LambdaT_steps: 3').
+    # CI expects a stable markdown table row for warn_LambdaT_steps (and alarm_LambdaT_steps).
+    try:
+        md_text = p_md.read_text(encoding="utf-8", errors="ignore")
+        need = ("| warn_LambdaT_steps" not in md_text) or ("| alarm_LambdaT_steps" not in md_text)
+        if need:
+            warn_b = int(metrics.get("baseline_warn_LambdaT_steps", 0))
+            warn_l = int(metrics.get("lambda_warn_LambdaT_steps", 0))
+            warn_d = int(metrics.get("delta_warn_LambdaT_steps", warn_b - warn_l))
+
+            alarm_b = int(metrics.get("baseline_alarm_LambdaT_steps", 0))
+            alarm_l = int(metrics.get("lambda_alarm_LambdaT_steps", 0))
+            alarm_d = int(metrics.get("delta_alarm_LambdaT_steps", alarm_b - alarm_l))
+
+            # keep dict in sync (parsers read comparison.json too)
+            metrics["delta_warn_LambdaT_steps"] = warn_d
+            metrics["delta_alarm_LambdaT_steps"] = alarm_d
+
+            pp_b = float(metrics.get("baseline_mean_Ppump", 0.0))
+            pp_l = float(metrics.get("lambda_mean_Ppump", 0.0))
+            pp_d = float(metrics.get("delta_mean_Ppump", pp_l - pp_b))
+
+            q_b = float(metrics.get("baseline_mean_Qch", 0.0))
+            q_l = float(metrics.get("lambda_mean_Qch", 0.0))
+            q_d = float(metrics.get("delta_mean_Qch", q_l - q_b))
+
+            table = (
+                "\n## Summary table\n"
+                "| metric | baseline | lambda | delta |\n"
+                "|---|---:|---:|---:|\n"
+                f"| warn_LambdaT_steps | {warn_b} | {warn_l} | {warn_d} |\n"
+                f"| alarm_LambdaT_steps | {alarm_b} | {alarm_l} | {alarm_d} |\n"
+                f"| mean_Ppump | {pp_b:.6g} | {pp_l:.6g} | {pp_d:.6g} |\n"
+                f"| mean_Qch | {q_b:.6g} | {q_l:.6g} | {q_d:.6g} |\n"
+            )
+            md_text = md_text.rstrip() + "\n" + table + "\n"
+            p_md.write_text(md_text, encoding="utf-8")
+    except Exception:
+        pass
+
     return metrics, flags, [p_md, p_js]
 
 
