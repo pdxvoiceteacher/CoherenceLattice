@@ -11,28 +11,19 @@ noncomputable section
 
 open Coherence.PhyllotaxisDegrees
 
-/-- Unwrapped angle in radians: theta(n) = n * goldenAngleRad. -/
 def theta (n : Nat) : Real :=
   (n : Real) * goldenAngleRad
 
-/--
-Sunflower radius: r = sqrt(n/N).
-
-Lean defines (x / 0) = 0 in fields, so this is safe even if N=0.
-For monotonicity and unit-disk bounds we assume N ≠ 0.
--/
 def radius (n N : Nat) : Real :=
   Real.sqrt ((n : Real) / (N : Real))
 
-/-- x-coordinate of disk point. -/
 def px (n N : Nat) : Real :=
   radius n N * Real.cos (theta n)
 
-/-- y-coordinate of disk point. -/
 def py (n N : Nat) : Real :=
   radius n N * Real.sin (theta n)
 
-/-- Radius monotonicity: if n1 ≤ n2 and N ≠ 0 then radius n1 N ≤ radius n2 N. -/
+/-- Radius monotonicity: if n1 <= n2 and N != 0 then radius n1 N <= radius n2 N. -/
 lemma radius_mono_of_le (n1 n2 N : Nat) (hN0 : N ≠ 0) (h12 : n1 <= n2) :
     radius n1 N <= radius n2 N := by
   have hNpos : 0 < (N : Real) := by
@@ -44,7 +35,6 @@ lemma radius_mono_of_le (n1 n2 N : Nat) (hN0 : N ≠ 0) (h12 : n1 <= n2) :
   unfold radius
   exact Real.sqrt_le_sqrt hdiv
 
-/-- Norm-squared identity: x^2 + y^2 = r^2. -/
 lemma normSq_eq_radiusSq (n N : Nat) :
     (px n N) ^ 2 + (py n N) ^ 2 = (radius n N) ^ 2 := by
   set r : Real := radius n N with hr
@@ -64,7 +54,6 @@ lemma normSq_eq_radiusSq (n N : Nat) :
     _ = r ^ 2 := by simpa [htrig]
     _ = (radius n N) ^ 2 := by simpa [hr]
 
-/-- If N ≠ 0 and n ≤ N, then x^2 + y^2 ≤ 1 (point lies in unit disk). -/
 lemma normSq_le_one_of_le (n N : Nat) (hN0 : N ≠ 0) (hn : n <= N) :
     (px n N) ^ 2 + (py n N) ^ 2 <= 1 := by
   have hnorm : (px n N) ^ 2 + (py n N) ^ 2 = (radius n N) ^ 2 :=
@@ -98,6 +87,20 @@ lemma normSq_le_one_of_le (n N : Nat) (hN0 : N ≠ 0) (hn : n <= N) :
         = (radius n N) ^ 2 := by simpa [hnorm]
     _ = u := by simpa [hr2]
     _ <= 1 := hu1
+
+/--
+Combined corollary for “sunflower packing” narration:
+
+If N != 0 and n1 <= n2 <= N, then:
+  (1) radius(n1) <= radius(n2)   (monotone spiral radius)
+  (2) x(n2)^2 + y(n2)^2 <= 1     (later point is inside the unit disk)
+-/
+lemma sunflower_packing_corollary (n1 n2 N : Nat) (hN0 : N ≠ 0)
+    (h12 : n1 <= n2) (h2N : n2 <= N) :
+    And (radius n1 N <= radius n2 N)
+        ((px n2 N) ^ 2 + (py n2 N) ^ 2 <= 1) := by
+  refine And.intro (radius_mono_of_le n1 n2 N hN0 h12) ?_
+  exact normSq_le_one_of_le n2 N hN0 h2N
 
 end
 end PhyllotaxisDisk
