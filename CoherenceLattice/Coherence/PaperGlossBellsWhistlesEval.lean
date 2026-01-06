@@ -11,14 +11,14 @@ namespace PaperGlossBellsWhistlesEval
 # PaperGlossBellsWhistlesEval
 
 Float-only sanity output (NOT a theorem; NOT imported by core proofs).
-Prints a small diagnostic table for sunflower phyllotaxis:
 
+Prints:
 - golden angle (deg + rad)
 - row samples: n, r, theta, x, y, dx, dy, distNext
-- CSV output for easy Python comparison
+- CSV #1: same columns
+- CSV #2: adds xNext,yNext (for Python verification of both generator + distance)
 -/
 
--- Float approximations (stable for sanity checks)
 def phiF : Float := 1.618033988749895
 def piF  : Float := 3.141592653589793
 
@@ -72,19 +72,28 @@ def row (n N : Nat) : Row :=
 
 def N0 : Nat := 100
 def ns : List Nat := [0,1,2,3,5,8,13,21,34,55,89]
-
 def rows : List Row := ns.map (fun n => row n N0)
 
-def csvHeader : String := "n,r,theta,x,y,dx,dy,distNext"
-def csvLine (rw : Row) : String :=
+-- CSV #1 (same as rows)
+def csv1Header : String := "n,r,theta,x,y,dx,dy,distNext"
+def csv1Line (rw : Row) : String :=
   s!"{rw.n},{rw.r},{rw.theta},{rw.x},{rw.y},{rw.dx},{rw.dy},{rw.distNext}"
+def csv1 : String :=
+  String.intercalate "\n" (csv1Header :: (rows.map csv1Line))
 
-def csv : String :=
-  String.intercalate "\n" (csvHeader :: (rows.map csvLine))
+-- CSV #2 (adds next point)
+def csv2Header : String := "n,r,theta,x,y,xNext,yNext,dx,dy,distNext"
+def csv2Line (rw : Row) : String :=
+  let xN := pxF (rw.n + 1) N0
+  let yN := pyF (rw.n + 1) N0
+  s!"{rw.n},{rw.r},{rw.theta},{rw.x},{rw.y},{xN},{yN},{rw.dx},{rw.dy},{rw.distNext}"
+def csv2 : String :=
+  String.intercalate "\n" (csv2Header :: (rows.map csv2Line))
 
 #eval (goldenAngleDegF, goldenAngleRadF)
 #eval rows
-#eval csv
+#eval csv1
+#eval csv2
 
 end PaperGlossBellsWhistlesEval
 end Coherence
