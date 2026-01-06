@@ -394,6 +394,18 @@ def compare_tches_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, thresh
 
     outdir.mkdir(parents=True, exist_ok=True)
     p_md = outdir / "comparison.md"
+    # AUTO_FIX_DELTA_ALARM_TCHES: ensure delta_alarm_LambdaT_steps is present in metrics + comparison.json
+    if isinstance(metrics, dict) and 'delta_alarm_LambdaT_steps' not in metrics:
+        metrics['delta_alarm_LambdaT_steps'] = int(metrics.get('baseline_alarm_LambdaT_steps', 0) - metrics.get('lambda_alarm_LambdaT_steps', 0))
+    try:
+        if isinstance(comparison, dict):
+            if 'metrics' in comparison and isinstance(comparison['metrics'], dict):
+                comparison['metrics'].setdefault('delta_alarm_LambdaT_steps', metrics.get('delta_alarm_LambdaT_steps', 0))
+    except NameError:
+        pass
+    except Exception:
+        pass
+
     p_js = outdir / "comparison.json"
 
     p_js.write_text(json.dumps({"metrics": metrics, "flags": flags}, indent=2, sort_keys=True), encoding="utf-8")

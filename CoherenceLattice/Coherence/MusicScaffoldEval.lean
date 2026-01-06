@@ -1,4 +1,5 @@
 import Mathlib
+import CoherenceLattice.Coherence.MusicScaleScaffoldAddons
 
 set_option linter.style.commandStart false
 set_option linter.style.emptyLine false
@@ -8,37 +9,26 @@ namespace Coherence
 namespace MusicScaffoldEval
 
 /-!
-# MusicScaffoldEval (with summaries)
+# MusicScaffoldEval (profiles + summaries)
 
 Float-only eval (non-proof) that prints:
-1) Scale table CSV: name,ratio,freqHz
-2) Chord table CSV: chord,expectedOk,ok,ratios,freqsHz
-3) Global summary row: chord="__SUMMARY__", okAll
 
-This is a regression-friendly artifact for Python diffing and engine validation.
+1) SCALE table CSV (from scaffold Rat ratios): name,ratio,freqHz
+2) CHORDS table CSV for MAJOR profile
+3) CHORDS table CSV for MINOR profile
+Each with:
+- expectedOk, ok, match
+- global __SUMMARY__ row
+
+Profiles are sourced from MusicScaleScaffoldAddons so eval stays synced.
 -/
+
+open Coherence.MusicScaffold
 
 def ratToFloat (r : Rat) : Float :=
   (Float.ofInt r.num) / (Float.ofNat r.den)
 
 def ratToString (r : Rat) : String := s!"{r}"
-
--- Canonical ratios (Rat)
-def unison : Rat := (1 : Rat)
-def m3 : Rat := (6 : Rat) / (5 : Rat)
-def M3 : Rat := (5 : Rat) / (4 : Rat)
-def P4 : Rat := (4 : Rat) / (3 : Rat)
-def P5 : Rat := (3 : Rat) / (2 : Rat)
-def octave : Rat := (2 : Rat)
-
-def scale0 : List (String × Rat) :=
-  [("unison", unison), ("m3", m3), ("M3", M3), ("P4", P4), ("P5", P5), ("octave", octave)]
-
-def consonantSet : List Rat := [unison, M3, P4, P5, octave]
-
-def isConsonant (r : Rat) : Bool := decide (r ∈ consonantSet)
-def chordOK (rs : List Rat) : Bool := rs.all isConsonant
-
 def joinComma (xs : List String) : String := String.intercalate "," xs
 
 def baseF : Float := 440.0
@@ -52,56 +42,60 @@ def csvLineScale (p : String × Rat) : String :=
   s!"{p.1},{ratToString p.2},{freqOf p.2}"
 
 -- -------------------------
--- Chord CSV + summaries
+-- Chord CSV (parameterized)
 -- -------------------------
 structure ChordCase where
   name : String
-  expectedOk : Bool
+  expectedMajor : Bool
+  expectedMinor : Bool
   ratios : List Rat
 deriving Repr
 
 def chordCases : List ChordCase :=
-  [ { name := "fifth+octave", expectedOk := true,  ratios := [unison, P5, octave] }
-  , { name := "majorTriad",   expectedOk := true,  ratios := [unison, M3, P5] }
-  , { name := "minorTriad",   expectedOk := false, ratios := [unison, m3, P5] }  -- m3 not in consonantSet stub
-  , { name := "mixed",        expectedOk := false, ratios := [unison, m3, P4] }  -- m3 not in consonantSet stub
+  [ { name := "fifth+octave", expectedMajor := true,  expectedMinor := true,  ratios := [unisonRat, P5Rat, octaveRat] }
+  , { name := "majorTriad",   expectedMajor := true,  expectedMinor := false, ratios := [unisonRat, M3Rat, P5Rat] }
+  , { name := "minorTriad",   expectedMajor := false, expectedMinor := true,  ratios := [unisonRat, m3Rat, P5Rat] }
+  , { name := "mixed",        expectedMajor := false, expectedMinor := true,  ratios := [unisonRat, m3Rat, P4Rat] }
   ]
 
-def csvHeaderChord : String := "chord,expectedOk,ok,ratios,freqsHz"
+def csvHeaderChord : String := "profile,chord,expectedOk,ok,match,ratios,freqsHz"
 
-def chordLine (c : ChordCase) : String :=
-  let ok := chordOK c.ratios
-  let rsS := joinComma (c.ratios.map ratToString)
-  let fsS := joinComma (c.ratios.map (fun r => s!"{freqOf r}"))
-  s!"{c.name},{c.expectedOk},{ok},{rsS},{fsS}"
+def chordLine (profileName : String) (profile : List Rat) (expectedOk : Bool) (name : String) (rs : List Rat) : String :=
+  let ok := chordOKRat profile rs
+  let matchesOk := (ok == expectedOk)
+  let rsS := joinComma (rs.map ratToString)
+  let fsS := joinComma (rs.map (fun r => s!"{freqOf r}"))
+  s!"{profileName},{name},{expectedOk},{ok},{matchesOk},{rsS},{fsS}"
 
-def okCase (c : ChordCase) : Bool :=
-  (chordOK c.ratios) == c.expectedOk
-
-def okAll : Bool :=
-  chordCases.all okCase
-
-def summaryLine : String :=
-  s!"__SUMMARY__,,{okAll},,"
+def okAllFor (profile : List Rat) (cases : List ChordCase) (isMajor : Bool) : Bool :=
+  cases.all (fun c =>
+    let expected := if isMajor then c.expectedMajor else c.expectedMinor
+    (chordOKRat profile c.ratios) == expected)
 
 def emit : IO Unit := do
-  -- Scale table
+  -- SCALE
   IO.println "# SCALE"
   IO.println csvHeaderScale
-  for p in scale0 do
+  for p in scaleRat0_named do
     IO.println (csvLineScale p)
 
   IO.println ""
-  -- Chord table
-  IO.println "# CHORDS"
+  -- CHORDS (MAJOR profile)
+  IO.println "# CHORDS_MAJOR"
   IO.println csvHeaderChord
   for c in chordCases do
-    IO.println (chordLine c)
+    IO.println (chordLine "major" consonantSetRat_major c.expectedMajor c.name c.ratios)
+  let okMaj := okAllFor consonantSetRat_major chordCases true
+  IO.println s!"major,__SUMMARY__,,{okMaj},,,"
 
-  -- Global summary row
-  IO.println "# SUMMARY"
+  IO.println ""
+  -- CHORDS (MINOR profile)
+  IO.println "# CHORDS_MINOR"
   IO.println csvHeaderChord
-  IO.println summaryLine
+  for c in chordCases do
+    IO.println (chordLine "minor" consonantSetRat_minor c.expectedMinor c.name c.ratios)
+  let okMin := okAllFor consonantSetRat_minor chordCases false
+  IO.println s!"minor,__SUMMARY__,,{okMin},,,"
 
 #eval emit
 
