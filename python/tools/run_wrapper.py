@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+import csv
+import json
 import os
 import sys
-import uuid
-import json
 import time
-import hashlib
+import uuid
 import shutil
+import hashlib
 import subprocess
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 SCHEMA_VERSION = "telemetry.v1"
 
@@ -76,12 +77,100 @@ def extract_section_lines(text: str, header: str) -> List[str]:
 def write_manifest(run_dir: str, files: List[str]) -> None:
     items = []
     for p in files:
-        items.append({
-            "path": p.replace("\\\\", "/"),
-            "bytes": os.path.getsize(p),
-            "sha256": sha256_file(p),
-        })
+        items.append({"path": p.replace("\\\\", "/"), "bytes": os.path.getsize(p), "sha256": sha256_file(p)})
     write_json(os.path.join(run_dir, "manifest.json"), {"schema_version": SCHEMA_VERSION, "items": items})
+
+def safe_float(s: str) -> Optional[float]:
+    try:
+        s2 = s.strip().strip('"')
+        if s2 == "":
+            return None
+        return float(s2)
+    except Exception:
+        return None
+
+def safe_bool(s: str) -> Optional[bool]:
+    s2 = s.strip().strip('"').lower()
+    if s2 in ("true", "1", "yes"): return True
+    if s2 in ("false", "0", "no"): return False
+    return None
+
+def count_events(events_path: str) -> int:
+    if not os.path.exists(events_path):
+        return 0
+    n = 0
+    with open(events_path, "r", encoding="utf-8") as f:
+        for ln in f:
+            if ln.strip():
+                n += 1
+    return n
+
+def parse_tree_of_life_bands(csv_path: str) -> Dict[str, Any]:
+    band_counts: Dict[str, int] = {}
+    psis: List[float] = []
+
+    with open(csv_path, "r", encoding="utf-8", newline="") as f:
+        r = csv.reader(f)
+        header = next(r, None)
+        for row in r:
+            if not row or len(row) < 5:
+                continue
+            psi = safe_float(row[3])
+            if psi is not None:
+                psis.append(psi)
+            band = row[4].strip()
+            band_counts[band] = band_counts.get(band, 0) + 1
+
+    psi_min = min(psis) if psis else None
+    psi_max = max(psis) if psis else None
+    psi_mean = (sum(psis) / len(psis)) if psis else None
+
+    return {
+        "band_counts": band_counts,
+        "psi_min": psi_min,
+        "psi_max": psi_max,
+        "psi_mean": psi_mean,
+        "n_rows": sum(band_counts.values()),
+    }
+
+def parse_crop_circle_summary(csv_path: str) -> Dict[str, Any]:
+    # Find the global summary row: theta=-1, i=-1
+    max_absdiff = None
+    max_absdiff_to_r = None
+    ok_all = None
+
+    with open(csv_path, "r", encoding="utf-8", newline="") as f:
+        r = csv.reader(f)
+        _ = next(r, None)  # header
+        for row in r:
+            if not row or len(row) < 11:
+                continue
+            theta = row[0].strip()
+            i = row[1].strip()
+            if theta.startswith("-1") and i == "-1":
+                max_absdiff = safe_float(row[8])   # absDiff
+                max_absdiff_to_r = safe_float(row[9])  # absDiffToR
+                ok_all = safe_bool(row[10])
+                break
+
+    return {
+        "max_absDiff_all": max_absdiff,
+        "max_absDiffToR_all": max_absdiff_to_r,
+        "okAll": ok_all,
+    }
+
+def parse_music_summary_ok(csv_path: str) -> Optional[bool]:
+    # file has header: profile,chord,expectedOk,ok,match,ratios,freqsHz
+    with open(csv_path, "r", encoding="utf-8", newline="") as f:
+        r = csv.reader(f)
+        _ = next(r, None)
+        for row in r:
+            if not row or len(row) < 4:
+                continue
+            chord = row[1].strip()
+            if chord == "__SUMMARY__":
+                return safe_bool(row[3])  # ok
+    return None
 
 def main() -> int:
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -92,7 +181,7 @@ def main() -> int:
         print("ERROR: 'lake' not found on PATH from Python. Run in the same shell where 'lake' works.", file=sys.stderr)
         return 2
 
-    timeout_sec = int(os.environ.get("COHERENCE_RUN_TIMEOUT", "1800"))  # 30 min per command default
+    timeout_sec = int(os.environ.get("COHERENCE_RUN_TIMEOUT", "1800"))
 
     run_id = uuid.uuid4().hex[:12]
     run_dir = os.path.join(repo_root, "paper", "out", "runs", run_id)
@@ -114,16 +203,18 @@ def main() -> int:
         "music_profiles": os.path.join(repo_root, "CoherenceLattice", "Coherence", "MusicScaffoldEval.lean"),
     }
 
-    # CSV artifacts only (for metrics.artifacts_count)
-    csv_artifacts: List[str] = []
-    # Everything we want hashed in the manifest (events included AFTER run.end)
-    manifest_files: List[str] = []
+    manifest_files: List[str] = []  # everything hashed (except manifest itself)
+    csv_artifacts: List[str] = []   # only CSVs in artifacts/
 
     try:
         def eval_lean(step_id: str, lean_path: str) -> str:
             emit_event(run_dir, run_id, "step.start", {"step_id": step_id, "lean_path": lean_path})
             code, out, dt = run_cmd([lake, "env", "lean", lean_path], cwd=repo_root, timeout_sec=timeout_sec)
-            emit_event(run_dir, run_id, "step.end", {"step_id": step_id, "status": "ok" if code == 0 else "error", "duration_sec": dt})
+            emit_event(run_dir, run_id, "step.end", {
+                "step_id": step_id,
+                "status": "ok" if code == 0 else "error",
+                "duration_sec": dt
+            })
             if code != 0:
                 raise RuntimeError(f"lean eval failed for {lean_path}\n{out}")
             return out
@@ -185,23 +276,60 @@ def main() -> int:
             csv_artifacts.append(pth)
             manifest_files.append(pth)
 
-        # metrics.json (stable before run.end)
-        metrics_path = os.path.join(run_dir, "metrics.json")
-        write_json(metrics_path, {
-            "schema_version": SCHEMA_VERSION,
-            "run_id": run_id,
-            "artifacts_count": len(csv_artifacts),
-        })
-        manifest_files.append(metrics_path)
-
-        # Emit run.end BEFORE manifest (so events.jsonl is final when hashed)
+        # run.end BEFORE metrics (so metrics can include final event count)
         emit_event(run_dir, run_id, "run.end", {"status": "ok", "csv_artifacts_count": len(csv_artifacts)})
 
-        # Now include events.jsonl in manifest (finalized)
+        # Enriched metrics.json (after run.end, before manifest)
         events_path = os.path.join(run_dir, "events.jsonl")
+        events_n = count_events(events_path)
+
+        tol_metrics = parse_tree_of_life_bands(tol_path)
+        crop_metrics = parse_crop_circle_summary(crop_path)
+        maj_ok = parse_music_summary_ok(maj_path)
+        min_ok = parse_music_summary_ok(min_path)
+
+        telemetry_ok = {
+            "crop_rotation_ok": bool(crop_metrics.get("okAll") is True),
+            "music_major_summary_ok": bool(maj_ok is True),
+            "music_minor_summary_ok": bool(min_ok is True),
+        }
+        telemetry_ok["all_ok"] = bool(all(telemetry_ok.values()))
+
+        metrics = {
+            "schema_version": SCHEMA_VERSION,
+            "run_id": run_id,
+            "generated_utc": iso_ts(),
+            "artifacts_count": len(csv_artifacts),
+            "counts": {
+                "events": events_n,
+                "artifacts_csv": len(csv_artifacts),
+            },
+            # GUFT placeholders (filled by later engines)
+            "guft": {
+                "E": None,
+                "T": None,
+                "psi": None,
+                "deltaS": None,
+            },
+            "tree_of_life": tol_metrics,
+            "crop_circle": {
+                "rotation": crop_metrics
+            },
+            "music": {
+                "major": {"summary_ok": maj_ok},
+                "minor": {"summary_ok": min_ok},
+            },
+            "telemetry_ok": telemetry_ok,
+        }
+
+        metrics_path = os.path.join(run_dir, "metrics.json")
+        write_json(metrics_path, metrics)
+        manifest_files.append(metrics_path)
+
+        # events.jsonl must be hashed too (finalized now)
         manifest_files.append(events_path)
 
-        # Manifest LAST write (no more file mutations after this)
+        # Manifest LAST
         write_manifest(run_dir, manifest_files)
 
         print("DONE OK", flush=True)

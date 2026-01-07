@@ -5,7 +5,7 @@ import hashlib
 import json
 import os
 import sys
-from typing import Any, List
+from typing import Any, Dict, List
 
 REQUIRED_FILES = ["events.jsonl", "metrics.json", "manifest.json"]
 REQUIRED_EVENTS = {"run.start", "run.end"}
@@ -48,6 +48,16 @@ def read_lines(path: str) -> List[str]:
     with open(path, "r", encoding="utf-8", newline="") as f:
         return [ln.rstrip("\n") for ln in f.readlines()]
 
+def count_events(events_path: str) -> int:
+    if not os.path.exists(events_path):
+        return 0
+    n = 0
+    with open(events_path, "r", encoding="utf-8") as f:
+        for ln in f:
+            if ln.strip():
+                n += 1
+    return n
+
 def validate_events(run_dir: str) -> str:
     events_path = os.path.join(run_dir, "events.jsonl")
     run_ids = set()
@@ -80,19 +90,56 @@ def validate_events(run_dir: str) -> str:
 def validate_metrics(run_dir: str, run_id: str) -> None:
     metrics_path = os.path.join(run_dir, "metrics.json")
     m = read_json(metrics_path)
-    if "schema_version" not in m:
-        die("metrics.json missing schema_version")
-    if "run_id" not in m:
-        die("metrics.json missing run_id")
+
+    # baseline
+    for k in ["schema_version", "run_id", "artifacts_count", "counts", "guft", "tree_of_life", "crop_circle", "music", "telemetry_ok"]:
+        if k not in m:
+            die(f"metrics.json missing key: {k}")
+
     if str(m["run_id"]) != run_id:
         die(f"metrics.json run_id mismatch: {m['run_id']} != {run_id}")
 
+    # artifacts_count vs actual csv files
     artifacts_dir = os.path.join(run_dir, "artifacts")
     csvs = [x for x in os.listdir(artifacts_dir) if x.lower().endswith(".csv")]
-    if "artifacts_count" in m:
-        ac = int(m["artifacts_count"])
-        if ac != len(csvs):
-            die(f"metrics.json artifacts_count={ac} but artifacts/*.csv count={len(csvs)}")
+    ac = int(m["artifacts_count"])
+    if ac != len(csvs):
+        die(f"metrics.json artifacts_count={ac} but artifacts/*.csv count={len(csvs)}")
+
+    # counts.events cross-check
+    events_path = os.path.join(run_dir, "events.jsonl")
+    actual_events = count_events(events_path)
+    if "events" not in m["counts"]:
+        die("metrics.json counts.events missing")
+    if int(m["counts"]["events"]) != actual_events:
+        die(f"metrics.json counts.events={m['counts']['events']} but events.jsonl lines={actual_events}")
+
+    # guft keys exist (may be null)
+    for k in ["E", "T", "psi", "deltaS"]:
+        if k not in m["guft"]:
+            die(f"metrics.json guft.{k} missing")
+
+    # tree_of_life fields
+    if "band_counts" not in m["tree_of_life"]:
+        die("metrics.json tree_of_life.band_counts missing")
+
+    # crop_circle rotation fields
+    rot = m["crop_circle"].get("rotation", {})
+    for k in ["max_absDiff_all", "max_absDiffToR_all", "okAll"]:
+        if k not in rot:
+            die(f"metrics.json crop_circle.rotation.{k} missing")
+
+    # music summary ok fields
+    maj = m["music"].get("major", {})
+    mino = m["music"].get("minor", {})
+    if "summary_ok" not in maj or "summary_ok" not in mino:
+        die("metrics.json music.major/minor summary_ok missing")
+
+    # telemetry_ok fields
+    tok = m["telemetry_ok"]
+    for k in ["crop_rotation_ok", "music_major_summary_ok", "music_minor_summary_ok", "all_ok"]:
+        if k not in tok:
+            die(f"metrics.json telemetry_ok.{k} missing")
 
 def validate_manifest(run_dir: str) -> None:
     man = read_json(os.path.join(run_dir, "manifest.json"))
@@ -145,6 +192,7 @@ def validate_artifacts(run_dir: str) -> None:
     if read_first_line(os.path.join(artifacts_dir, "music_chords_major.csv")) != exp_ch:
         die("music_chords_major.csv header mismatch")
 
+    # summary rows ok=true
     def summary_ok(path: str) -> None:
         lines = [ln for ln in read_lines(path) if ln.strip()]
         found = False
@@ -166,6 +214,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("run_dir")
     args = ap.parse_args()
+
     run_dir = os.path.abspath(args.run_dir)
     if not os.path.isdir(run_dir):
         die(f"run_dir does not exist: {run_dir}")
@@ -175,8 +224,8 @@ def main() -> int:
             die(f"missing required file: {f}")
 
     run_id = validate_events(run_dir)
-    validate_metrics(run_dir, run_id)
     validate_artifacts(run_dir)
+    validate_metrics(run_dir, run_id)
     validate_manifest(run_dir)
 
     print(f"VALIDATION OK run_id={run_id} run_dir={run_dir}")
