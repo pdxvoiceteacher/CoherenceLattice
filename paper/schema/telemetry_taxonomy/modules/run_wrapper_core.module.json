@@ -1,7 +1,8 @@
 {
   "engine_id": "run_wrapper_core",
   "engine_version": "0.1.0",
-  "description": "Run wrapper core: executes Lean evals, writes run folder, metrics.json, manifest.json, events.jsonl.",
+  "role": "orchestrator",
+  "description": "Run wrapper core: executes Lean evals, writes run folder, metrics.json, manifest.json, events.jsonl, and per-step logs. Domain engines own domain artifacts.",
   "outputs": {
     "run_files": [
       { "name": "events.jsonl", "path": "events.jsonl", "format": "jsonl" },
@@ -9,13 +10,14 @@
       { "name": "manifest.json", "path": "manifest.json", "format": "json" },
       { "name": "logs_*.json", "path": "logs_*.json", "format": "json" }
     ],
-    "artifacts": [
-      { "name": "tree_of_life_bands.csv", "path": "artifacts/tree_of_life_bands.csv", "format": "csv" },
-      { "name": "crop_circle_rotated_centers.csv", "path": "artifacts/crop_circle_rotated_centers.csv", "format": "csv" },
-      { "name": "music_scaffold_profiles.csv", "path": "artifacts/music_scaffold_profiles.csv", "format": "csv" },
-      { "name": "music_scale.csv", "path": "artifacts/music_scale.csv", "format": "csv" },
-      { "name": "music_chords_major.csv", "path": "artifacts/music_chords_major.csv", "format": "csv" },
-      { "name": "music_chords_minor.csv", "path": "artifacts/music_chords_minor.csv", "format": "csv" }
+    "artifacts": [],
+    "orchestrates_artifacts": [
+      "tree_of_life_bands.csv",
+      "crop_circle_rotated_centers.csv",
+      "music_scaffold_profiles.csv",
+      "music_scale.csv",
+      "music_chords_major.csv",
+      "music_chords_minor.csv"
     ]
   },
   "metrics": {
