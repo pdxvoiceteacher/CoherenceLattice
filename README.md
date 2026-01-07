@@ -64,6 +64,7 @@ Two safe update styles are formalized:
 
 E/T-centric step (stepET) — update E and T independently, clamp each into [0,1]
 
+
 **Key theorems:**
 
 validTransition_stepPsi / validTransition_stepET
@@ -78,6 +79,7 @@ Paper-facing wrapper layer
 
 A “gloss” layer provides stable lemma names and narrative-friendly constructors so a manuscript can cite Lean without exposing internal file structure.
 
+
 **This includes:**
 
 stable lemma wrappers
@@ -85,6 +87,7 @@ stable lemma wrappers
 sunflower packing bundle constructors
 
 successor-specialized corollaries
+
 
 **Lean: Sacred Geometry Formalizations (formal + scaffolds)**
 Flower of Life / centered hex counts (formal)
@@ -96,6 +99,7 @@ recursive flowerPoints and proof that:
 flowerPoints n = centeredHex n
 
 Sacred circles + crop-circle scaffolding (formal + validation)
+
 
 **Algebraic circle primitives:**
 
@@ -113,6 +117,7 @@ count lemmas (rosette length; rosette+center count = k+1)
 
 signature structure (order,count) + validation lemma
 
+
 **Lean: Tree of Life → Coherence Lattice mapping (synced)**
 
 We model the Tree of Life (Sephirot) as a mapping into the coherence lattice state space:
@@ -128,6 +133,7 @@ proof:
 sephiraPsi_bounds : 0 ≤ sephiraPsi s ∧ sephiraPsi s ≤ 1
 
 A lightweight adjacency graph over Sephirot is included (TreeOfLifeGraphAddons) with psiPath + bounds over paths.
+
 
 **Lean: Music — ratios + scale scaffolds (synced profiles)**
 Just ratios (formal, Lean-light)
@@ -168,6 +174,7 @@ generating CSV outputs for Python diffs
 
 reproducible paper artifacts
 
+
 **Crop circles: rotated centers + invariance checks**
 
 CropCircleRotatedCentersEval.lean
@@ -186,6 +193,7 @@ strict CSV column completion (okAngle column always present)
 
 comment separators # ---- next angle ---- for readability
 
+
 **Tree of Life: band table CSV**
 
 TreeOfLifeBandCSV.lean
@@ -198,6 +206,7 @@ band thresholds are configurable in the file
 
 exportable to paper/out/tree_of_life_bands.csv
 
+
 **Tree of Life: Real/Float spot checks**
 
 TreeOfLifeRealFloatEval.lean
@@ -205,6 +214,7 @@ TreeOfLifeRealFloatEval.lean
 prints exact Rat psi and Float psi
 
 uses #reduce on Real psi terms for structural sanity (no execution)
+
 
 **Music: profile comparison CSVs**
 
@@ -220,6 +230,7 @@ includes per-profile __SUMMARY__ rows
 
 Exporting CSV Artifacts to paper/out
 One-shot export (Tree of Life, Crop circles, Music)
+
 
 ## Use the PowerShell export script shared in chat to generate:
 
