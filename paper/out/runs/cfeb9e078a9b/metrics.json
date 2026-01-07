@@ -1,0 +1,58 @@
+{
+  "counts": {
+    "artifacts_csv": 6,
+    "events": 8
+  },
+  "crop_circle": {
+    "rotation": {
+      "max_absDiffToR_all": null,
+      "max_absDiff_all": null,
+      "okAll": null
+    }
+  },
+  "generated_utc": "2026-01-07T21:18:59.969Z",
+  "guft": {
+    "E": 0.645,
+    "T": 0.645,
+    "deltaS": null,
+    "psi": 0.45525000000000004
+  },
+  "music": {
+    "major": {
+      "summary_ok": true
+    },
+    "minor": {
+      "summary_ok": true
+    }
+  },
+  "run_id": "cfeb9e078a9b",
+  "schema_version": "telemetry.v1",
+  "telemetry_ok": {
+    "all_ok": false,
+    "crop_rotation_ok": false,
+    "music_major_summary_ok": true,
+    "music_minor_summary_ok": true
+  },
+  "timings": {
+    "step_duration_sec": {
+      "crop_circle_rotated_centers": 42.3679633140564,
+      "music_profiles": 41.65200066566467,
+      "tree_of_life_bands": 80.20319890975952
+    }
+  },
+  "tree_of_life": {
+    "E_mean": 0.645,
+    "T_mean": 0.645,
+    "band_counts": {
+      "0": 1,
+      "1": 3,
+      "2": 3,
+      "3": 2,
+      "4": 1
+    },
+    "n_rows": 10,
+    "psi_max": 1.0,
+    "psi_mean": 0.45525000000000004,
+    "psi_min": 0.04
+  }
+}
