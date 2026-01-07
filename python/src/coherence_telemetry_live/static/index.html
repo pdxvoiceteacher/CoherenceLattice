@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Coherence Telemetry Live</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 16px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .box { border: 1px solid #ddd; padding: 12px; border-radius: 10px; }
+    #events { height: 320px; overflow: auto; background: #0b0b0b; color: #e8e8e8; padding: 10px; border-radius: 10px; }
+    code { white-space: pre; }
+    table td { padding: 2px 8px; }
+    .muted { color: #666; }
+    .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h2>Coherence Telemetry Live</h2>
+
+  <div class="row box">
+    <div>
+      <div class="muted">Run</div>
+      <select id="runSelect"></select>
+    </div>
+
+    <div>
+      <div class="muted">Options</div>
+      <label><input type="checkbox" id="fromStart"> from_start</label>
+      <label style="margin-left:10px;">poll
+        <input id="poll" type="number" value="0.5" step="0.1" min="0.1" style="width:70px;">
+      </label>
+    </div>
+
+    <button id="refreshBtn">Refresh runs</button>
+    <button id="connectBtn">Connect</button>
+
+    <span id="status" class="muted"></span>
+  </div>
+
+  <div class="row" style="margin-top:12px;">
+    <div class="box" style="flex:1; min-width:320px;">
+      <div class="muted">Latest metrics.json</div>
+      <table id="metricsTbl"></table>
+    </div>
+    <div class="box" style="flex:1; min-width:320px;">
+      <div class="muted">Artifacts</div>
+      <div id="artifacts"></div>
+    </div>
+  </div>
+
+  <div class="box" style="margin-top:12px;">
+    <div class="muted">Events (tailing)</div>
+    <div id="events"><code id="eventsCode"></code></div>
+  </div>
+
+<script>
+let ws = null;
+
+function setStatus(s, isErr=false) {
+  const el = document.getElementById("status");
+  el.textContent = s;
+  el.className = isErr ? "err" : "muted";
+}
+
+function addEventLine(line) {
+  const code = document.getElementById("eventsCode");
+  code.textContent += line + "\n";
+  const box = document.getElementById("events");
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderMetrics(obj) {
+  const tbl = document.getElementById("metricsTbl");
+  tbl.innerHTML = "";
+  if (!obj || typeof obj !== "object") return;
+  for (const k of Object.keys(obj).sort()) {
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td"); td1.textContent = k;
+    const td2 = document.createElement("td"); td2.textContent = String(obj[k]);
+    tr.appendChild(td1); tr.appendChild(td2);
+    tbl.appendChild(tr);
+  }
+}
+
+function setRunSelectOptions(runs, keepValue) {
+  const sel = document.getElementById("runSelect");
+  const prev = keepValue ? sel.value : "";
+  sel.innerHTML = "";
+
+  if (!runs || runs.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no runs found)";
+    sel.appendChild(opt);
+    return;
+  }
+
+  for (const it of runs) {
+    const opt = document.createElement("option");
+    opt.value = it.run_id;
+    opt.textContent = it.run_id;
+    sel.appendChild(opt);
+  }
+
+  if (prev && runs.some(r => r.run_id === prev)) {
+    sel.value = prev;
+  }
+}
+
+async function loadRuns(keepValue=true) {
+  const sel = document.getElementById("runSelect");
+  if (!sel.options.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "Loading runs…";
+    sel.appendChild(opt);
+  }
+
+  try {
+    const r = await fetch("/api/runs", { cache: "no-store" });
+    const j = await r.json();
+    const runs = j.runs || [];
+    setRunSelectOptions(runs, keepValue);
+    setStatus(`runs=${runs.length}`);
+    return runs;
+  } catch (e) {
+    setStatus(`failed to load runs: ${e}`, true);
+    setRunSelectOptions([], false);
+    return [];
+  }
+}
+
+async function loadArtifacts(runId) {
+  const div = document.getElementById("artifacts");
+  div.innerHTML = "";
+  if (!runId) return;
+
+  const r = await fetch(`/api/run/${runId}/artifacts`, { cache: "no-store" });
+  const j = await r.json();
+  const items = j.artifacts || [];
+  for (const it of items) {
+    const a = document.createElement("a");
+    a.href = `/api/run/${runId}/artifact/${encodeURIComponent(it.name)}`;
+    a.textContent = `${it.name} (${it.bytes} bytes)`;
+    a.style.display = "block";
+    div.appendChild(a);
+  }
+}
+
+async function loadInitial(runId) {
+  if (!runId) return;
+
+  const m = await fetch(`/api/run/${runId}/metrics`, { cache: "no-store" });
+  renderMetrics(await m.json());
+
+  await loadArtifacts(runId);
+
+  const tail = await fetch(`/api/run/${runId}/events_tail?n=20`, { cache: "no-store" });
+  const tj = await tail.json();
+  addEventLine("=== tail ===");
+  for (const ln of (tj.lines || [])) addEventLine(ln);
+  addEventLine("=== live ===");
+}
+
+function connect() {
+  const runId = document.getElementById("runSelect").value;
+  const fromStart = document.getElementById("fromStart").checked ? "1" : "0";
+  const poll = document.getElementById("poll").value || "0.5";
+
+  if (ws) { ws.close(); ws = null; }
+  document.getElementById("eventsCode").textContent = "";
+
+  if (!runId) {
+    setStatus("no run_id selected", true);
+    return;
+  }
+
+  setStatus(`connecting… run_id=${runId}`);
+
+  const url = `ws://${location.host}/ws?run_id=${encodeURIComponent(runId)}&from_start=${fromStart}&poll=${encodeURIComponent(poll)}`;
+  ws = new WebSocket(url);
+
+  ws.onopen = async () => {
+    setStatus(`connected run_id=${runId}`);
+    await loadInitial(runId);
+  };
+
+  ws.onmessage = (ev) => {
+    try {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === "metrics") renderMetrics(msg.metrics || {});
+      else if (msg.type === "event") addEventLine(JSON.stringify(msg.event));
+      else if (msg.type === "event_raw") addEventLine(msg.line || "");
+      else if (msg.type === "hello") addEventLine("HELLO: " + JSON.stringify(msg));
+      else if (msg.type === "error") addEventLine("ERROR: " + JSON.stringify(msg));
+      else addEventLine(ev.data);
+    } catch {
+      addEventLine(ev.data);
+    }
+  };
+
+  ws.onclose = () => setStatus("disconnected");
+  ws.onerror = () => setStatus("ws error", true);
+}
+
+document.getElementById("connectBtn").addEventListener("click", connect);
+document.getElementById("refreshBtn").addEventListener("click", async () => { await loadRuns(true); });
+
+// Auto-refresh runs list every 5s (keeps selection)
+setInterval(() => { loadRuns(true); }, 5000);
+
+(async function init() {
+  const runs = await loadRuns(false);
+  if (runs.length > 0) {
+    // select latest by default
+    document.getElementById("runSelect").value = runs[0].run_id;
+  }
+})();
+</script>
+
+</body>
+</html>
