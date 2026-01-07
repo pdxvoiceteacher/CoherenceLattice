@@ -1,0 +1,46 @@
+﻿name: vote-guardrail-security
+
+on:
+  push:
+    paths:
+      - "ucc/src/ucc/vote_guardrail.py"
+      - "ucc/tests/test_vote_guardrail_v0.py"
+      - "tools/security/audit_vote_manifest.py"
+      - "tools/security/cast_ballot.py"
+      - "tools/security/tally_votes.py"
+      - "tools/coherenceledger_bootstrap/**"
+      - ".github/workflows/vote_guardrail_security.yml"
+  pull_request:
+    paths:
+      - "ucc/src/ucc/vote_guardrail.py"
+      - "ucc/tests/test_vote_guardrail_v0.py"
+      - "tools/security/audit_vote_manifest.py"
+      - "tools/security/cast_ballot.py"
+      - "tools/security/tally_votes.py"
+      - "tools/coherenceledger_bootstrap/**"
+      - ".github/workflows/vote_guardrail_security.yml"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install
+        run: |
+          python -m pip install -U pip
+          python -m pip install -e "tools/coherenceledger_bootstrap[dev]"
+          python -m pip install -e "ucc"
+
+      - name: Run guardrail tests
+        run: |
+          python -m pytest -q ucc/tests/test_vote_guardrail_v0.py
