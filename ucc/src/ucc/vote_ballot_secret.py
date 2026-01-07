@@ -233,7 +233,7 @@ def write_secret_reveal(
     if _truthy_env("COHERENCELEDGER_ENABLE"):
         keystore = Path(os.getenv("COHERENCELEDGER_KEYSTORE", str(repo_root / ".secrets" / "coherenceledger_keystore.json")))
         ledger = Path(os.getenv("COHERENCELEDGER_LEDGER", str(repo_root / "ledger.jsonl")))
-        purpose = os.getenv("COHERENCELEDGER_PURPOSE", "ucc.vote_ballot_secret.reveal.anchor")
+        purpose = os.getenv("COHERENCELEDGER_REVEAL_PURPOSE", "ucc.vote_ballot_secret.reveal.anchor")
         if _truthy_env("COHERENCELEDGER_STRICT") and not keystore.exists():
             raise FileNotFoundError(f"keystore missing: {keystore}")
         if keystore.exists():
@@ -251,3 +251,4 @@ def write_secret_reveal(
             )
 
     return reveal_path
+
