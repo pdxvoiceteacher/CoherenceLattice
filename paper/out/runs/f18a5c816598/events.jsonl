@@ -1,0 +1,2 @@
+{"data": {"engine": "run_wrapper", "platform": "win32", "python": "3.14.2"}, "event": "run.start", "run_id": "f18a5c816598", "schema_version": "telemetry.v1", "ts": "2026-01-07T07:36:09.044Z"}
+{"data": {"artifacts_count": 8, "status": "ok"}, "event": "run.end", "run_id": "f18a5c816598", "schema_version": "telemetry.v1", "ts": "2026-01-07T07:38:29.996Z"}
