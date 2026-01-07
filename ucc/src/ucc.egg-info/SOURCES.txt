@@ -18,12 +18,14 @@ src/ucc/mapping_validators.py
 src/ucc/models.py
 src/ucc/validate_grammar.py
 src/ucc/vote_ballot.py
+src/ucc/vote_ballot_aead.py
 src/ucc/vote_ballot_cipher.py
 src/ucc/vote_ballot_secret.py
 src/ucc/vote_guardrail.py
 src/ucc/vote_manifest.py
 src/ucc/vote_registry.py
 src/ucc/vote_tally.py
+src/ucc/vote_tally_aead.py
 src/ucc/vote_tally_cipher.py
 src/ucc/vote_tally_secret.py
 src/ucc.egg-info/PKG-INFO
@@ -74,6 +76,7 @@ tests/test_tches_compare_parser_alignment.py
 tests/test_ucc_governance_guardrail.py
 tests/test_ucc_smoke.py
 tests/test_validate_mapping_table_step.py
+tests/test_vote_aead_v0_3.py
 tests/test_vote_ballot_v0.py
 tests/test_vote_cipher_v0_2.py
 tests/test_vote_guardrail_v0.py
