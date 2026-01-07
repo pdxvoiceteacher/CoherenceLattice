@@ -1,0 +1,50 @@
+name: Telemetry
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+
+jobs:
+  telemetry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install telemetry deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r python/tools/requirements-telemetry.txt
+
+      # Lean + Lake + elan setup and default lake build/test/lint auto-detection
+      - name: Lean CI
+        uses: leanprover/lean-action@v1
+
+      # Optional but recommended for mathlib projects: use cached build artifacts
+      - name: Mathlib cache (best-effort)
+        run: lake exe cache get || true
+
+      - name: Run telemetry wrapper + validator
+        env:
+          COHERENCE_RUN_TIMEOUT: "5400"
+        run: |
+          python -u python/tools/run_and_validate.py
+
+      - name: Capture latest run_id
+        id: runid
+        run: |
+          echo "run_id=$(ls -1t paper/out/runs | head -1)" >> $GITHUB_OUTPUT
+
+      - name: Upload run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry-run-${{ steps.runid.outputs.run_id }}
+          path: paper/out/runs/${{ steps.runid.outputs.run_id }}
+          if-no-files-found: error

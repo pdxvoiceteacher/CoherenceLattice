@@ -25,23 +25,33 @@ def get_float(x: Any) -> Optional[float]:
     except Exception:
         return None
 
-def delta_score(mA: Dict[str, Any], mB: Dict[str, Any]) -> Optional[float]:
+def raw_delta_psi(mA: Dict[str, Any], mB: Dict[str, Any]) -> Optional[float]:
     a = get_float(mA.get("guft", {}).get("psi"))
     b = get_float(mB.get("guft", {}).get("psi"))
     if a is None or b is None:
         return None
-    score = b - a
+    return b - a
+
+def penalty_applied(mB: Dict[str, Any], penalty: float) -> float:
     okB = bool(mB.get("telemetry_ok", {}).get("all_ok") is True)
-    if not okB:
-        score -= 1.0
-    return score
+    return 0.0 if okB else float(penalty)
+
+def gated_delta_score(mA: Dict[str, Any], mB: Dict[str, Any], penalty: float) -> Optional[float]:
+    d = raw_delta_psi(mA, mB)
+    if d is None:
+        return None
+    return d - penalty_applied(mB, penalty)
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("runA")
     ap.add_argument("runB")
+    ap.add_argument("--penalty", type=float, default=1.0, help="Penalty applied if runB telemetry_ok.all_ok != true")
+    ap.add_argument("--no-penalty", action="store_true", help="Disable gating penalty (raw delta only)")
     ap.add_argument("--json", dest="json_out", default="", help="write JSON diff to file")
     args = ap.parse_args()
+
+    penalty = 0.0 if args.no_penalty else float(args.penalty)
 
     repo_root = Path(__file__).resolve().parents[2]
     dirA = resolve_run(repo_root, args.runA)
@@ -49,6 +59,10 @@ def main() -> int:
 
     mA = read_json(dirA / "metrics.json")
     mB = read_json(dirB / "metrics.json")
+
+    raw = raw_delta_psi(mA, mB)
+    pen = penalty_applied(mB, penalty)
+    gated = gated_delta_score(mA, mB, penalty)
 
     out: Dict[str, Any] = {
         "runA": {"run_id": mA.get("run_id"), "dir": str(dirA)},
@@ -65,7 +79,12 @@ def main() -> int:
             "A": mA.get("telemetry_ok", {}),
             "B": mB.get("telemetry_ok", {}),
         },
-        "delta_score": delta_score(mA, mB),
+        "scores": {
+            "raw_delta_psi": raw,
+            "penalty_applied": pen,
+            "gated_delta_score": gated,
+            "penalty_setting": penalty,
+        },
     }
 
     print("=== RUN COMPARATOR ===")
@@ -80,7 +99,10 @@ def main() -> int:
     print("telemetry_ok:")
     print(f"  A.all_ok={out['telemetry_ok']['A'].get('all_ok')}  B.all_ok={out['telemetry_ok']['B'].get('all_ok')}")
     print("")
-    print(f"delta_score={out['delta_score']}")
+    print("scores:")
+    print(f"  raw_delta_psi={raw}")
+    print(f"  penalty_applied={pen} (penalty_setting={penalty})")
+    print(f"  gated_delta_score={gated}")
     print("")
 
     if args.json_out:
