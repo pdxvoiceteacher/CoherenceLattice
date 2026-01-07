@@ -1,0 +1,24 @@
+# SCALE
+name,ratio,freqHz
+unison,1,440.000000
+m3,6/5,528.000000
+M3,5/4,550.000000
+P4,4/3,586.666667
+P5,3/2,660.000000
+octave,2,880.000000
+
+# CHORDS_MAJOR
+profile,chord,expectedOk,ok,match,ratios,freqsHz
+major,fifth+octave,true,true,true,1,3/2,2,440.000000,660.000000,880.000000
+major,majorTriad,true,true,true,1,5/4,3/2,440.000000,550.000000,660.000000
+major,minorTriad,false,false,true,1,6/5,3/2,440.000000,528.000000,660.000000
+major,mixed,false,false,true,1,6/5,4/3,440.000000,528.000000,586.666667
+major,__SUMMARY__,,true,,,
+
+# CHORDS_MINOR
+profile,chord,expectedOk,ok,match,ratios,freqsHz
+minor,fifth+octave,true,true,true,1,3/2,2,440.000000,660.000000,880.000000
+minor,majorTriad,false,false,true,1,5/4,3/2,440.000000,550.000000,660.000000
+minor,minorTriad,true,true,true,1,6/5,3/2,440.000000,528.000000,660.000000
+minor,mixed,true,true,true,1,6/5,4/3,440.000000,528.000000,586.666667
+minor,__SUMMARY__,,true,,,

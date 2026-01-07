@@ -4,3 +4,5 @@
 {"data": {"lean_path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\CoherenceLattice\\Coherence\\CropCircleRotatedCentersEval.lean", "step_id": "crop_circle_rotated_centers"}, "event": "step.start", "run_id": "382bbbbf2503", "schema_version": "telemetry.v1", "ts": "2026-01-07T19:15:24.156Z"}
 {"data": {"duration_sec": 44.34737467765808, "status": "ok", "step_id": "crop_circle_rotated_centers"}, "event": "step.end", "run_id": "382bbbbf2503", "schema_version": "telemetry.v1", "ts": "2026-01-07T19:16:08.504Z"}
 {"data": {"lean_path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\CoherenceLattice\\Coherence\\MusicScaffoldEval.lean", "step_id": "music_profiles"}, "event": "step.start", "run_id": "382bbbbf2503", "schema_version": "telemetry.v1", "ts": "2026-01-07T19:16:08.507Z"}
+{"data": {"duration_sec": 47.57802987098694, "status": "ok", "step_id": "music_profiles"}, "event": "step.end", "run_id": "382bbbbf2503", "schema_version": "telemetry.v1", "ts": "2026-01-07T19:16:56.086Z"}
+{"data": {"csv_artifacts_count": 6, "status": "ok"}, "event": "run.end", "run_id": "382bbbbf2503", "schema_version": "telemetry.v1", "ts": "2026-01-07T19:16:56.091Z"}
