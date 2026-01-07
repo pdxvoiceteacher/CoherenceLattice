@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "bytes": 410,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\logs_tree_of_life_bands.json",
+      "sha256": "f5757e7c4f6b01c91de071473353558c2309dc93f29dd8be18e350de52e00f38"
+    },
+    {
+      "bytes": 379,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\tree_of_life_bands.csv",
+      "sha256": "f651f2b5985703a9785c54c4f7407b8f7891033abbe836e64d1eec2b66922e55"
+    },
+    {
+      "bytes": 5920,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\logs_crop_circle_rotated_centers.json",
+      "sha256": "ab4de2a4dba3575b3a45cacd2e99473c15e2e949efa5bcd41c874fe363f5a5c9"
+    },
+    {
+      "bytes": 5589,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\crop_circle_rotated_centers.csv",
+      "sha256": "ae31e7d6a7c50e8e4bbdaaa0ed35b48b7512f0b766586f814ac6296a30d4233b"
+    },
+    {
+      "bytes": 962,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\logs_music_profiles.json",
+      "sha256": "e53b0e365e2f5881e81ff0f64377b1025d88e0dfc8cdbfc4fe11ee130edadc9b"
+    },
+    {
+      "bytes": 918,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\music_scaffold_profiles.csv",
+      "sha256": "ce9ef25c06f42d1606d2104eb90dc113124e3eca3f7ce28ff271852cb7bd89ea"
+    },
+    {
+      "bytes": 130,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\music_scale.csv",
+      "sha256": "b515eef9796e0a0573a2556df29d32fc17c8ddfa06aa9100524f93610748b74d"
+    },
+    {
+      "bytes": 375,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\music_chords_major.csv",
+      "sha256": "45eea49d88b84c24e7195034ee1a076e3d34870701d24aa956801b79abef9b97"
+    },
+    {
+      "bytes": 373,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\artifacts\\music_chords_minor.csv",
+      "sha256": "edd631ba4130a963b4c0912dfee98b718d2ee3c38983f1e245e7cebc30d3e361"
+    },
+    {
+      "bytes": 1178,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\metrics.json",
+      "sha256": "19f8698c15819a5a73971aceddefd368036755e1f24ee78a5ca23317b3905f67"
+    },
+    {
+      "bytes": 1865,
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\paper\\out\\runs\\7f1f9c496289\\events.jsonl",
+      "sha256": "d685a4b16ec9775f7227b75d4f3c2172e51ce094079c48713b58832ee3427274"
+    }
+  ],
+  "schema_version": "telemetry.v1"
+}

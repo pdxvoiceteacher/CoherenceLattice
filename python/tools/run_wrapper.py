@@ -44,12 +44,10 @@ def run_cmd(cmd: List[str], cwd: str, timeout_sec: int) -> Tuple[int, str, float
     t0 = time.time()
     print(f"RUN: {' '.join(cmd)}", flush=True)
     p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=timeout_sec)
-    dt = time.time() - t0
-    return p.returncode, p.stdout, dt
+    return p.returncode, p.stdout, (time.time() - t0)
 
 def filter_comment_lines(text: str) -> str:
-    lines = [ln for ln in text.splitlines() if ln.strip() and not ln.strip().startswith("#")]
-    return "\n".join(lines)
+    return "\n".join([ln for ln in text.splitlines() if ln.strip() and not ln.strip().startswith("#")])
 
 def extract_section_lines(text: str, header: str) -> List[str]:
     lines = text.splitlines()
@@ -105,71 +103,67 @@ def count_events(events_path: str) -> int:
                 n += 1
     return n
 
-def parse_tree_of_life_bands(csv_path: str) -> Dict[str, Any]:
+def parse_tree_of_life(csv_path: str) -> Dict[str, Any]:
     band_counts: Dict[str, int] = {}
     psis: List[float] = []
+    es: List[float] = []
+    ts: List[float] = []
 
     with open(csv_path, "r", encoding="utf-8", newline="") as f:
         r = csv.reader(f)
-        header = next(r, None)
+        _ = next(r, None)  # header: name,E,T,psi,band
         for row in r:
             if not row or len(row) < 5:
                 continue
-            psi = safe_float(row[3])
-            if psi is not None:
-                psis.append(psi)
+            e = safe_float(row[1]); t = safe_float(row[2]); psi = safe_float(row[3])
+            if e is not None: es.append(e)
+            if t is not None: ts.append(t)
+            if psi is not None: psis.append(psi)
             band = row[4].strip()
             band_counts[band] = band_counts.get(band, 0) + 1
 
-    psi_min = min(psis) if psis else None
-    psi_max = max(psis) if psis else None
-    psi_mean = (sum(psis) / len(psis)) if psis else None
+    def mean(xs: List[float]) -> Optional[float]:
+        return (sum(xs) / len(xs)) if xs else None
 
     return {
         "band_counts": band_counts,
-        "psi_min": psi_min,
-        "psi_max": psi_max,
-        "psi_mean": psi_mean,
         "n_rows": sum(band_counts.values()),
+        "E_mean": mean(es),
+        "T_mean": mean(ts),
+        "psi_min": min(psis) if psis else None,
+        "psi_max": max(psis) if psis else None,
+        "psi_mean": mean(psis),
     }
 
 def parse_crop_circle_summary(csv_path: str) -> Dict[str, Any]:
-    # Find the global summary row: theta=-1, i=-1
+    # global summary row: theta=-1, i=-1, ... , absDiff, absDiffToR, okAngle
     max_absdiff = None
     max_absdiff_to_r = None
     ok_all = None
 
     with open(csv_path, "r", encoding="utf-8", newline="") as f:
         r = csv.reader(f)
-        _ = next(r, None)  # header
+        _ = next(r, None)
         for row in r:
             if not row or len(row) < 11:
                 continue
-            theta = row[0].strip()
-            i = row[1].strip()
-            if theta.startswith("-1") and i == "-1":
-                max_absdiff = safe_float(row[8])   # absDiff
-                max_absdiff_to_r = safe_float(row[9])  # absDiffToR
+            if row[0].strip().startswith("-1") and row[1].strip() == "-1":
+                max_absdiff = safe_float(row[8])
+                max_absdiff_to_r = safe_float(row[9])
                 ok_all = safe_bool(row[10])
                 break
 
-    return {
-        "max_absDiff_all": max_absdiff,
-        "max_absDiffToR_all": max_absdiff_to_r,
-        "okAll": ok_all,
-    }
+    return {"max_absDiff_all": max_absdiff, "max_absDiffToR_all": max_absdiff_to_r, "okAll": ok_all}
 
 def parse_music_summary_ok(csv_path: str) -> Optional[bool]:
-    # file has header: profile,chord,expectedOk,ok,match,ratios,freqsHz
     with open(csv_path, "r", encoding="utf-8", newline="") as f:
         r = csv.reader(f)
         _ = next(r, None)
         for row in r:
             if not row or len(row) < 4:
                 continue
-            chord = row[1].strip()
-            if chord == "__SUMMARY__":
-                return safe_bool(row[3])  # ok
+            if row[1].strip() == "__SUMMARY__":
+                return safe_bool(row[3])
     return None
 
 def main() -> int:
@@ -178,7 +172,7 @@ def main() -> int:
 
     lake = shutil.which("lake")
     if not lake:
-        print("ERROR: 'lake' not found on PATH from Python. Run in the same shell where 'lake' works.", file=sys.stderr)
+        print("ERROR: 'lake' not found on PATH from Python.", file=sys.stderr)
         return 2
 
     timeout_sec = int(os.environ.get("COHERENCE_RUN_TIMEOUT", "1800"))
@@ -191,11 +185,7 @@ def main() -> int:
     print(f"run_id={run_id}", flush=True)
     print(f"run_dir={run_dir}", flush=True)
 
-    emit_event(run_dir, run_id, "run.start", {
-        "engine": "run_wrapper",
-        "python": sys.version.split()[0],
-        "platform": sys.platform,
-    })
+    emit_event(run_dir, run_id, "run.start", {"engine": "run_wrapper", "python": sys.version.split()[0], "platform": sys.platform})
 
     LEAN_EVALS = {
         "tree_of_life_bands": os.path.join(repo_root, "CoherenceLattice", "Coherence", "TreeOfLifeBandCSV.lean"),
@@ -203,18 +193,16 @@ def main() -> int:
         "music_profiles": os.path.join(repo_root, "CoherenceLattice", "Coherence", "MusicScaffoldEval.lean"),
     }
 
-    manifest_files: List[str] = []  # everything hashed (except manifest itself)
-    csv_artifacts: List[str] = []   # only CSVs in artifacts/
+    manifest_files: List[str] = []
+    csv_artifacts: List[str] = []
+    step_durations: Dict[str, float] = {}
 
     try:
         def eval_lean(step_id: str, lean_path: str) -> str:
             emit_event(run_dir, run_id, "step.start", {"step_id": step_id, "lean_path": lean_path})
             code, out, dt = run_cmd([lake, "env", "lean", lean_path], cwd=repo_root, timeout_sec=timeout_sec)
-            emit_event(run_dir, run_id, "step.end", {
-                "step_id": step_id,
-                "status": "ok" if code == 0 else "error",
-                "duration_sec": dt
-            })
+            step_durations[step_id] = dt
+            emit_event(run_dir, run_id, "step.end", {"step_id": step_id, "status": "ok" if code == 0 else "error", "duration_sec": dt})
             if code != 0:
                 raise RuntimeError(f"lean eval failed for {lean_path}\n{out}")
             return out
@@ -230,8 +218,7 @@ def main() -> int:
         tol_path = os.path.join(artifacts_dir, "tree_of_life_bands.csv")
         with open(tol_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(tol_csv + "\n")
-        csv_artifacts.append(tol_path)
-        manifest_files.append(tol_path)
+        csv_artifacts.append(tol_path); manifest_files.append(tol_path)
 
         # STEP 2
         print("STEP 2/3: CropCircleRotatedCentersEval", flush=True)
@@ -244,8 +231,7 @@ def main() -> int:
         crop_path = os.path.join(artifacts_dir, "crop_circle_rotated_centers.csv")
         with open(crop_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(crop_csv + "\n")
-        csv_artifacts.append(crop_path)
-        manifest_files.append(crop_path)
+        csv_artifacts.append(crop_path); manifest_files.append(crop_path)
 
         # STEP 3
         print("STEP 3/3: MusicScaffoldEval (profiles + split)", flush=True)
@@ -259,8 +245,7 @@ def main() -> int:
             f.write(music_out)
             if not music_out.endswith("\n"):
                 f.write("\n")
-        csv_artifacts.append(combined_path)
-        manifest_files.append(combined_path)
+        csv_artifacts.append(combined_path); manifest_files.append(combined_path)
 
         scale_lines = extract_section_lines(music_out, "SCALE")
         maj_lines = extract_section_lines(music_out, "CHORDS_MAJOR")
@@ -273,52 +258,50 @@ def main() -> int:
         for pth, lines in [(scale_path, scale_lines), (maj_path, maj_lines), (min_path, min_lines)]:
             with open(pth, "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(lines) + "\n")
-            csv_artifacts.append(pth)
-            manifest_files.append(pth)
+            csv_artifacts.append(pth); manifest_files.append(pth)
 
-        # run.end BEFORE metrics (so metrics can include final event count)
+        # Final run.end (so metrics can count events including run.end)
         emit_event(run_dir, run_id, "run.end", {"status": "ok", "csv_artifacts_count": len(csv_artifacts)})
 
-        # Enriched metrics.json (after run.end, before manifest)
+        # Enriched metrics.json
         events_path = os.path.join(run_dir, "events.jsonl")
         events_n = count_events(events_path)
 
-        tol_metrics = parse_tree_of_life_bands(tol_path)
-        crop_metrics = parse_crop_circle_summary(crop_path)
+        tol_m = parse_tree_of_life(tol_path)
+        crop_m = parse_crop_circle_summary(crop_path)
         maj_ok = parse_music_summary_ok(maj_path)
         min_ok = parse_music_summary_ok(min_path)
 
         telemetry_ok = {
-            "crop_rotation_ok": bool(crop_metrics.get("okAll") is True),
+            "crop_rotation_ok": bool(crop_m.get("okAll") is True),
             "music_major_summary_ok": bool(maj_ok is True),
             "music_minor_summary_ok": bool(min_ok is True),
         }
         telemetry_ok["all_ok"] = bool(all(telemetry_ok.values()))
 
+        # GUFT proxy values (safe + useful): mean E/T/psi from Tree-of-Life table
+        guft = {
+            "E": tol_m.get("E_mean"),
+            "T": tol_m.get("T_mean"),
+            "psi": tol_m.get("psi_mean"),
+            "deltaS": None,
+        }
+
         metrics = {
             "schema_version": SCHEMA_VERSION,
             "run_id": run_id,
             "generated_utc": iso_ts(),
-            "artifacts_count": len(csv_artifacts),
             "counts": {
                 "events": events_n,
                 "artifacts_csv": len(csv_artifacts),
             },
-            # GUFT placeholders (filled by later engines)
-            "guft": {
-                "E": None,
-                "T": None,
-                "psi": None,
-                "deltaS": None,
+            "timings": {
+                "step_duration_sec": step_durations,
             },
-            "tree_of_life": tol_metrics,
-            "crop_circle": {
-                "rotation": crop_metrics
-            },
-            "music": {
-                "major": {"summary_ok": maj_ok},
-                "minor": {"summary_ok": min_ok},
-            },
+            "guft": guft,
+            "tree_of_life": tol_m,
+            "crop_circle": {"rotation": crop_m},
+            "music": {"major": {"summary_ok": maj_ok}, "minor": {"summary_ok": min_ok}},
             "telemetry_ok": telemetry_ok,
         }
 
@@ -326,7 +309,7 @@ def main() -> int:
         write_json(metrics_path, metrics)
         manifest_files.append(metrics_path)
 
-        # events.jsonl must be hashed too (finalized now)
+        # hash events.jsonl too (now finalized)
         manifest_files.append(events_path)
 
         # Manifest LAST
