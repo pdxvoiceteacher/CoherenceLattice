@@ -4,11 +4,10 @@ import re
 from pathlib import Path
 
 TARGET = Path("ucc/src/ucc/audit.py")
-
 MARKER = "COHERENCELEDGER_AUTOSEAL"
 
-BLOCK = r"""
-# {MARKER}: optional ledger anchoring (env-gated, cross-platform)
+BLOCK_TEMPLATE = r"""
+# __MARKER__: optional ledger anchoring (env-gated, cross-platform)
 import os
 if os.getenv("COHERENCELEDGER_ENABLE", "").lower() in {"1","true","yes"}:
     strict = os.getenv("COHERENCELEDGER_STRICT", "").lower() in {"1","true","yes"}
@@ -68,7 +67,6 @@ if os.getenv("COHERENCELEDGER_ENABLE", "").lower() in {"1","true","yes"}:
                     pass
 """.strip("\n")
 
-
 def main() -> None:
     if not TARGET.exists():
         raise SystemExit(f"Target not found: {TARGET}")
@@ -100,12 +98,12 @@ def main() -> None:
     if insert_at is None:
         raise SystemExit("Could not find insertion point (no return at same indent after audit_bundle line).")
 
-    block = "\n" + "\n".join(indent + ln if ln else ln for ln in BLOCK.format(MARKER=MARKER).splitlines()) + "\n\n"
+    block = BLOCK_TEMPLATE.replace("__MARKER__", MARKER)
+    block = "\n" + "\n".join(indent + ln if ln else ln for ln in block.splitlines()) + "\n\n"
     lines.insert(insert_at, block)
 
     TARGET.write_text("".join(lines), encoding="utf-8")
     print("Patched ucc/src/ucc/audit.py with COHERENCELEDGER_AUTOSEAL hook.")
-
 
 if __name__ == "__main__":
     main()
