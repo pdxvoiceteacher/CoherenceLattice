@@ -150,7 +150,6 @@ def tally_aead(outdir: Path, manifest_id: str, strict: bool = False) -> Dict[str
             nul_sha = c["nullifier_sha256"]
 
             key = base64.b64decode(r["key_b64"])
-            plain = r["plaintext_choice"]
             r_ct_sha = r["ciphertext_sha256"]
             r_aad_sha = r["aad_sha256"]
         except Exception:
@@ -180,13 +179,6 @@ def tally_aead(outdir: Path, manifest_id: str, strict: bool = False) -> Dict[str
             if strict:
                 invalid_reasons.append({"ballot_id": bid, "reason": "decrypt failed"})
             continue
-
-        if pt != plain:
-            invalid += 1
-            if strict:
-                invalid_reasons.append({"ballot_id": bid, "reason": "plaintext mismatch"})
-            continue
-
         counts[pt] = counts.get(pt, 0) + 1
         valid += 1
 
@@ -250,3 +242,4 @@ def write_tally_aead(outdir: Path, manifest_id: str) -> Path:
             _anchor(tally_path=tp, manifest_id=manifest_id, ledger_path=ledger, keystore_path=keystore, repo_root=repo_root, purpose=purpose)
 
     return tp
+

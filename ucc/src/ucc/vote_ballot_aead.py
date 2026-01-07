@@ -120,11 +120,10 @@ def build_aead_commit_and_reveal(
     # DEMO reveal: carries key + plaintext to validate correctness
     reveal = {
         "version": 1,
-        "schema_id": "ucc.vote_ballot.secret_aead_reveal.v0_3",
+        "schema_id": "ucc.vote_ballot.secret_aead_reveal.v0_4",
         "ballot_id": ballot_id,
         "created_at": _utc_now_iso(),
         "manifest_id": manifest_id,
-        "plaintext_choice": plaintext_choice,
         "key_b64": base64.b64encode(key).decode("ascii"),
         "ciphertext_sha256": ct_sha,
         "aad_sha256": _sha256_hex(aad),
@@ -236,3 +235,4 @@ def write_aead_reveal(*, outdir: Path, reveal_doc: Dict[str, Any], repo_root: Op
                 purpose=purpose,
             )
     return rp
+
