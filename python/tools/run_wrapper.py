@@ -39,13 +39,12 @@ def emit_event(run_dir: str, run_id: str, event: str, data: Dict[str, Any] | Non
     rec = {"ts": iso_ts(), "event": event, "run_id": run_id, "schema_version": SCHEMA_VERSION, "data": data or {}}
     append_jsonl(os.path.join(run_dir, "events.jsonl"), rec)
 
-def run_cmd(cmd: List[str], cwd: str, timeout_sec: int) -> Tuple[int, str]:
+def run_cmd(cmd: List[str], cwd: str, timeout_sec: int) -> Tuple[int, str, float]:
+    t0 = time.time()
     print(f"RUN: {' '.join(cmd)}", flush=True)
-    try:
-        p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=timeout_sec)
-        return p.returncode, p.stdout
-    except subprocess.TimeoutExpired as e:
-        raise RuntimeError(f"TIMEOUT after {timeout_sec}s: {' '.join(cmd)}") from e
+    p = subprocess.run(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=timeout_sec)
+    dt = time.time() - t0
+    return p.returncode, p.stdout, dt
 
 def filter_comment_lines(text: str) -> str:
     lines = [ln for ln in text.splitlines() if ln.strip() and not ln.strip().startswith("#")]
@@ -77,11 +76,14 @@ def extract_section_lines(text: str, header: str) -> List[str]:
 def write_manifest(run_dir: str, files: List[str]) -> None:
     items = []
     for p in files:
-        items.append({"path": p.replace("\\\\", "/"), "bytes": os.path.getsize(p), "sha256": sha256_file(p)})
+        items.append({
+            "path": p.replace("\\\\", "/"),
+            "bytes": os.path.getsize(p),
+            "sha256": sha256_file(p),
+        })
     write_json(os.path.join(run_dir, "manifest.json"), {"schema_version": SCHEMA_VERSION, "items": items})
 
 def main() -> int:
-    # repo root: python/tools -> repo root is two levels up
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     print(f"repo_root={repo_root}", flush=True)
 
@@ -90,7 +92,7 @@ def main() -> int:
         print("ERROR: 'lake' not found on PATH from Python. Run in the same shell where 'lake' works.", file=sys.stderr)
         return 2
 
-    timeout_sec = int(os.environ.get("COHERENCE_RUN_TIMEOUT", "1800"))  # 30 min default
+    timeout_sec = int(os.environ.get("COHERENCE_RUN_TIMEOUT", "1800"))  # 30 min per command default
 
     run_id = uuid.uuid4().hex[:12]
     run_dir = os.path.join(repo_root, "paper", "out", "runs", run_id)
@@ -112,45 +114,62 @@ def main() -> int:
         "music_profiles": os.path.join(repo_root, "CoherenceLattice", "Coherence", "MusicScaffoldEval.lean"),
     }
 
-    produced: List[str] = []
+    # CSV artifacts only (for metrics.artifacts_count)
+    csv_artifacts: List[str] = []
+    # Everything we want hashed in the manifest (events included AFTER run.end)
+    manifest_files: List[str] = []
+
     try:
-        def eval_lean(path: str) -> str:
-            code, out = run_cmd([lake, "env", "lean", path], cwd=repo_root, timeout_sec=timeout_sec)
+        def eval_lean(step_id: str, lean_path: str) -> str:
+            emit_event(run_dir, run_id, "step.start", {"step_id": step_id, "lean_path": lean_path})
+            code, out, dt = run_cmd([lake, "env", "lean", lean_path], cwd=repo_root, timeout_sec=timeout_sec)
+            emit_event(run_dir, run_id, "step.end", {"step_id": step_id, "status": "ok" if code == 0 else "error", "duration_sec": dt})
             if code != 0:
-                raise RuntimeError(f"lean eval failed for {path}\n{out}")
+                raise RuntimeError(f"lean eval failed for {lean_path}\n{out}")
             return out
 
-        # 1) Tree of Life bands
+        # STEP 1
         print("STEP 1/3: TreeOfLifeBandCSV", flush=True)
-        tol_out = eval_lean(LEAN_EVALS["tree_of_life_bands"])
-        write_json(os.path.join(run_dir, "logs_tree_of_life_bands.json"), {"stdout": tol_out})
+        tol_out = eval_lean("tree_of_life_bands", LEAN_EVALS["tree_of_life_bands"])
+        log1 = os.path.join(run_dir, "logs_tree_of_life_bands.json")
+        write_json(log1, {"stdout": tol_out})
+        manifest_files.append(log1)
+
         tol_csv = filter_comment_lines(tol_out)
         tol_path = os.path.join(artifacts_dir, "tree_of_life_bands.csv")
         with open(tol_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(tol_csv + "\n")
-        produced.append(tol_path)
+        csv_artifacts.append(tol_path)
+        manifest_files.append(tol_path)
 
-        # 2) Crop circles rotated centers
+        # STEP 2
         print("STEP 2/3: CropCircleRotatedCentersEval", flush=True)
-        crop_out = eval_lean(LEAN_EVALS["crop_circle_rotated_centers"])
-        write_json(os.path.join(run_dir, "logs_crop_circle_rotated_centers.json"), {"stdout": crop_out})
+        crop_out = eval_lean("crop_circle_rotated_centers", LEAN_EVALS["crop_circle_rotated_centers"])
+        log2 = os.path.join(run_dir, "logs_crop_circle_rotated_centers.json")
+        write_json(log2, {"stdout": crop_out})
+        manifest_files.append(log2)
+
         crop_csv = filter_comment_lines(crop_out)
         crop_path = os.path.join(artifacts_dir, "crop_circle_rotated_centers.csv")
         with open(crop_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(crop_csv + "\n")
-        produced.append(crop_path)
+        csv_artifacts.append(crop_path)
+        manifest_files.append(crop_path)
 
-        # 3) Music profiles + split
+        # STEP 3
         print("STEP 3/3: MusicScaffoldEval (profiles + split)", flush=True)
-        music_out = eval_lean(LEAN_EVALS["music_profiles"])
-        write_json(os.path.join(run_dir, "logs_music_profiles.json"), {"stdout": music_out})
+        music_out = eval_lean("music_profiles", LEAN_EVALS["music_profiles"])
+        log3 = os.path.join(run_dir, "logs_music_profiles.json")
+        write_json(log3, {"stdout": music_out})
+        manifest_files.append(log3)
 
         combined_path = os.path.join(artifacts_dir, "music_scaffold_profiles.csv")
         with open(combined_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(music_out)
             if not music_out.endswith("\n"):
                 f.write("\n")
-        produced.append(combined_path)
+        csv_artifacts.append(combined_path)
+        manifest_files.append(combined_path)
 
         scale_lines = extract_section_lines(music_out, "SCALE")
         maj_lines = extract_section_lines(music_out, "CHORDS_MAJOR")
@@ -160,20 +179,31 @@ def main() -> int:
         maj_path = os.path.join(artifacts_dir, "music_chords_major.csv")
         min_path = os.path.join(artifacts_dir, "music_chords_minor.csv")
 
-        for path, lines in [(scale_path, scale_lines), (maj_path, maj_lines), (min_path, min_lines)]:
-            with open(path, "w", encoding="utf-8", newline="\n") as f:
+        for pth, lines in [(scale_path, scale_lines), (maj_path, maj_lines), (min_path, min_lines)]:
+            with open(pth, "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(lines) + "\n")
-            produced.append(path)
+            csv_artifacts.append(pth)
+            manifest_files.append(pth)
 
+        # metrics.json (stable before run.end)
         metrics_path = os.path.join(run_dir, "metrics.json")
-        write_json(metrics_path, {"schema_version": SCHEMA_VERSION, "run_id": run_id, "artifacts_count": len(produced)})
-        produced.append(metrics_path)
+        write_json(metrics_path, {
+            "schema_version": SCHEMA_VERSION,
+            "run_id": run_id,
+            "artifacts_count": len(csv_artifacts),
+        })
+        manifest_files.append(metrics_path)
 
+        # Emit run.end BEFORE manifest (so events.jsonl is final when hashed)
+        emit_event(run_dir, run_id, "run.end", {"status": "ok", "csv_artifacts_count": len(csv_artifacts)})
+
+        # Now include events.jsonl in manifest (finalized)
         events_path = os.path.join(run_dir, "events.jsonl")
-        produced.append(events_path)
+        manifest_files.append(events_path)
 
-        write_manifest(run_dir, produced)
-        emit_event(run_dir, run_id, "run.end", {"status": "ok", "artifacts_count": len(produced)})
+        # Manifest LAST write (no more file mutations after this)
+        write_manifest(run_dir, manifest_files)
+
         print("DONE OK", flush=True)
         return 0
 

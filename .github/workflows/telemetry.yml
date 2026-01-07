@@ -1,0 +1,64 @@
+name: Telemetry Green
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+
+jobs:
+  telemetry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install elan (Lean toolchain)
+        shell: bash
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          lake --version
+          lean --version
+
+      - name: Cache Lake + Elan
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake
+            ~/.elan
+          key: ${{ runner.os }}-lean-${{ hashFiles('lean-toolchain', 'lakefile.lean', 'lakefile.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-lean-
+
+      - name: Lake update
+        shell: bash
+        run: lake update
+
+      - name: Lake build (warm)
+        shell: bash
+        run: lake build
+
+      - name: Run telemetry wrapper
+        shell: bash
+        run: |
+          python -u python/tools/run_wrapper.py | tee run_wrapper.log
+          RUN_DIR="$(ls -td paper/out/runs/* | head -n 1)"
+          echo "RUN_DIR=$RUN_DIR" >> $GITHUB_ENV
+          echo "Run dir: $RUN_DIR"
+
+      - name: Validate run folder
+        shell: bash
+        run: python python/tools/validate_run.py "$RUN_DIR"
+
+      - name: Upload run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry-run-${{ github.sha }}
+          path: |
+            ${{ env.RUN_DIR }}
+            run_wrapper.log
