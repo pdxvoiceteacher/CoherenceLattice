@@ -1,13 +1,4 @@
-﻿# CoherenceLattice (Lean + Python + UCC)
-
-This repository is a reproducible research + governance scaffold that combines:
-
-- **Lean 4 formalization** (machine-checked theorems; “hard-to-reject” anchors)
-- **Python reference implementations** (toy experiments + benchmarks)
-- **UCC (Universal Control Codex)** — an auditable pipeline format that emits **hash-bound audit bundles** for experiments, checks, and reports
-
-> “UCC certification” in this repo means **reproducibility + traceability** (inputs/outputs/env hashed in `audit_bundle.json`) — **not** regulatory compliance.
-
+﻿
 ---
 
 ## Build status
@@ -20,6 +11,15 @@ This repository is a reproducible research + governance scaffold that combines:
 [![Python + UCC + KONOMI](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/ci.yml?query=branch%3Amaster)
 
 ## What’s implemented (high-level)
+# CoherenceLattice (Lean + Python + UCC)
+
+This repository is a reproducible research + governance scaffold that combines:
+
+- **Lean 4 formalization** (machine-checked theorems; “hard-to-reject” anchors)
+- **Python reference implementations** (toy experiments + benchmarks)
+- **UCC (Universal Control Codex)** — an auditable pipeline format that emits **hash-bound audit bundles** for experiments, checks, and reports
+
+> “UCC certification” in this repo means **reproducibility + traceability** (inputs/outputs/env hashed in `audit_bundle.json`) — **not** regulatory compliance.
 
 ### Lean: formal anchors
 - **Coherence lattice core**: state/regime machinery + “no teleport” adjacency constraints
