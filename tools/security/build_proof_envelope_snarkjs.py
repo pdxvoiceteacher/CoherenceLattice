@@ -1,4 +1,5 @@
 ﻿from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
@@ -12,7 +13,23 @@ from ucc.public_signal_schemas import validate_public_signals
 
 
 def truthy(s: str) -> bool:
-    return s.strip().lower() in {"1","true","yes","y","on"}
+    return s.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def resolve_manifest_output(vote_dir: Path, rel_path: str) -> Path:
+    """
+    Strict: only allow relative paths, and enforce inside vote_dir.
+    """
+    p = Path(rel_path)
+    if p.is_absolute():
+        raise SystemExit("Strict output path must be relative (manifest-bound), not absolute")
+    out = (vote_dir / p).resolve()
+    vroot = vote_dir.resolve()
+    try:
+        out.relative_to(vroot)
+    except Exception:
+        raise SystemExit("Strict output path must remain inside vote_dir")
+    return out
 
 
 def main() -> int:
@@ -22,8 +39,8 @@ def main() -> int:
     ap.add_argument("--commit", required=True)
     ap.add_argument("--proof-json", required=True)
     ap.add_argument("--public-json", default=None)   # optional; else from prover_manifest.json
-    ap.add_argument("--verifier-id", default=None)   # v2.4: refused for strict public.deliberation
-    ap.add_argument("--out", default=None)
+    ap.add_argument("--verifier-id", default=None)   # refused in strict public.deliberation
+    ap.add_argument("--out", default=None)           # refused in strict public.deliberation
     args = ap.parse_args()
 
     vote_dir = Path(args.vote_dir)
@@ -33,12 +50,13 @@ def main() -> int:
     scope = (purpose.get("scope") if isinstance(purpose, dict) else None) or ""
     policy = vote_manifest.get("proof_policy") if isinstance(vote_manifest, dict) else None
 
-    # Resolve strict mode + order/public.json path from prover_manifest.json
+    # Resolve strict mode + public.json path + order from prover_manifest.json
     public_json_path = Path(args.public_json) if args.public_json else None
     order = list(DEFAULT_ORDER)
     strict_mode = truthy(os.getenv("COHERENCELEDGER_STRICT", "0"))
 
     pm = vote_dir / "prover_manifest.json"
+    pm_doc = None
     if pm.exists():
         pm_doc = json.loads(pm.read_text(encoding="utf-8-sig"))
         pi = pm_doc.get("public_inputs") if isinstance(pm_doc, dict) else None
@@ -58,7 +76,7 @@ def main() -> int:
     if "public_inputs" in order:
         raise SystemExit("public_inputs must not appear in public input order (it is derived/embedded separately)")
 
-    # v2.4 strict scope: refuse override + require manifest proof_policy
+    # v2.4 strict scope: refuse overrides + require manifest proof_policy
     is_public_strict = bool(strict_mode and scope == "public.deliberation")
 
     policy_verifier = None
@@ -72,6 +90,8 @@ def main() -> int:
     if is_public_strict:
         if args.verifier_id is not None:
             raise SystemExit("Overrides disabled in strict public.deliberation; remove --verifier-id")
+        if args.out is not None:
+            raise SystemExit("Overrides disabled in strict public.deliberation; remove --out")
         if not policy_verifier or not policy_circuit:
             raise SystemExit("public.deliberation strict requires vote_manifest.proof_policy {verifier_id,circuit_id}")
 
@@ -81,7 +101,7 @@ def main() -> int:
     reg = load_registry()
     spec = get_spec(verifier_id, reg)
 
-    # Enforce policy circuit mapping (especially important for strict public.deliberation)
+    # Enforce policy circuit mapping (especially strict public.deliberation)
     spec_circuit = spec.get("circuit_id")
     if policy_circuit:
         if not spec_circuit:
@@ -92,7 +112,7 @@ def main() -> int:
     commit = json.loads(Path(args.commit).read_text(encoding="utf-8-sig"))
     proof_obj = json.loads(Path(args.proof_json).read_text(encoding="utf-8-sig"))
 
-    # Load pinned circuit descriptor (if any) to enforce strict order
+    # Load pinned circuit descriptor (if any) to enforce strict order + pin sha
     circuit_id = policy_circuit or spec_circuit
     c_sha = None
     expected_order = list(DEFAULT_ORDER)
@@ -118,7 +138,7 @@ def main() -> int:
     if "manifest_id" in pub_map and str(pub_map["manifest_id"]) != manifest_id_expected:
         raise SystemExit(f"public.json mismatch manifest_id: expected {manifest_id_expected} got {pub_map['manifest_id']}")
 
-    for k in ("ballot_id","nullifier_sha256","ciphertext_sha256","aad_sha256"):
+    for k in ("ballot_id", "nullifier_sha256", "ciphertext_sha256", "aad_sha256"):
         if k in commit and k in pub_map and str(commit[k]) != str(pub_map[k]):
             raise SystemExit(f"public.json mismatch {k}: commit={commit[k]} public={pub_map[k]}")
 
@@ -128,7 +148,7 @@ def main() -> int:
     # v2.3: schema enforcement BEFORE writing
     validate_public_signals(public_signals, spec)
 
-    alg = str(spec.get("alg","")).upper()
+    alg = str(spec.get("alg", "")).upper()
     if alg == "GROTH16":
         fmt = "snarkjs.groth16.v1"
     elif alg == "PLONK":
@@ -152,7 +172,29 @@ def main() -> int:
     }
 
     ballot_id = public_signals.get("ballot_id", "unknown")
-    out = Path(args.out) if args.out else (vote_dir / "secret_v03" / "proofs" / f"proof_{ballot_id}.json")
+
+    # v2.5: manifest-bound output paths (strict disallows overrides)
+    manifest_out_rel = None
+    if isinstance(pm_doc, dict):
+        outs = pm_doc.get("outputs")
+        if isinstance(outs, dict) and isinstance(outs.get("proof_envelope_path"), str):
+            manifest_out_rel = outs["proof_envelope_path"]
+
+    if is_public_strict:
+        if manifest_out_rel:
+            out = resolve_manifest_output(vote_dir, manifest_out_rel)
+        else:
+            out = (vote_dir / "secret_v03" / "proofs" / f"proof_{ballot_id}.json").resolve()
+    else:
+        if args.out:
+            p = Path(args.out)
+            out = p if p.is_absolute() else (vote_dir / p).resolve()
+        elif manifest_out_rel:
+            p = Path(manifest_out_rel)
+            out = p if p.is_absolute() else (vote_dir / p).resolve()
+        else:
+            out = (vote_dir / "secret_v03" / "proofs" / f"proof_{ballot_id}.json").resolve()
+
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(envelope, indent=2, sort_keys=True), encoding="utf-8", newline="\n")
 
