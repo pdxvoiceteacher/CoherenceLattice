@@ -22,26 +22,21 @@ def main() -> int:
     ap.add_argument("--commit", required=True)
     ap.add_argument("--proof-json", required=True)
     ap.add_argument("--public-json", default=None)   # optional; else from prover_manifest.json
-    ap.add_argument("--verifier-id", default=None)   # optional override
+    ap.add_argument("--verifier-id", default=None)   # v2.4: refused for strict public.deliberation
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
     vote_dir = Path(args.vote_dir)
 
     vote_manifest = json.loads((vote_dir / "vote_manifest.json").read_text(encoding="utf-8-sig"))
+    purpose = vote_manifest.get("purpose") if isinstance(vote_manifest, dict) else {}
+    scope = (purpose.get("scope") if isinstance(purpose, dict) else None) or ""
     policy = vote_manifest.get("proof_policy") if isinstance(vote_manifest, dict) else None
 
-    verifier_id = args.verifier_id or (policy.get("verifier_id") if isinstance(policy, dict) else None) or "stub.sha256.v1"
-    reg = load_registry()
-    spec = get_spec(verifier_id, reg)
-
-    commit = json.loads(Path(args.commit).read_text(encoding="utf-8-sig"))
-    proof_obj = json.loads(Path(args.proof_json).read_text(encoding="utf-8-sig"))
-
-    # Resolve prover manifest / strictness / public.json / order
+    # Resolve strict mode + order/public.json path from prover_manifest.json
     public_json_path = Path(args.public_json) if args.public_json else None
     order = list(DEFAULT_ORDER)
-    strict_mode = truthy(os.getenv("COHERENCELEDGER_STRICT", "0"))  # fallback
+    strict_mode = truthy(os.getenv("COHERENCELEDGER_STRICT", "0"))
 
     pm = vote_dir / "prover_manifest.json"
     if pm.exists():
@@ -63,8 +58,42 @@ def main() -> int:
     if "public_inputs" in order:
         raise SystemExit("public_inputs must not appear in public input order (it is derived/embedded separately)")
 
+    # v2.4 strict scope: refuse override + require manifest proof_policy
+    is_public_strict = bool(strict_mode and scope == "public.deliberation")
+
+    policy_verifier = None
+    policy_circuit = None
+    if isinstance(policy, dict):
+        if isinstance(policy.get("verifier_id"), str):
+            policy_verifier = policy["verifier_id"]
+        if isinstance(policy.get("circuit_id"), str):
+            policy_circuit = policy["circuit_id"]
+
+    if is_public_strict:
+        if args.verifier_id is not None:
+            raise SystemExit("Overrides disabled in strict public.deliberation; remove --verifier-id")
+        if not policy_verifier or not policy_circuit:
+            raise SystemExit("public.deliberation strict requires vote_manifest.proof_policy {verifier_id,circuit_id}")
+
+    # Choose verifier_id: prefer manifest policy when present
+    verifier_id = policy_verifier or args.verifier_id or "stub.sha256.v1"
+
+    reg = load_registry()
+    spec = get_spec(verifier_id, reg)
+
+    # Enforce policy circuit mapping (especially important for strict public.deliberation)
+    spec_circuit = spec.get("circuit_id")
+    if policy_circuit:
+        if not spec_circuit:
+            raise SystemExit("Verifier spec has no circuit_id but manifest proof_policy requires one")
+        if str(spec_circuit) != str(policy_circuit):
+            raise SystemExit(f"proof_policy.circuit_id mismatch: manifest={policy_circuit} verifier_spec={spec_circuit}")
+
+    commit = json.loads(Path(args.commit).read_text(encoding="utf-8-sig"))
+    proof_obj = json.loads(Path(args.proof_json).read_text(encoding="utf-8-sig"))
+
     # Load pinned circuit descriptor (if any) to enforce strict order
-    circuit_id = spec.get("circuit_id")
+    circuit_id = policy_circuit or spec_circuit
     c_sha = None
     expected_order = list(DEFAULT_ORDER)
 
@@ -111,7 +140,7 @@ def main() -> int:
 
     envelope = {
         "schema_id": "ucc.vote_proof_envelope.v0_5",
-        "version": 7,
+        "version": 8,
         "created_at": __import__("datetime").datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
         "verifier_id": verifier_id,
         "vk_sha256": spec.get("vk_sha256"),
