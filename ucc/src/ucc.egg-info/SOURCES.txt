@@ -22,6 +22,7 @@ src/ucc/proof_verifiers.py
 src/ucc/public_inputs.py
 src/ucc/public_signal_schemas.py
 src/ucc/snark_backend.py
+src/ucc/snark_public_outputs.py
 src/ucc/validate_grammar.py
 src/ucc/verifier_registry.py
 src/ucc/vote_ballot.py
@@ -91,6 +92,7 @@ tests/test_public_signal_schemas_v1_5.py
 tests/test_real_proof_boundary_v2_0.py
 tests/test_scope_policy_v1_7.py
 tests/test_snark_backend_v1_1.py
+tests/test_snark_public_outputs_v2_1.py
 tests/test_snark_subprocess_gate_v1_2.py
 tests/test_tches_compare_parser_alignment.py
 tests/test_ucc_governance_guardrail.py
