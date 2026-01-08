@@ -9,6 +9,8 @@ import os
 import subprocess
 import tempfile
 
+from ucc.public_inputs import to_snarkjs_public_inputs
+
 from ucc.proof_formats import to_snarkjs_proof
 
 
@@ -92,7 +94,8 @@ class SnarkjsBackend:
             raise NotImplementedError("Refusing to run subprocess SNARK backend in CI/GitHub Actions.")
 
         proof_obj = to_snarkjs_proof(proof_b64, expected_alg=alg_u)
-        public_inputs = _public_inputs_for_snarkjs(public_signals)
+        strict_inputs = _truthy(os.getenv('UCC_SNARK_STRICT_PUBLIC_INPUTS','1'))
+        public_inputs = to_snarkjs_public_inputs(public_signals, strict=strict_inputs)
 
         alg_u = alg.upper().strip()
         if alg_u not in {"GROTH16", "PLONK"}:

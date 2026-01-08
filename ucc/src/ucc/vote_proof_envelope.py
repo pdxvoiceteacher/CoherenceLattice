@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from ucc.verifier_registry import DEFAULT_VERIFIER_ID, get_spec, load_registry
 from ucc.proof_verifiers import proof_stub_b64, verify_envelope
+from ucc.public_inputs import build_public_inputs_spec
 
 
 def _utc_now_iso() -> str:
@@ -79,6 +80,9 @@ def build_proof_envelope_from_commit_and_reveal(commit: dict, reveal: dict, veri
         "aad_sha256": aad_sha,
         "choice_hash": ch,
     }
+
+    # v1.4: embed versioned snarkjs public input vector
+    public_signals["public_inputs"] = build_public_inputs_spec(public_signals)
 
     return {
         "version": 2,

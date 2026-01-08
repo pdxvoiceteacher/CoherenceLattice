@@ -18,6 +18,7 @@ src/ucc/mapping_validators.py
 src/ucc/models.py
 src/ucc/proof_formats.py
 src/ucc/proof_verifiers.py
+src/ucc/public_inputs.py
 src/ucc/snark_backend.py
 src/ucc/validate_grammar.py
 src/ucc/verifier_registry.py
