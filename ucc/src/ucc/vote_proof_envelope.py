@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from ucc.verifier_registry import DEFAULT_VERIFIER_ID, get_spec, load_registry
 from ucc.proof_verifiers import proof_stub_b64, verify_envelope
+from ucc.circuit_registry import load_and_pin_circuit_descriptor
 from ucc.public_inputs import build_public_inputs_spec
 
 
@@ -50,6 +51,14 @@ def choice_hash(choice: str) -> str:
 def build_proof_envelope_from_commit_and_reveal(commit: dict, reveal: dict, verifier_id: str = DEFAULT_VERIFIER_ID) -> dict:
     registry = load_registry()
     spec = get_spec(verifier_id, registry)
+
+    # v1.6: circuit pinning (verifier_id -> circuit_id -> circuit_sha256)
+    c_id = spec.get('circuit_id')
+    c_sha = None
+    if c_id:
+        cinfo = load_and_pin_circuit_descriptor(str(c_id))
+        c_sha = cinfo['sha256']
+
 
     manifest_id = str(commit["manifest_id"])
     ballot_id = str(commit["ballot_id"])
@@ -90,6 +99,8 @@ def build_proof_envelope_from_commit_and_reveal(commit: dict, reveal: dict, veri
         "created_at": _utc_now_iso(),
         "verifier_id": verifier_id,
         "vk_sha256": spec.get("vk_sha256"),
+        "circuit_id": spec.get("circuit_id"),
+        "circuit_sha256": c_sha,
         "public_signals": public_signals,
         "proof_b64": proof_stub_b64(public_signals),
         "proof_alg": spec.get("alg", "PROOF_STUB_SHA256"),

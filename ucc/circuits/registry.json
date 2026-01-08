@@ -1,0 +1,8 @@
+{
+  "vote_proof_envelope.v1": {
+    "circuit_path": "ucc/circuits/vote_proof_envelope_v1.circuit.json",
+    "circuit_sha256": "75f14aa0bc413c881c5706a85f9948491be2005e14eb137bb489824852f3c93f",
+    "enabled": true,
+    "notes": "Circuit for proof envelope public_signals constraints (placeholder until real ZK circuit exists)."
+  }
+}

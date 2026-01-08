@@ -1,0 +1,17 @@
+{
+  "schema": "ucc.circuit_descriptor.v0",
+  "name": "vote_proof_envelope_v1",
+  "purpose": "ZK-ready proof envelope: binds ciphertext+nullifier+choice_hash to manifest",
+  "public_signals": [
+    "manifest_id",
+    "ballot_id",
+    "nullifier_sha256",
+    "ciphertext_sha256",
+    "aad_sha256",
+    "choice_hash"
+  ],
+  "verifier": {
+    "alg": "STUB",
+    "notes": "Placeholder descriptor; replace with real circuit artifact later."
+  }
+}

@@ -21,6 +21,7 @@ import hashlib
 
 from ucc.verifier_registry import DEFAULT_VERIFIER_ID, get_spec, load_registry, resolve_vk_path
 from ucc.public_signal_schemas import validate_public_signals
+from ucc.circuit_registry import load_and_pin_circuit_descriptor
 from ucc.snark_backend import get_backend_from_env
 
 
@@ -103,6 +104,19 @@ def verify_envelope(doc: Dict[str, Any], registry: Optional[Dict[str, Dict[str, 
     verifier_id = str(doc.get("verifier_id", DEFAULT_VERIFIER_ID))
     spec = get_spec(verifier_id, reg)
     validate_public_signals(public_signals, spec)
+
+    # v1.6: circuit pinning enforcement (verifier -> circuit_id -> circuit_sha256)
+    if spec.get("circuit_required", False):
+        expected_cid = spec.get("circuit_id")
+        got_cid = doc.get("circuit_id")
+        if not expected_cid or not got_cid or str(got_cid) != str(expected_cid):
+            raise ValueError("circuit_id mismatch (verifier/circuit substitution risk)")
+
+        cinfo = load_and_pin_circuit_descriptor(str(expected_cid))
+        expected_sha = cinfo["sha256"]
+        got_sha = doc.get("circuit_sha256")
+        if not got_sha or str(got_sha) != str(expected_sha):
+            raise ValueError("circuit_sha256 mismatch (circuit substitution risk)")
 
     # Pinning: if required, proof doc must carry the same vk_sha256 as registry
     if spec.get("pin_required", False):

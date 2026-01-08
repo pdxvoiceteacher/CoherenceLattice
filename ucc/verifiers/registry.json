@@ -9,6 +9,8 @@
   },
   "stub.sha256.pinned.v1": {
     "alg": "PROOF_STUB_SHA256",
+    "circuit_id": "vote_proof_envelope.v1",
+    "circuit_required": true,
     "enabled": true,
     "kind": "stub",
     "pin_required": true,
@@ -20,6 +22,8 @@
   },
   "stub.sha256.v1": {
     "alg": "PROOF_STUB_SHA256",
+    "circuit_id": "vote_proof_envelope.v1",
+    "circuit_required": true,
     "enabled": true,
     "kind": "stub",
     "pin_required": false,
