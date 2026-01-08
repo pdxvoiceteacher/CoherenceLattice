@@ -1,0 +1,34 @@
+﻿name: vote-snark-subprocess-gate
+
+on:
+  push:
+    paths:
+      - "ucc/src/ucc/snark_backend.py"
+      - "ucc/tests/test_snark_subprocess_gate_v1_2.py"
+      - ".github/workflows/vote_snark_subprocess_gate.yml"
+  pull_request:
+    paths:
+      - "ucc/src/ucc/snark_backend.py"
+      - "ucc/tests/test_snark_subprocess_gate_v1_2.py"
+      - ".github/workflows/vote_snark_subprocess_gate.yml"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: |
+          python -m pip install -U pip
+          python -m pip install -e "ucc[dev]"
+      - name: Run gate tests (no subprocess)
+        run: |
+          python -m pytest -q ucc/tests/test_snark_subprocess_gate_v1_2.py
