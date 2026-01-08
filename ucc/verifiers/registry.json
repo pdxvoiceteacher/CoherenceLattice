@@ -1,19 +1,26 @@
-﻿{
-  "stub.sha256.v1": {
-    "kind": "stub",
-    "alg": "PROOF_STUB_SHA256",
-    "enabled": true,
-    "vk_path": null,
-    "vk_sha256": null,
-    "pin_required": false
-  },
-
+{
   "groth16.bn254.v1": {
-    "kind": "snark",
     "alg": "GROTH16",
     "enabled": false,
+    "kind": "snark",
+    "pin_required": true,
     "vk_path": "ucc/verifiers/groth16_bn254_vk.json",
-    "vk_sha256": "REPLACE_WITH_SHA256_AFTER_VK_EXISTS",
-    "pin_required": true
+    "vk_sha256": "REPLACE_WITH_SHA256_AFTER_VK_EXISTS"
+  },
+  "stub.sha256.pinned.v1": {
+    "alg": "PROOF_STUB_SHA256",
+    "enabled": true,
+    "kind": "stub",
+    "pin_required": true,
+    "vk_path": "ucc/verifiers/dummy_vk.json",
+    "vk_sha256": "af979024778853493a1b2a71ae0a5259a95314148cb2a0724219df8bf90151c2"
+  },
+  "stub.sha256.v1": {
+    "alg": "PROOF_STUB_SHA256",
+    "enabled": true,
+    "kind": "stub",
+    "pin_required": false,
+    "vk_path": null,
+    "vk_sha256": null
   }
 }
