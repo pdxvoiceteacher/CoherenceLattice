@@ -17,9 +17,6 @@ def truthy(s: str) -> bool:
 
 
 def resolve_manifest_output(vote_dir: Path, rel_path: str) -> Path:
-    """
-    Strict: only allow relative paths, and enforce inside vote_dir.
-    """
     p = Path(rel_path)
     if p.is_absolute():
         raise SystemExit("Strict output path must be relative (manifest-bound), not absolute")
@@ -76,7 +73,7 @@ def main() -> int:
     if "public_inputs" in order:
         raise SystemExit("public_inputs must not appear in public input order (it is derived/embedded separately)")
 
-    # v2.4 strict scope: refuse overrides + require manifest proof_policy
+    # v2.4/v2.5/v2.6 strict scope: refuse overrides + require manifest proof_policy
     is_public_strict = bool(strict_mode and scope == "public.deliberation")
 
     policy_verifier = None
@@ -94,12 +91,31 @@ def main() -> int:
             raise SystemExit("Overrides disabled in strict public.deliberation; remove --out")
         if not policy_verifier or not policy_circuit:
             raise SystemExit("public.deliberation strict requires vote_manifest.proof_policy {verifier_id,circuit_id}")
+        if not isinstance(pm_doc, dict):
+            raise SystemExit("public.deliberation strict requires prover_manifest.json")
+        # v2.6: enforce prover_manifest matches vote_manifest proof_policy
+        pm_ver = pm_doc.get("verifier_id")
+        pm_cir = pm_doc.get("circuit_id")
+        if str(pm_ver) != str(policy_verifier) or str(pm_cir) != str(policy_circuit):
+            raise SystemExit("prover_manifest verifier_id/circuit_id must match vote_manifest proof_policy in strict public.deliberation")
+        pi = pm_doc.get("public_inputs")
+        if not (isinstance(pi, dict) and pi.get("strict") is True):
+            raise SystemExit("public.deliberation strict requires prover_manifest.public_inputs.strict = true")
 
     # Choose verifier_id: prefer manifest policy when present
     verifier_id = policy_verifier or args.verifier_id or "stub.sha256.v1"
 
     reg = load_registry()
     spec = get_spec(verifier_id, reg)
+
+    # v2.6: strict lane also requires backend.alg matches verifier alg (GROTH16/PLONK)
+    if is_public_strict and isinstance(pm_doc, dict):
+        backend = pm_doc.get("backend")
+        if isinstance(backend, dict):
+            pm_alg = str(backend.get("alg","")).upper()
+            spec_alg = str(spec.get("alg","")).upper()
+            if pm_alg and spec_alg and pm_alg != spec_alg:
+                raise SystemExit(f"prover_manifest.backend.alg mismatch: pm={pm_alg} verifier={spec_alg}")
 
     # Enforce policy circuit mapping (especially strict public.deliberation)
     spec_circuit = spec.get("circuit_id")
@@ -160,7 +176,7 @@ def main() -> int:
 
     envelope = {
         "schema_id": "ucc.vote_proof_envelope.v0_5",
-        "version": 8,
+        "version": 9,
         "created_at": __import__("datetime").datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
         "verifier_id": verifier_id,
         "vk_sha256": spec.get("vk_sha256"),
