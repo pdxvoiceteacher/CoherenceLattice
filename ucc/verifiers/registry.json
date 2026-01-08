@@ -1,0 +1,19 @@
+﻿{
+  "stub.sha256.v1": {
+    "kind": "stub",
+    "alg": "PROOF_STUB_SHA256",
+    "enabled": true,
+    "vk_path": null,
+    "vk_sha256": null,
+    "pin_required": false
+  },
+
+  "groth16.bn254.v1": {
+    "kind": "snark",
+    "alg": "GROTH16",
+    "enabled": false,
+    "vk_path": "ucc/verifiers/groth16_bn254_vk.json",
+    "vk_sha256": "REPLACE_WITH_SHA256_AFTER_VK_EXISTS",
+    "pin_required": true
+  }
+}

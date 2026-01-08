@@ -1,126 +1,278 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "telemetry_v1.schema.json",
-  "title": "CoherenceLattice Telemetry Metrics v1",
-  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "run_id",
-    "generated_utc",
-    "counts",
-    "timings",
-    "guft",
-    "tree_of_life",
-    "crop_circle",
-    "music",
-    "telemetry_ok"
-  ],
   "properties": {
-    "schema_version": { "type": "string", "const": "telemetry.v1" },
-    "run_id": { "type": "string", "pattern": "^[0-9a-f]{12}$" },
-    "generated_utc": { "type": "string" },
-
     "counts": {
-      "type": "object",
       "additionalProperties": false,
-      "required": ["events", "artifacts_csv"],
       "properties": {
-        "events": { "type": "integer", "minimum": 2 },
-        "artifacts_csv": { "type": "integer", "minimum": 1 }
-      }
-    },
-
-    "timings": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["step_duration_sec"],
-      "properties": {
-        "step_duration_sec": {
-          "type": "object",
-          "additionalProperties": { "type": "number", "minimum": 0 }
-        }
-      }
-    },
-
-    "guft": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["E", "T", "psi", "deltaS"],
-      "properties": {
-        "E": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "T": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "psi": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "deltaS": { "type": ["number", "null"] }
-      }
-    },
-
-    "tree_of_life": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["band_counts", "n_rows", "E_mean", "T_mean", "psi_min", "psi_max", "psi_mean"],
-      "properties": {
-        "band_counts": {
-          "type": "object",
-          "additionalProperties": { "type": "integer", "minimum": 0 }
+        "artifacts_csv": {
+          "minimum": 1,
+          "type": "integer"
         },
-        "n_rows": { "type": "integer", "minimum": 0 },
-        "E_mean": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "T_mean": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "psi_min": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "psi_max": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
-        "psi_mean": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
-      }
+        "events": {
+          "minimum": 2,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "artifacts_csv"
+      ],
+      "type": "object"
     },
-
     "crop_circle": {
-      "type": "object",
       "additionalProperties": false,
-      "required": ["rotation"],
       "properties": {
         "rotation": {
-          "type": "object",
           "additionalProperties": false,
-          "required": ["max_absDiff_all", "max_absDiffToR_all", "okAll"],
           "properties": {
-            "max_absDiff_all": { "type": ["number", "null"], "minimum": 0 },
-            "max_absDiffToR_all": { "type": ["number", "null"], "minimum": 0 },
-            "okAll": { "type": ["boolean", "null"] }
-          }
+            "max_absDiffToR_all": {
+              "minimum": 0,
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "max_absDiff_all": {
+              "minimum": 0,
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "okAll": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "max_absDiff_all",
+            "max_absDiffToR_all",
+            "okAll"
+          ],
+          "type": "object"
         }
-      }
+      },
+      "required": [
+        "rotation"
+      ],
+      "type": "object"
     },
-
-    "music": {
-      "type": "object",
+    "generated_utc": {
+      "type": "string"
+    },
+    "guft": {
       "additionalProperties": false,
-      "required": ["major", "minor"],
+      "properties": {
+        "E": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "deltaS": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "psi": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "E",
+        "T",
+        "psi",
+        "deltaS"
+      ],
+      "type": "object"
+    },
+    "music": {
+      "additionalProperties": false,
       "properties": {
         "major": {
-          "type": "object",
           "additionalProperties": false,
-          "required": ["summary_ok"],
-          "properties": { "summary_ok": { "type": ["boolean", "null"] } }
+          "properties": {
+            "summary_ok": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "summary_ok"
+          ],
+          "type": "object"
         },
         "minor": {
-          "type": "object",
           "additionalProperties": false,
-          "required": ["summary_ok"],
-          "properties": { "summary_ok": { "type": ["boolean", "null"] } }
+          "properties": {
+            "summary_ok": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "summary_ok"
+          ],
+          "type": "object"
         }
-      }
+      },
+      "required": [
+        "major",
+        "minor"
+      ],
+      "type": "object"
     },
-
+    "run_id": {
+      "pattern": "^[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "telemetry.v1",
+      "type": "string"
+    },
     "telemetry_ok": {
-      "type": "object",
       "additionalProperties": false,
-      "required": ["crop_rotation_ok", "music_major_summary_ok", "music_minor_summary_ok", "all_ok"],
       "properties": {
-        "crop_rotation_ok": { "type": "boolean" },
-        "music_major_summary_ok": { "type": "boolean" },
-        "music_minor_summary_ok": { "type": "boolean" },
-        "all_ok": { "type": "boolean" }
-      }
+        "all_ok": {
+          "type": "boolean"
+        },
+        "crop_rotation_ok": {
+          "type": "boolean"
+        },
+        "music_major_summary_ok": {
+          "type": "boolean"
+        },
+        "music_minor_summary_ok": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "crop_rotation_ok",
+        "music_major_summary_ok",
+        "music_minor_summary_ok",
+        "all_ok"
+      ],
+      "type": "object"
+    },
+    "timings": {
+      "additionalProperties": false,
+      "properties": {
+        "step_duration_sec": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "step_duration_sec"
+      ],
+      "type": "object"
+    },
+    "tree_of_life": {
+      "additionalProperties": false,
+      "properties": {
+        "E_mean": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_mean": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "band_counts": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "n_rows": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "psi_max": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "psi_mean": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "psi_min": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "band_counts",
+        "n_rows",
+        "E_mean",
+        "T_mean",
+        "psi_min",
+        "psi_max",
+        "psi_mean"
+      ],
+      "type": "object"
     }
-  }
+  },
+  "required": [
+    "counts",
+    "crop_circle",
+    "generated_utc",
+    "guft",
+    "music",
+    "run_id",
+    "schema_version",
+    "telemetry_ok",
+    "timings",
+    "tree_of_life"
+  ],
+  "title": "CoherenceLattice Telemetry Metrics v1 (generated)",
+  "type": "object"
 }

@@ -57,6 +57,10 @@ def proof_stub_b64(public_signals: Dict[str, Any]) -> str:
 
 
 def build_proof_envelope_from_commit_and_reveal(commit: dict, reveal: dict, verifier_id: str = DEFAULT_VERIFIER_ID) -> dict:
+    # Load registry + spec so we can pin vk_sha256 if provided
+    registry = load_registry()
+    spec = get_spec(verifier_id, registry)
+
     manifest_id = str(commit["manifest_id"])
     ballot_id = str(commit["ballot_id"])
     nullifier_sha256 = str(commit["nullifier_sha256"])
@@ -88,13 +92,14 @@ def build_proof_envelope_from_commit_and_reveal(commit: dict, reveal: dict, veri
     }
 
     proof_doc = {
-        "version": 1,
+        "version": 2,
         "schema_id": "ucc.vote_proof_envelope.v0_5",
         "created_at": _utc_now_iso(),
         "verifier_id": verifier_id,
+        "vk_sha256": spec.get("vk_sha256"),
         "public_signals": public_signals,
         "proof_b64": proof_stub_b64(public_signals),
-        "proof_alg": "PROOF_STUB_SHA256",
+        "proof_alg": spec.get("alg", "PROOF_STUB_SHA256"),
     }
     return proof_doc
 
@@ -107,8 +112,16 @@ def verify_proof_envelope(doc: dict, registry: Optional[Dict[str, Dict[str, Any]
     if not isinstance(ps, dict):
         raise ValueError("public_signals missing")
 
-    verifier_id = doc.get("verifier_id", DEFAULT_VERIFIER_ID)
-    spec = get_spec(str(verifier_id), registry or load_registry())
+    registry = registry or load_registry()
+    verifier_id = str(doc.get("verifier_id", DEFAULT_VERIFIER_ID))
+    spec = get_spec(verifier_id, registry)
+
+    # v0.7 pinning: if pin_required, proof must carry matching vk_sha256
+    if spec.get("pin_required", False):
+        expected_vk = spec.get("vk_sha256")
+        got_vk = doc.get("vk_sha256")
+        if not expected_vk or not got_vk or str(got_vk) != str(expected_vk):
+            raise ValueError("vk_sha256 pin mismatch (verifier substitution risk)")
 
     if spec.get("kind") == "stub":
         expected = proof_stub_b64(ps)

@@ -41,3 +41,4 @@ jobs:
       - name: Run proof envelope tests
         run: |
           python -m pytest -q ucc/tests/test_vote_proof_envelope_v0_5.py
+
