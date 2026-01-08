@@ -80,6 +80,7 @@ tests/test_tches_compare_parser_alignment.py
 tests/test_ucc_governance_guardrail.py
 tests/test_ucc_smoke.py
 tests/test_validate_mapping_table_step.py
+tests/test_verifier_adapters_v1_0.py
 tests/test_vote_aead_v0_3.py
 tests/test_vote_ballot_v0.py
 tests/test_vote_cipher_v0_2.py

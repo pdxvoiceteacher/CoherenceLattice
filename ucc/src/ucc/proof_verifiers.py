@@ -20,6 +20,7 @@ import base64
 import hashlib
 
 from ucc.verifier_registry import DEFAULT_VERIFIER_ID, get_spec, load_registry, resolve_vk_path
+from ucc.snark_backend import get_backend_from_env
 
 
 def sha256_hex(b: bytes) -> str:
