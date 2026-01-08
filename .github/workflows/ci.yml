@@ -41,10 +41,15 @@ jobs:
       - name: Install UCC (dev)
         run: |
           python -m pip install -e "./ucc[dev]"
+          python -m pip install -r tools/coherenceledger_bootstrap/requirements.txt
+          # Best-effort editable install if it's a package (OK if it fails; PYTHONPATH below still works)
+          python -m pip install -e ./tools/coherenceledger_bootstrap || true
           python -c "import ucc; import konomi; print('ucc+konomi import ok')"
 
       - name: Run UCC tests
         working-directory: ucc
+        env:
+          PYTHONPATH: /home/runner/work/CoherenceLattice/CoherenceLattice/tools/coherenceledger_bootstrap:/home/runner/work/CoherenceLattice/CoherenceLattice/tools/coherenceledger_bootstrap/src
         run: python -m pytest -q
 
       - name: KONOMI smoke run (quick)
