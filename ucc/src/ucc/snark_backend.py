@@ -9,6 +9,8 @@ import os
 import subprocess
 import tempfile
 
+from ucc.proof_formats import to_snarkjs_proof
+
 
 class SnarkBackend(Protocol):
     def verify(self, *, alg: str, proof_b64: str, public_signals: Dict[str, Any], vk_bytes: bytes) -> None:
@@ -43,17 +45,6 @@ def _max_err() -> int:
     except Exception:
         return 4000
 
-
-def _decode_proof_json(proof_b64: str) -> Any:
-    raw = base64.b64decode(proof_b64.encode("ascii"))
-    try:
-        s = raw.decode("utf-8")
-    except Exception:
-        raise ValueError("proof_b64 must decode to UTF-8 JSON for snarkjs backend")
-    try:
-        return json.loads(s)
-    except Exception:
-        raise ValueError("proof_b64 must be JSON (snarkjs proof object)")
 
 
 def _public_inputs_for_snarkjs(public_signals: Dict[str, Any]) -> Any:
@@ -100,7 +91,7 @@ class SnarkjsBackend:
         if _in_ci():
             raise NotImplementedError("Refusing to run subprocess SNARK backend in CI/GitHub Actions.")
 
-        proof_obj = _decode_proof_json(proof_b64)
+        proof_obj = to_snarkjs_proof(proof_b64, expected_alg=alg_u)
         public_inputs = _public_inputs_for_snarkjs(public_signals)
 
         alg_u = alg.upper().strip()

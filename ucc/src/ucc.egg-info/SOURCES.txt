@@ -16,6 +16,7 @@ src/ucc/make_coherence_artifact.py
 src/ucc/mapping_registry.py
 src/ucc/mapping_validators.py
 src/ucc/models.py
+src/ucc/proof_formats.py
 src/ucc/proof_verifiers.py
 src/ucc/snark_backend.py
 src/ucc/validate_grammar.py
@@ -77,6 +78,7 @@ tests/test_mapping_tables_cobit_cis_asvs_soc2.py
 tests/test_nist_ai_600_1_genai_profile_pipeline.py
 tests/test_nist_ai_rmf_pipeline.py
 tests/test_prisma_pipeline.py
+tests/test_proof_formats_v1_3.py
 tests/test_snark_backend_v1_1.py
 tests/test_snark_subprocess_gate_v1_2.py
 tests/test_tches_compare_parser_alignment.py
