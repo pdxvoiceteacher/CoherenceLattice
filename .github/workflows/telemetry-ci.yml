@@ -31,6 +31,14 @@ jobs:
       - name: Mathlib cache (best-effort)
         run: lake exe cache get || true
 
+      - name: Validate telemetry taxonomy
+        run: python python/tools/validate_taxonomy.py
+
+      - name: Assemble telemetry schema from taxonomy
+        run: python python/tools/assemble_schema_from_taxonomy.py --check
+
+      - name: Ensure schema is committed (no drift)
+        run: git diff --exit-code paper/schema/telemetry_v1.schema.json
       - name: Run telemetry wrapper + validator
         env:
           COHERENCE_RUN_TIMEOUT: "5400"
