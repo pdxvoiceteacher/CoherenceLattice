@@ -1,48 +1,46 @@
 {
   "artifacts": [
     {
-      "path": "out/telemetry_smoke/konomi_smoke_out/konomi_smoke_summary.json",
-      "sha256": "bafce62b4dccd55ee1401f8551c9706af99656729aa47cfdd9c521a96f6d2e88"
+      "path": "out/telemetry_smoke/konomi_smoke_base/konomi_smoke_summary.json",
+      "sha256": "09f0c9d40594fcc82ea07c794a645fa573c93b788ce797b6af67bf4e6f6ee51a"
     },
     {
       "path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-      "sha256": "98cafdcf37ebf757609c279ce14d6fcd5c2ab6567b87d8732356bddf37ba46ae"
-    },
-    {
-      "path": "out/telemetry_smoke/ucc_cov_out/telemetry_snapshot_out/telemetry_snapshot.json",
-      "sha256": "7a47bb451c60ece3b7b067950f34bbb02e402b16b7b2013d2d394373e9fcecb6"
+      "sha256": "c1117ded8dec414074cde1b4ad5035a50ede478515b60a9351bb51d72cebede5"
     },
     {
       "path": "out/telemetry_smoke/perturbations.json",
-      "sha256": "e2eedde06ee115d1e7ea2c8cf61428ecb74ed1b125494de7363a5ecb816d2a8f"
+      "sha256": "2a0ca99c83e70bf2e10d7a9de9ef27d7fc4079bc7847ecf11189076e79ba56c9"
     }
   ],
-  "created_at": "2026-01-09T04:05:53.487980+00:00",
+  "created_at": "2026-01-09T21:08:06.596616+00:00",
   "environment": {
-    "git_commit": "86059579ea4193e67cbfcb59e32d53095dc13949",
+    "git_commit": "96321cecb713781b8224edaa49901b5d21619500",
     "platform": "Windows-11-10.0.26100-SP0",
     "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
   "flags": {
-    "deltaS_from_perturbations": 0.0,
-    "lambda_from_perturbations": 0.0,
+    "deltaS_from_perturbations": 4.277497593998166e-05,
+    "lambda_from_perturbations": 5.45817972034679e-05,
+    "perf_index_base": 3.3745793412075016,
+    "perf_values_count_base": 121,
     "perturbations_count": 3,
     "telemetry_ok": true
   },
   "metrics": {
-    "DeltaS": 0.0,
-    "E": 1.0,
+    "DeltaS": 4.277497593998166e-05,
+    "E": 0.9586950503732315,
     "Es": 1.0,
-    "Lambda": 0.0,
-    "Psi": 1.0,
+    "Lambda": 5.45817972034679e-05,
+    "Psi": 0.9586950503732315,
     "T": 1.0
   },
-  "notes": "\u0394S/\u039b computed from 3 repeat perturbation runs (repeatability drift).",
+  "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; \u0394S/\u039b from perturbation drift.",
   "run_id": "telemetry_smoke",
   "schema_id": "coherencelattice.telemetry_run.v1",
   "ucc": {
     "audit_bundle_path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-    "audit_bundle_sha256": "98cafdcf37ebf757609c279ce14d6fcd5c2ab6567b87d8732356bddf37ba46ae"
+    "audit_bundle_sha256": "c1117ded8dec414074cde1b4ad5035a50ede478515b60a9351bb51d72cebede5"
   },
   "version": 1
 }

@@ -1,2 +1,0 @@
-n_points,shape,chunk,blocks_allocated,bytes_est,write_s,write_pts_per_s,scan_box,scan_s,scan_blocks_visited,scan_hits,max_blocks,max_hits
-20000,1000x1000x1000,16,19205,314654720,0.25487790000624955,78468.94532444596,"0,256,0,256,0,256",0.23010050016455352,324,337,5000,20000

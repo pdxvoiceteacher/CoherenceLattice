@@ -3,7 +3,7 @@
     "sections_complete": true,
     "sections_missing": []
   },
-  "input_path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_out\\konomi_smoke_summary.json",
+  "input_path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_perturb_3\\konomi_smoke_summary.json",
   "metrics": {
     "missing_sections": [],
     "present_count": 9,
