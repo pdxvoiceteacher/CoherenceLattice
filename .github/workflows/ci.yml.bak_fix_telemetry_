@@ -36,7 +36,7 @@ jobs:
         run: .venv/bin/python -m pytest -q ucc/tests
 
       - name: Telemetry smoke (wrapper, ΔS/Λ perturbations)
-        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+        run: .venv/bin/python ${1}3
 
       - name: Validate telemetry (quality gates incl ΔS/Λ)
         run: .venv/bin/python tools/telemetry/validate_run.py out/telemetry_smoke/telemetry.json --min-psi 0.80 --min-t 0.80 --min-es 0.80 --max-lambda 0.01 --max-deltas 0.01
@@ -137,7 +137,6 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-
 
 
 
