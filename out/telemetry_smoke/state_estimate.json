@@ -14,7 +14,7 @@
     "Psi": 1.0,
     "T": 1.0
   },
-  "notes": "B then A then C: Es first, then Lambda, then T",
+  "notes": "History-aware fusion: window=2 alpha=0.7 history_path=out/history/state_history.jsonl",
   "recommendations": [],
   "risk_band": {
     "ethical": "green",
@@ -30,6 +30,6 @@
     "Psi": 0.0,
     "T": 0.0
   },
-  "t": "2026-01-09T05:29:32.511927+00:00",
+  "t": "2026-01-09T20:52:06.271004+00:00",
   "version": 1
 }
