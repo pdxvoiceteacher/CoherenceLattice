@@ -24,6 +24,8 @@ src/ucc/public_signal_schemas.py
 src/ucc/snark_backend.py
 src/ucc/snark_public_outputs.py
 src/ucc/validate_grammar.py
+src/ucc/vc_issuer.py
+src/ucc/vc_registry.py
 src/ucc/verifier_registry.py
 src/ucc/vote_ballot.py
 src/ucc/vote_ballot_aead.py
@@ -104,6 +106,7 @@ tests/test_tches_compare_parser_alignment.py
 tests/test_ucc_governance_guardrail.py
 tests/test_ucc_smoke.py
 tests/test_validate_mapping_table_step.py
+tests/test_vc_issuer_registry_v0_1.py
 tests/test_verifier_adapters_v1_0.py
 tests/test_vote_aead_v0_3.py
 tests/test_vote_ballot_v0.py
