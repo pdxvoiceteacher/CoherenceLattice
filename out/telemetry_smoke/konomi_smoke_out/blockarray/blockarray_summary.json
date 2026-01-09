@@ -1,0 +1,51 @@
+{
+  "blockarray_bench": {
+    "git_commit": "a8daf17177969938645b88aeff2d7ae920125f48",
+    "machine_profile": {
+      "platform": "Windows-11-10.0.26100-SP0",
+      "python": "3.14.2",
+      "numpy": "2.4.0",
+      "cpu_count": 12,
+      "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
+    },
+    "workload_definition": {
+      "shape": [
+        1000,
+        1000,
+        1000
+      ],
+      "chunk": 16,
+      "n_points": 20000,
+      "scan_box": [
+        0,
+        256,
+        0,
+        256,
+        0,
+        256
+      ],
+      "max_blocks": 5000,
+      "max_hits": 20000,
+      "seed": 0
+    },
+    "results_csv": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_out\\blockarray\\blockarray_results.csv",
+    "results": [
+      {
+        "n_points": 20000,
+        "shape": "1000x1000x1000",
+        "chunk": 16,
+        "blocks_allocated": 19205,
+        "bytes_est": 314654720,
+        "write_s": 0.24627459980547428,
+        "write_pts_per_s": 81210.16140437327,
+        "scan_box": "0,256,0,256,0,256",
+        "scan_s": 0.23276700009591877,
+        "scan_blocks_visited": 324,
+        "scan_hits": 337,
+        "max_blocks": 5000,
+        "max_hits": 20000
+      }
+    ],
+    "notes": "Sparse chunked 3D BlockArray (allocate-on-write, bounded scan over allocated blocks)."
+  }
+}
