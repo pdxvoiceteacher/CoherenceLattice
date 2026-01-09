@@ -1,6 +1,6 @@
 {
   "femto_bench": {
-    "git_commit": "30d977cbbf11987780ae25b226364940f0d8369c",
+    "git_commit": "1ab96db6536e60c9f50a371223b12120ec4cef19",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.14.2",
@@ -23,35 +23,35 @@
       {
         "concurrency": 1,
         "n_requests": 300,
-        "p50_ms": 0.0158,
-        "p95_ms": 0.0237,
-        "mean_ms": 0.017468666666666667,
-        "throughput_rps": 12672.932767056946,
-        "max_loop_lag_ms": 0.17699995078146458,
-        "alloc_cur_kb_delta": 19.7626953125,
-        "alloc_peak_kb": 19.7626953125
+        "p50_ms": 0.0241,
+        "p95_ms": 0.0523,
+        "mean_ms": 0.027328666666666668,
+        "throughput_rps": 8274.30993624077,
+        "max_loop_lag_ms": 0.9411999490112066,
+        "alloc_cur_kb_delta": 22.2216796875,
+        "alloc_peak_kb": 22.2216796875
       },
       {
         "concurrency": 9,
         "n_requests": 300,
-        "p50_ms": 0.0968,
-        "p95_ms": 0.1192,
-        "mean_ms": 0.099052,
-        "throughput_rps": 27634.996943505314,
-        "max_loop_lag_ms": 0.20779995247721672,
-        "alloc_cur_kb_delta": 19.75,
-        "alloc_peak_kb": 29.4072265625
+        "p50_ms": 0.1196,
+        "p95_ms": 0.279,
+        "mean_ms": 0.14502600000000002,
+        "throughput_rps": 18527.78239909389,
+        "max_loop_lag_ms": 0.5981000140309334,
+        "alloc_cur_kb_delta": 19.8505859375,
+        "alloc_peak_kb": 29.5537109375
       },
       {
         "concurrency": 64,
         "n_requests": 300,
-        "p50_ms": 0.6677,
-        "p95_ms": 0.6949,
-        "mean_ms": 0.6380896666666667,
-        "throughput_rps": 32478.780464307176,
-        "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 55.1171875,
-        "alloc_peak_kb": 117.1103515625
+        "p50_ms": 0.9137,
+        "p95_ms": 1.572,
+        "mean_ms": 0.9573143333333334,
+        "throughput_rps": 21477.816885056418,
+        "max_loop_lag_ms": 1.286699902266264,
+        "alloc_cur_kb_delta": 55.1484375,
+        "alloc_peak_kb": 117.140625
       }
     ],
     "gates": {},

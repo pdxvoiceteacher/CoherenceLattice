@@ -13,56 +13,17 @@ def sha256_file(p: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
-def git_commit() -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    except Exception:
-        return "unknown"
-
 def run(cmd: list[str], cwd: Path | None = None) -> None:
     subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
 
 def load_json_bom_safe(p: Path):
     return json.loads(p.read_text(encoding="utf-8-sig"))
 
-def extract_metrics_from_audit_bundle(audit_bundle: Path):
-    """
-    Best-effort extraction. Different modules expose different keys.
-    We prefer canonical keys if present; otherwise fall back to known proxies.
-    """
-    b = load_json_bom_safe(audit_bundle)
-    m = b.get("metrics", {}) or {}
-    f = b.get("flags", {}) or {}
-
-    # Empathy proxy: prefer E; else claim coverage; else 1.0
-    E = float(m.get("E", m.get("E_claim_coverage", 1.0)))
-
-    # Transparency proxy: prefer T; else required sections coverage; else 1.0
-    T = float(m.get("T", m.get("T_required_sections_coverage", 1.0)))
-
-    # Psi: prefer Psi; else compute E*T
-    Psi = float(m.get("Psi", E * T))
-
-    # Ethical symmetry: prefer Es; else use Es_fields_ok (0/1) if present; else 1.0
-    if "Es" in m:
-        Es = float(m["Es"])
-    elif "Es_fields_ok" in m:
-        Es = 1.0 if int(m.get("Es_fields_ok", 0)) > 0 else 0.0
-    else:
-        Es = 1.0
-
-    # DeltaS / Lambda: prefer if present, else 0.0 (safe default)
-    DeltaS = float(m.get("DeltaS", 0.0))
-    Lambda = float(m.get("Lambda", 0.0))
-
-    telemetry_ok = bool(f.get("overall_pass", True))
-
-    return {
-        "metrics": {"E": E, "T": T, "Psi": Psi, "DeltaS": DeltaS, "Lambda": Lambda, "Es": Es},
-        "flags": {"telemetry_ok": telemetry_ok},
-        "raw_bundle_metrics": m,
-        "raw_bundle_flags": f
-    }
+def git_commit() -> str:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:
+        return "unknown"
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -89,39 +50,48 @@ def main() -> int:
     if not summary.exists():
         raise SystemExit(f"Missing expected smoke summary: {summary}")
 
-    # 2) Run UCC coverage against summary
-    ucc_out = outdir / "ucc_cov_out"
-    ucc_out.mkdir(parents=True, exist_ok=True)
+    # 2) Run coverage module (produces audit_bundle.json)
+    cov_out = outdir / "ucc_cov_out"
+    cov_out.mkdir(parents=True, exist_ok=True)
 
     run([
         sys.executable, "-m", "ucc.cli", "run",
         "ucc/modules/konomi_smoke_coverage.yml",
         "--input", str(summary),
-        "--outdir", str(ucc_out)
+        "--outdir", str(cov_out)
     ], cwd=REPO)
 
-    audit_bundle = ucc_out / "audit_bundle.json"
+    audit_bundle = cov_out / "audit_bundle.json"
+    if not audit_bundle.exists():
+        raise SystemExit(f"Missing expected UCC audit_bundle.json: {audit_bundle}")
 
+    # 3) Canonical telemetry snapshot module (input = audit_bundle.json)
+    snap_out = outdir / "telemetry_snapshot_out"
+    snap_out.mkdir(parents=True, exist_ok=True)
+
+    run([
+        sys.executable, "-m", "ucc.cli", "run",
+        "ucc/modules/telemetry_snapshot_v1.yml",
+        "--input", str(audit_bundle),
+        "--outdir", str(snap_out)
+    ], cwd=REPO)
+
+    snap_json = snap_out / "telemetry_snapshot.json"
+    if not snap_json.exists():
+        raise SystemExit(f"Missing expected telemetry_snapshot.json: {snap_json}")
+
+    snap = load_json_bom_safe(snap_json)
+
+    # 4) Build final telemetry.json (canonical metrics + full artifact hashing)
     artifacts = [
-        {"path": str(summary.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(summary)}
+        {"path": str(summary.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(summary)},
+        {"path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(audit_bundle)},
+        {"path": str(snap_json.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(snap_json)}
     ]
-    if audit_bundle.exists():
-        artifacts.append({"path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(audit_bundle)})
-
-    # 3) Metrics/flags: prefer audit_bundle if present
-    if audit_bundle.exists():
-        extracted = extract_metrics_from_audit_bundle(audit_bundle)
-        metrics = extracted["metrics"]
-        flags = extracted["flags"]
-        notes = "metrics sourced from ucc audit_bundle.json"
-    else:
-        metrics = {"E": 1.0, "T": 1.0, "Psi": 1.0, "DeltaS": 0.0, "Lambda": 0.0, "Es": 1.0}
-        flags = {"telemetry_ok": True}
-        notes = "audit_bundle.json missing; placeholder metrics used"
 
     telemetry = {
-        "schema_id": "coherencelattice.telemetry_run.v1",
-        "version": 1,
+        "schema_id": snap.get("schema_id", "coherencelattice.telemetry_run.v1"),
+        "version": int(snap.get("version", 1)),
         "run_id": outdir.name,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "environment": {
@@ -129,14 +99,14 @@ def main() -> int:
             "platform": platform.platform(),
             "git_commit": git_commit()
         },
-        "metrics": metrics,
-        "flags": flags,
+        "metrics": snap.get("metrics", {"E":1.0,"T":1.0,"Psi":1.0,"DeltaS":0.0,"Lambda":0.0,"Es":1.0}),
+        "flags": snap.get("flags", {"telemetry_ok": True}),
         "artifacts": artifacts,
         "ucc": {
-            "audit_bundle_path": str(audit_bundle.relative_to(REPO)).replace("\\", "/") if audit_bundle.exists() else None,
-            "audit_bundle_sha256": sha256_file(audit_bundle) if audit_bundle.exists() else None
+            "audit_bundle_path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_sha256": sha256_file(audit_bundle)
         },
-        "notes": notes
+        "notes": "telemetry.json uses canonical metrics from telemetry_snapshot_v1"
     }
 
     out_json = outdir / "telemetry.json"

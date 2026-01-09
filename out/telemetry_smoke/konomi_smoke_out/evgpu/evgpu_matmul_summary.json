@@ -1,6 +1,6 @@
 {
   "evgpu_bench": {
-    "git_commit": "30d977cbbf11987780ae25b226364940f0d8369c",
+    "git_commit": "1ab96db6536e60c9f50a371223b12120ec4cef19",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.14.2",

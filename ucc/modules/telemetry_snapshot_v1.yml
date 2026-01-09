@@ -1,0 +1,20 @@
+﻿ucc_version: "0.1"
+module:
+  id: "telemetry.snapshot.v1"
+  version: "0.1.0"
+  title: "Telemetry Snapshot v1 (canonical)"
+  intent: "Emit canonical telemetry snapshot from a prior UCC audit_bundle.json"
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+steps:
+  - type: ingest_json
+    id: ingest
+  - type: emit_telemetry_snapshot
+    id: snap
+    params:
+      name_json: "telemetry_snapshot.json"
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import csv
 import json
@@ -602,6 +602,209 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             context["metrics"].update(m)
             context["flags"].update(fl)
 
+
+
+        elif stype == "emit_telemetry_snapshot": 
+
+
+            # Canonical telemetry snapshot emitter. 
+
+
+            # IMPORTANT: Do NOT import `json` or `Path` in this function scope (would create locals and break other steps). 
+
+
+            import hashlib as _hashlib 
+
+
+            import sys as _sys 
+
+
+            import platform as _platform 
+
+
+            from datetime import datetime as _datetime, timezone as _timezone 
+
+
+         
+
+
+            params = step.get("params", {}) or {} 
+
+
+            name_json = str(params.get("name_json", "telemetry_snapshot.json")) 
+
+
+         
+
+
+            src = context.get("input", {}) or {} 
+
+
+            m = src.get("metrics", {}) or {} 
+
+
+            fl = src.get("flags", {}) or {} 
+
+
+            env = src.get("environment", {}) or {} 
+
+
+         
+
+
+            def _f(x, d): 
+
+
+                try: 
+
+
+                    return float(x) 
+
+
+                except Exception: 
+
+
+                    return float(d) 
+
+
+         
+
+
+            # E/T proxies: prefer explicit E/T; else fall back to common audit metrics; else 1.0 
+
+
+            E = _f(m.get("E", m.get("E_claim_coverage", 1.0)), 1.0) 
+
+
+            T = _f(m.get("T", m.get("T_required_sections_coverage", 1.0)), 1.0) 
+
+
+            Psi = _f(m.get("Psi", E * T), E * T) 
+
+
+            DeltaS = _f(m.get("DeltaS", 0.0), 0.0) 
+
+
+            Lambda = _f(m.get("Lambda", 0.0), 0.0) 
+
+
+         
+
+
+            if "Es" in m: 
+
+
+                Es = _f(m.get("Es"), 1.0) 
+
+
+            elif "Es_fields_ok" in m: 
+
+
+                try: 
+
+
+                    Es = 1.0 if int(m.get("Es_fields_ok", 0)) > 0 else 0.0 
+
+
+                except Exception: 
+
+
+                    Es = 0.0 
+
+
+            else: 
+
+
+                Es = 1.0 
+
+
+         
+
+
+            telemetry_ok = bool(fl.get("overall_pass", True)) 
+
+
+         
+
+
+            outdir.mkdir(parents=True, exist_ok=True) 
+
+
+            out_path = outdir / name_json 
+
+
+         
+
+
+            pyver = env.get("python_version") or (_sys.version.replace("\\n", " ")) 
+
+
+            plat = env.get("platform") or _platform.platform() 
+
+
+            gsha = env.get("git_commit") or "" 
+
+
+         
+
+
+            telemetry = { 
+
+
+                "schema_id": "coherencelattice.telemetry_run.v1", 
+
+
+                "version": 1, 
+
+
+                "run_id": outdir.name, 
+
+
+                "created_at": _datetime.now(_timezone.utc).isoformat(), 
+
+
+                "environment": {"python": str(pyver), "platform": str(plat), "git_commit": str(gsha)}, 
+
+
+                "metrics": {"E": E, "T": T, "Psi": Psi, "DeltaS": DeltaS, "Lambda": Lambda, "Es": Es}, 
+
+
+                "flags": {"telemetry_ok": telemetry_ok}, 
+
+
+                "artifacts": [], 
+
+
+                "notes": "canonical telemetry snapshot from UCC audit_bundle metrics/flags" 
+
+
+            } 
+
+
+         
+
+
+            # Write snapshot (uses global json imported by the module) 
+
+
+            out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8") 
+
+
+            h = _hashlib.sha256(out_path.read_bytes()).hexdigest() 
+
+
+            telemetry["artifacts"] = [{"path": out_path.name, "sha256": h}] 
+
+
+            out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8") 
+
+
+         
+
+
+            context["output_files"].append(out_path) 
+
+
         elif stype == "emit_report":
             report_name = str(params.get("report_name", "report.json"))
             outdir.mkdir(parents=True, exist_ok=True)
@@ -756,3 +959,6 @@ BUILTIN_STEP_TYPES.update({
     "validate_mapping_table",
     "validate_mapping_index",
 })
+
+
+
