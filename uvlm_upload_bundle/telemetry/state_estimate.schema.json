@@ -1,0 +1,76 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:state_estimate:v1",
+  "title": "CoherenceLattice State Estimate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "version", "t", "mean", "sigma", "contradiction", "risk_band", "recommendations"],
+  "properties": {
+    "schema_id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "t": { "type": "string", "format": "date-time" },
+
+    "mean": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["E","T","Psi","DeltaS","Lambda","Es"],
+      "properties": {
+        "E": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "T": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "Psi": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "DeltaS": { "type": "number" },
+        "Lambda": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "Es": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+
+    "sigma": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["E","T","Psi","DeltaS","Lambda","Es"],
+      "properties": {
+        "E": { "type": "number", "minimum": 0.0 },
+        "T": { "type": "number", "minimum": 0.0 },
+        "Psi": { "type": "number", "minimum": 0.0 },
+        "DeltaS": { "type": "number", "minimum": 0.0 },
+        "Lambda": { "type": "number", "minimum": 0.0 },
+        "Es": { "type": "number", "minimum": 0.0 }
+      }
+    },
+
+    "corr": {
+      "type": "object",
+      "description": "Rolling correlation estimates; keys like 'E,T' or 'DeltaS,Lambda'.",
+      "additionalProperties": { "type": "number", "minimum": -1.0, "maximum": 1.0 }
+    },
+
+    "contradiction": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+
+    "risk_band": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ethical","lambda","traceability"],
+      "properties": {
+        "ethical": { "type": "string", "enum": ["green","yellow","red"] },
+        "lambda": { "type": "string", "enum": ["green","yellow","red"] },
+        "traceability": { "type": "string", "enum": ["green","yellow","red"] }
+      }
+    },
+
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action","priority","why"],
+        "properties": {
+          "action": { "type": "string" },
+          "priority": { "type": "string", "enum": ["low","medium","high"] },
+          "why": { "type": "string" }
+        }
+      }
+    },
+
+    "notes": { "type": "string" }
+  }
+}

@@ -1,0 +1,74 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:telemetry_run:v1",
+  "title": "CoherenceLattice Telemetry Run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "version", "run_id", "created_at", "environment", "metrics", "flags", "artifacts"],
+  "properties": {
+    "schema_id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "run_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "created_at": { "type": "string", "format": "date-time" },
+
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "platform", "git_commit"],
+      "properties": {
+        "python": { "type": "string" },
+        "platform": { "type": "string" },
+        "git_commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+        "git_branch": { "type": "string" }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["E", "T", "Psi", "DeltaS", "Lambda", "Es"],
+      "properties": {
+        "E": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "T": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "Psi": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "DeltaS": { "type": "number" },
+        "Lambda": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "Es": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+
+    "flags": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["telemetry_ok"],
+      "properties": {
+        "telemetry_ok": { "type": "boolean" }
+      }
+    },
+
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+
+    "ucc": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "audit_bundle_path": { "type": ["string","null"] },
+        "audit_bundle_sha256": { "type": ["string","null"], "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+
+    "notes": { "type": "string" }
+  }
+}
