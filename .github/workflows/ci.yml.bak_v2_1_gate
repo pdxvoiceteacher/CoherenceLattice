@@ -59,11 +59,6 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }} --depth=50
           .venv/bin/python tools/telemetry/check_proposal_gate.py --base origin/${{ github.base_ref }} --head HEAD
-      - name: Proposal approval gate v2.1 (approved proposal must match decision+state digests)
-        if: github.event_name == 'pull_request'
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=50
-          .venv/bin/python tools/telemetry/check_proposal_gate.py --base origin/${{ github.base_ref }} --head HEAD --state out/telemetry_smoke/state_estimate.json --decision out/telemetry_smoke/control_decision.json
       - name: Upload telemetry artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,7 +89,6 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-
 
 
 
