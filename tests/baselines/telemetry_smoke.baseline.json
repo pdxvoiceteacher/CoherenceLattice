@@ -2,16 +2,16 @@
   "artifacts": [
     {
       "path": "out/telemetry_smoke/konomi_smoke_out/konomi_smoke_summary.json",
-      "sha256": "6ee7e6739379265c28a9d13ad6fad3771962e1c1872d9535fe77457ba731641e"
+      "sha256": "d017349a306760f502b5486f10aec918cc07fb983f5ada28f41ed3caf96cefa2"
     },
     {
       "path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-      "sha256": "b1472a894575ea74d87918ee367d88c3245e4f4338c80a9b6b4969a5623f2d4b"
+      "sha256": "3c1483bdd220eb7c6dc8438e5e3202c5c2dfe85b1a67cee34ff82f4d4a93d2a5"
     }
   ],
-  "created_at": "2026-01-09T01:05:00.013787+00:00",
+  "created_at": "2026-01-09T01:10:08.023521+00:00",
   "environment": {
-    "git_commit": "a8daf17177969938645b88aeff2d7ae920125f48",
+    "git_commit": "30d977cbbf11987780ae25b226364940f0d8369c",
     "platform": "Windows-11-10.0.26100-SP0",
     "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
@@ -26,11 +26,12 @@
     "Psi": 1.0,
     "T": 1.0
   },
+  "notes": "metrics sourced from ucc audit_bundle.json",
   "run_id": "telemetry_smoke",
   "schema_id": "coherencelattice.telemetry_run.v1",
   "ucc": {
     "audit_bundle_path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-    "audit_bundle_sha256": "b1472a894575ea74d87918ee367d88c3245e4f4338c80a9b6b4969a5623f2d4b"
+    "audit_bundle_sha256": "3c1483bdd220eb7c6dc8438e5e3202c5c2dfe85b1a67cee34ff82f4d4a93d2a5"
   },
   "version": 1
 }

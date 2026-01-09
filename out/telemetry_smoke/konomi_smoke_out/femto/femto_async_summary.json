@@ -1,6 +1,6 @@
 {
   "femto_bench": {
-    "git_commit": "a8daf17177969938645b88aeff2d7ae920125f48",
+    "git_commit": "30d977cbbf11987780ae25b226364940f0d8369c",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.14.2",
@@ -23,35 +23,35 @@
       {
         "concurrency": 1,
         "n_requests": 300,
-        "p50_ms": 0.013,
-        "p95_ms": 0.0173,
-        "mean_ms": 0.014513999999999999,
-        "throughput_rps": 15166.758619004378,
-        "max_loop_lag_ms": 0.058999983593821526,
-        "alloc_cur_kb_delta": 21.318359375,
-        "alloc_peak_kb": 21.318359375
+        "p50_ms": 0.0158,
+        "p95_ms": 0.0237,
+        "mean_ms": 0.017468666666666667,
+        "throughput_rps": 12672.932767056946,
+        "max_loop_lag_ms": 0.17699995078146458,
+        "alloc_cur_kb_delta": 19.7626953125,
+        "alloc_peak_kb": 19.7626953125
       },
       {
         "concurrency": 9,
         "n_requests": 300,
-        "p50_ms": 0.0873,
-        "p95_ms": 0.0998,
-        "mean_ms": 0.09140666666666666,
-        "throughput_rps": 30825.823245943473,
-        "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 19.8193359375,
-        "alloc_peak_kb": 29.5224609375
+        "p50_ms": 0.0968,
+        "p95_ms": 0.1192,
+        "mean_ms": 0.099052,
+        "throughput_rps": 27634.996943505314,
+        "max_loop_lag_ms": 0.20779995247721672,
+        "alloc_cur_kb_delta": 19.75,
+        "alloc_peak_kb": 29.4072265625
       },
       {
         "concurrency": 64,
         "n_requests": 300,
-        "p50_ms": 0.6186,
-        "p95_ms": 0.6646,
-        "mean_ms": 0.5958983333333333,
-        "throughput_rps": 34663.64704051715,
+        "p50_ms": 0.6677,
+        "p95_ms": 0.6949,
+        "mean_ms": 0.6380896666666667,
+        "throughput_rps": 32478.780464307176,
         "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 55.1328125,
-        "alloc_peak_kb": 117.171875
+        "alloc_cur_kb_delta": 55.1171875,
+        "alloc_peak_kb": 117.1103515625
       }
     ],
     "gates": {},

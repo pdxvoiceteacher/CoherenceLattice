@@ -22,6 +22,48 @@ def git_commit() -> str:
 def run(cmd: list[str], cwd: Path | None = None) -> None:
     subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
 
+def load_json_bom_safe(p: Path):
+    return json.loads(p.read_text(encoding="utf-8-sig"))
+
+def extract_metrics_from_audit_bundle(audit_bundle: Path):
+    """
+    Best-effort extraction. Different modules expose different keys.
+    We prefer canonical keys if present; otherwise fall back to known proxies.
+    """
+    b = load_json_bom_safe(audit_bundle)
+    m = b.get("metrics", {}) or {}
+    f = b.get("flags", {}) or {}
+
+    # Empathy proxy: prefer E; else claim coverage; else 1.0
+    E = float(m.get("E", m.get("E_claim_coverage", 1.0)))
+
+    # Transparency proxy: prefer T; else required sections coverage; else 1.0
+    T = float(m.get("T", m.get("T_required_sections_coverage", 1.0)))
+
+    # Psi: prefer Psi; else compute E*T
+    Psi = float(m.get("Psi", E * T))
+
+    # Ethical symmetry: prefer Es; else use Es_fields_ok (0/1) if present; else 1.0
+    if "Es" in m:
+        Es = float(m["Es"])
+    elif "Es_fields_ok" in m:
+        Es = 1.0 if int(m.get("Es_fields_ok", 0)) > 0 else 0.0
+    else:
+        Es = 1.0
+
+    # DeltaS / Lambda: prefer if present, else 0.0 (safe default)
+    DeltaS = float(m.get("DeltaS", 0.0))
+    Lambda = float(m.get("Lambda", 0.0))
+
+    telemetry_ok = bool(f.get("overall_pass", True))
+
+    return {
+        "metrics": {"E": E, "T": T, "Psi": Psi, "DeltaS": DeltaS, "Lambda": Lambda, "Es": Es},
+        "flags": {"telemetry_ok": telemetry_ok},
+        "raw_bundle_metrics": m,
+        "raw_bundle_flags": f
+    }
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True, help="Output directory for telemetry run")
@@ -31,7 +73,7 @@ def main() -> int:
     outdir = Path(args.out).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # 1) Run KONOMI smoke (quick by default)
+    # 1) Run KONOMI smoke
     smoke_out = outdir / "konomi_smoke_out"
     smoke_out.mkdir(parents=True, exist_ok=True)
 
@@ -66,9 +108,16 @@ def main() -> int:
     if audit_bundle.exists():
         artifacts.append({"path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(audit_bundle)})
 
-    # 3) Minimal metric placeholders (upgrade later by parsing report.json)
-    metrics = {"E": 1.0, "T": 1.0, "Psi": 1.0, "DeltaS": 0.0, "Lambda": 0.0, "Es": 1.0}
-    flags = {"telemetry_ok": True}
+    # 3) Metrics/flags: prefer audit_bundle if present
+    if audit_bundle.exists():
+        extracted = extract_metrics_from_audit_bundle(audit_bundle)
+        metrics = extracted["metrics"]
+        flags = extracted["flags"]
+        notes = "metrics sourced from ucc audit_bundle.json"
+    else:
+        metrics = {"E": 1.0, "T": 1.0, "Psi": 1.0, "DeltaS": 0.0, "Lambda": 0.0, "Es": 1.0}
+        flags = {"telemetry_ok": True}
+        notes = "audit_bundle.json missing; placeholder metrics used"
 
     telemetry = {
         "schema_id": "coherencelattice.telemetry_run.v1",
@@ -86,7 +135,8 @@ def main() -> int:
         "ucc": {
             "audit_bundle_path": str(audit_bundle.relative_to(REPO)).replace("\\", "/") if audit_bundle.exists() else None,
             "audit_bundle_sha256": sha256_file(audit_bundle) if audit_bundle.exists() else None
-        }
+        },
+        "notes": notes
     }
 
     out_json = outdir / "telemetry.json"
