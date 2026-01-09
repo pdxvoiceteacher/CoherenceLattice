@@ -94,19 +94,6 @@ jobs:
       - name: Validate rollback schema
         if: github.event_name == 'pull_request'
         run: .venv/bin/python tools/telemetry/validate_rollback.py governance/implementation/rollback/*.json
-      - name: Implementation receipt gate v3 (receipt+rollback required for protected changes)
-        if: github.event_name == 'pull_request'
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=50
-          .venv/bin/python tools/telemetry/check_impl_gate.py --base origin/${{ github.base_ref }} --head HEAD
-
-      - name: Validate receipt schema
-        if: github.event_name == 'pull_request'
-        run: .venv/bin/python tools/telemetry/validate_receipt.py governance/implementation/receipts/*.json
-
-      - name: Validate rollback schema
-        if: github.event_name == 'pull_request'
-        run: .venv/bin/python tools/telemetry/validate_rollback.py governance/implementation/rollback/*.json
       - name: Upload telemetry artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -137,7 +124,6 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-
 
 
 
