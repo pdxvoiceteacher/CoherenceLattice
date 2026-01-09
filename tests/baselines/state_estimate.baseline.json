@@ -1,0 +1,35 @@
+{
+  "contradiction": 0.030978712220076365,
+  "corr": {
+    "DeltaS,Lambda": 0.0,
+    "E,Psi": 0.0,
+    "E,T": 0.0,
+    "T,Psi": 0.0
+  },
+  "mean": {
+    "DeltaS": 2.9942483157987163e-05,
+    "E": 0.9710865352612621,
+    "Es": 1.0,
+    "Lambda": 3.820725804242752e-05,
+    "Psi": 0.9710865352612621,
+    "T": 1.0
+  },
+  "notes": "History-aware fusion: window=2 alpha=0.7 history_path=out/history/state_history.jsonl",
+  "recommendations": [],
+  "risk_band": {
+    "ethical": "green",
+    "lambda": "green",
+    "traceability": "green"
+  },
+  "schema_id": "coherencelattice.state_estimate.v1",
+  "sigma": {
+    "DeltaS": 1.279139400773471e-05,
+    "E": 4.3164026769786456e-05,
+    "Es": 0.0,
+    "Lambda": 1.279139400773471e-05,
+    "Psi": 4.3164026769786456e-05,
+    "T": 0.0
+  },
+  "t": "2026-01-09T21:08:23.903386+00:00",
+  "version": 1
+}
