@@ -43,17 +43,7 @@ jobs:
 
       - name: Compare telemetry vs baseline
         run: .venv/bin/python tools/telemetry/compare_runs.py tests/baselines/telemetry_smoke.baseline.json out/telemetry_smoke/telemetry.json
-      - name: State estimate (sensor fusion)
-        run: .venv/bin/python tools/telemetry/state_estimator.py --telemetry out/telemetry_smoke/telemetry.json --perturbations out/telemetry_smoke/perturbations.json --out out/telemetry_smoke/state_estimate.json
 
-      - name: Validate state estimate schema
-        run: .venv/bin/python tools/telemetry/validate_state.py out/telemetry_smoke/state_estimate.json
-
-      - name: Control policy (B then A then C)
-        run: .venv/bin/python tools/telemetry/policy.py --state out/telemetry_smoke/state_estimate.json --out out/telemetry_smoke/control_decision.json
-
-      - name: Validate control decision schema
-        run: .venv/bin/python tools/telemetry/validate_decision.py out/telemetry_smoke/control_decision.json
       - name: Upload telemetry artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,7 +65,6 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-
 
 
 

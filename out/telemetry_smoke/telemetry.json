@@ -2,24 +2,24 @@
   "artifacts": [
     {
       "path": "out/telemetry_smoke/konomi_smoke_out/konomi_smoke_summary.json",
-      "sha256": "df691690415d115b3f38c47999b02b336b1aa4709f4051a65dab7a9b5c0ffa69"
+      "sha256": "bafce62b4dccd55ee1401f8551c9706af99656729aa47cfdd9c521a96f6d2e88"
     },
     {
       "path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-      "sha256": "99535d58c9b3ce24d516d66cb0cd0e1d55f0d3bff7e49f1ec0fdc853b9138371"
+      "sha256": "98cafdcf37ebf757609c279ce14d6fcd5c2ab6567b87d8732356bddf37ba46ae"
     },
     {
       "path": "out/telemetry_smoke/ucc_cov_out/telemetry_snapshot_out/telemetry_snapshot.json",
-      "sha256": "289b52a1b7dae689585c725abdf7976d6c501c79d0b7f23b9e2a130f58fd8d88"
+      "sha256": "7a47bb451c60ece3b7b067950f34bbb02e402b16b7b2013d2d394373e9fcecb6"
     },
     {
       "path": "out/telemetry_smoke/perturbations.json",
       "sha256": "e2eedde06ee115d1e7ea2c8cf61428ecb74ed1b125494de7363a5ecb816d2a8f"
     }
   ],
-  "created_at": "2026-01-09T03:17:03.497272+00:00",
+  "created_at": "2026-01-09T04:05:53.487980+00:00",
   "environment": {
-    "git_commit": "a0984e85ed9065e6e7d931aac2b004a0616195e6",
+    "git_commit": "86059579ea4193e67cbfcb59e32d53095dc13949",
     "platform": "Windows-11-10.0.26100-SP0",
     "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
@@ -42,7 +42,7 @@
   "schema_id": "coherencelattice.telemetry_run.v1",
   "ucc": {
     "audit_bundle_path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
-    "audit_bundle_sha256": "99535d58c9b3ce24d516d66cb0cd0e1d55f0d3bff7e49f1ec0fdc853b9138371"
+    "audit_bundle_sha256": "98cafdcf37ebf757609c279ce14d6fcd5c2ab6567b87d8732356bddf37ba46ae"
   },
   "version": 1
 }

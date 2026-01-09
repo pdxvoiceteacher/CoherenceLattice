@@ -1,14 +1,14 @@
 {
   "bundle_version": "0.1",
   "environment": {
-    "git_commit": "a0984e85ed9065e6e7d931aac2b004a0616195e6",
+    "git_commit": "86059579ea4193e67cbfcb59e32d53095dc13949",
     "platform": "Windows-11-10.0.26100-SP0",
     "python_version": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
   "flags": {},
   "input": {
     "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\ucc_cov_perturb_3\\audit_bundle.json",
-    "sha256": "f7a4a52652c3be439e036c3d46d8374f66a8e0431e8b83a3ea832ca43102e79c"
+    "sha256": "a7ebd3436e3c30b8f5209841f6099fd9235c23e2c4983a16fe5a3c0d6e42794f"
   },
   "metrics": {},
   "module": {
@@ -23,7 +23,7 @@
   },
   "outputs": {
     "report.json": "ff244e1864cc56f5372958700c327116e25e9116c6c03f2b66f59ff48b6e09c0",
-    "telemetry_snapshot.json": "445c3e2995d27d5892a31582b2210d79bc96e7044fde652c50beb139a03e8c41"
+    "telemetry_snapshot.json": "8ae5ecd09e8304b2866a4d3520c04a41695263c834d5ca1295a27ff97cb35eb4"
   },
-  "timestamp_utc": "2026-01-09T03:17:03.034280+00:00"
+  "timestamp_utc": "2026-01-09T04:05:53.013273+00:00"
 }

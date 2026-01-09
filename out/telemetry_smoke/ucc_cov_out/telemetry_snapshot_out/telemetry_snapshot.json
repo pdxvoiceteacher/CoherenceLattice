@@ -2,12 +2,12 @@
   "artifacts": [
     {
       "path": "telemetry_snapshot.json",
-      "sha256": "151217a70952385009a5ff5e7a9bd9d42517d1273075e81dcc57f610fb0fc4df"
+      "sha256": "987037a3ab3fe4efec566294757c804f908cf576c0680723a4889aa9a2c23178"
     }
   ],
-  "created_at": "2026-01-09T03:16:58.107481+00:00",
+  "created_at": "2026-01-09T04:05:48.091920+00:00",
   "environment": {
-    "git_commit": "a0984e85ed9065e6e7d931aac2b004a0616195e6",
+    "git_commit": "86059579ea4193e67cbfcb59e32d53095dc13949",
     "platform": "Windows-11-10.0.26100-SP0",
     "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
@@ -22,7 +22,7 @@
     "Psi": 1.0,
     "T": 1.0
   },
-  "notes": "canonical telemetry snapshot from UCC audit_bundle metrics/flags",
+  "notes": "telemetry snapshot: T from coverage; E from numeric perf signals in KONOMI summary when available",
   "run_id": "telemetry_snapshot_out",
   "schema_id": "coherencelattice.telemetry_run.v1",
   "version": 1

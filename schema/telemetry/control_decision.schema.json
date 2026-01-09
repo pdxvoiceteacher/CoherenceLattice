@@ -1,0 +1,44 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:control_decision:v1",
+  "title": "CoherenceLattice Control Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id","version","created_at","decision","gates","actions"],
+  "properties": {
+    "schema_id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+
+    "decision": { "type": "string", "enum": ["continue","slow","reroute","halt","escalate"] },
+
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consent_required","human_review_required","strict_mode"],
+      "properties": {
+        "consent_required": { "type": "boolean" },
+        "human_review_required": { "type": "boolean" },
+        "strict_mode": { "type": "boolean" }
+      }
+    },
+
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string" },
+          "id": { "type": "string" },
+          "n": { "type": "integer" },
+          "to": { "type": "number" },
+          "why": { "type": "string" }
+        }
+      }
+    },
+
+    "notes": { "type": "string" }
+  }
+}

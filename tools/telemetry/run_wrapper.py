@@ -25,34 +25,34 @@ def git_commit() -> str:
     except Exception:
         return "unknown"
 
-def run_ucc(module: str, input_path: Path, outdir: Path) -> tuple[Path, Path]:
-    """
-    Run a UCC module and return (audit_bundle.json, telemetry_snapshot.json) paths.
-    Assumes telemetry_snapshot_v1.yml is available and emit_telemetry_snapshot is registered.
-    """
-    outdir.mkdir(parents=True, exist_ok=True)
+def run_smoke(smoke_out: Path, quick: bool) -> Path:
+    smoke_out.mkdir(parents=True, exist_ok=True)
+    run([sys.executable, "python/experiments/konomi_smoke/run_smoke.py",
+         "--quick" if quick else "--full", "--outdir", str(smoke_out)], cwd=REPO)
+    summary = smoke_out / "konomi_smoke_summary.json"
+    if not summary.exists():
+        raise SystemExit(f"Missing expected smoke summary: {summary}")
+    return summary
 
-    # 1) Run module
+def run_ucc(module: str, input_path: Path, outdir: Path) -> tuple[Path, Path]:
+    outdir.mkdir(parents=True, exist_ok=True)
     run([sys.executable, "-m", "ucc.cli", "run", module, "--input", str(input_path), "--outdir", str(outdir)], cwd=REPO)
     audit_bundle = outdir / "audit_bundle.json"
     if not audit_bundle.exists():
         raise SystemExit(f"Missing audit_bundle.json at {audit_bundle}")
 
-    # 2) Run canonical telemetry snapshot (input = audit_bundle)
     snap_out = outdir / "telemetry_snapshot_out"
     snap_out.mkdir(parents=True, exist_ok=True)
-
     run([sys.executable, "-m", "ucc.cli", "run", "ucc/modules/telemetry_snapshot_v1.yml",
          "--input", str(audit_bundle), "--outdir", str(snap_out)], cwd=REPO)
 
     snap_json = snap_out / "telemetry_snapshot.json"
     if not snap_json.exists():
         raise SystemExit(f"Missing telemetry_snapshot.json at {snap_json}")
-
     return audit_bundle, snap_json
 
-def metric_vec(telemetry_snapshot_json: Path) -> dict[str, float]:
-    d = load_json_bom_safe(telemetry_snapshot_json)
+def metric_vec(snap_json: Path) -> dict[str, float]:
+    d = load_json_bom_safe(snap_json)
     m = d.get("metrics", {}) or {}
     return {
         "E": float(m.get("E", 1.0)),
@@ -62,78 +62,53 @@ def metric_vec(telemetry_snapshot_json: Path) -> dict[str, float]:
     }
 
 def drift(a: dict[str, float], b: dict[str, float]) -> float:
-    # Mean absolute drift across core coherence metrics (bounded 0..1 typically)
     keys = ["E", "T", "Psi", "Es"]
     return sum(abs(a[k] - b[k]) for k in keys) / len(keys)
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", required=True, help="Output directory for telemetry run")
-    ap.add_argument("--quick", action="store_true", help="Quick mode (smoke)")
-    ap.add_argument("--perturbations", type=int, default=3, help="Number of repeat perturbation runs for ΔS/Λ")
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--perturbations", type=int, default=3)
     args = ap.parse_args()
 
     outdir = Path(args.out).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # 0) Run KONOMI smoke
-    smoke_out = outdir / "konomi_smoke_out"
-    smoke_out.mkdir(parents=True, exist_ok=True)
+    base_smoke = outdir / "konomi_smoke_base"
+    base_summary = run_smoke(base_smoke, args.quick)
+    base_cov = outdir / "ucc_cov_out"
+    base_bundle, base_snap = run_ucc("ucc/modules/konomi_smoke_coverage.yml", base_summary, base_cov)
+    base_vec = metric_vec(base_snap)
 
-    run([
-        sys.executable,
-        "python/experiments/konomi_smoke/run_smoke.py",
-        "--quick" if args.quick else "--full",
-        "--outdir", str(smoke_out)
-    ], cwd=REPO)
-
-    summary = smoke_out / "konomi_smoke_summary.json"
-    if not summary.exists():
-        raise SystemExit(f"Missing expected smoke summary: {summary}")
-
-    # 1) Base coverage run
-    cov_out = outdir / "ucc_cov_out"
-    audit_bundle, snap_json = run_ucc("ucc/modules/konomi_smoke_coverage.yml", summary, cov_out)
-
-    base_vec = metric_vec(snap_json)
-
-    # 2) Perturbation runs: re-run the same module N times to measure repeatability drift
-    pert_results = []
     distances = []
+    pert_results = []
 
     for i in range(1, max(0, args.perturbations) + 1):
-        pdir = outdir / f"ucc_cov_perturb_{i}"
-        ab_i, snap_i = run_ucc("ucc/modules/konomi_smoke_coverage.yml", summary, pdir)
+        smoke_i = outdir / f"konomi_smoke_perturb_{i}"
+        summary_i = run_smoke(smoke_i, args.quick)
+        cov_i = outdir / f"ucc_cov_perturb_{i}"
+        bundle_i, snap_i = run_ucc("ucc/modules/konomi_smoke_coverage.yml", summary_i, cov_i)
         vec_i = metric_vec(snap_i)
-
         d_i = drift(base_vec, vec_i)
         distances.append(d_i)
-
         pert_results.append({
             "i": i,
-            "audit_bundle_path": str(ab_i.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_path": str(bundle_i.relative_to(REPO)).replace("\\", "/"),
             "telemetry_snapshot_path": str(snap_i.relative_to(REPO)).replace("\\", "/"),
             "metrics": vec_i,
             "drift_from_base": d_i
         })
 
-    # 3) Compute ΔS/Λ
-    # ΔS = mean drift (repeatability entropy)
-    # Λ = max drift (volatility / worst-case)
-    if distances:
-        deltaS = float(statistics.mean(distances))
-        lam = float(max(distances))
-    else:
-        deltaS = 0.0
-        lam = 0.0
+    deltaS = float(statistics.mean(distances)) if distances else 0.0
+    lam = float(max(distances)) if distances else 0.0
 
-    # 4) Write perturbations report (artifact)
     pert_path = outdir / "perturbations.json"
     pert_doc = {
         "kind": "telemetry_perturbations.v1",
         "base": {
-            "audit_bundle_path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"),
-            "telemetry_snapshot_path": str(snap_json.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_path": str(base_bundle.relative_to(REPO)).replace("\\", "/"),
+            "telemetry_snapshot_path": str(base_snap.relative_to(REPO)).replace("\\", "/"),
             "metrics": base_vec
         },
         "perturbations": pert_results,
@@ -142,20 +117,16 @@ def main() -> int:
     }
     pert_path.write_text(json.dumps(pert_doc, indent=2, sort_keys=True), encoding="utf-8")
 
-    # 5) Build final telemetry.json (canonical metrics + computed ΔS/Λ)
-    snap = load_json_bom_safe(snap_json)
-    snap_metrics = snap.get("metrics", {}) or {}
-    snap_flags = snap.get("flags", {}) or {}
-
-    metrics = dict(snap_metrics)
+    snap = load_json_bom_safe(base_snap)
+    metrics = dict(snap.get("metrics", {}) or {})
     metrics["DeltaS"] = deltaS
     metrics["Lambda"] = lam
 
     artifacts = [
-        {"path": str(summary.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(summary)},
-        {"path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(audit_bundle)},
-        {"path": str(snap_json.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(snap_json)},
-        {"path": str(pert_path.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(pert_path)},
+        {"path": str(base_summary.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(base_summary)},
+        {"path": str(base_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(base_bundle)},
+        {"path": str(base_snap.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(base_snap)},
+        {"path": str(pert_path.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(pert_path)}
     ]
 
     telemetry = {
@@ -169,18 +140,18 @@ def main() -> int:
             "git_commit": git_commit()
         },
         "metrics": metrics,
-        "flags": dict(snap_flags, **{
-            "telemetry_ok": bool(snap_flags.get("telemetry_ok", True)),
+        "flags": {
+            "telemetry_ok": bool(snap.get("flags", {}).get("telemetry_ok", True)),
             "perturbations_count": len(distances),
             "deltaS_from_perturbations": deltaS,
             "lambda_from_perturbations": lam
-        }),
+        },
         "artifacts": artifacts,
         "ucc": {
-            "audit_bundle_path": str(audit_bundle.relative_to(REPO)).replace("\\", "/"),
-            "audit_bundle_sha256": sha256_file(audit_bundle)
+            "audit_bundle_path": str(base_bundle.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_sha256": sha256_file(base_bundle)
         },
-        "notes": f"ΔS/Λ computed from {len(distances)} repeat perturbation runs (repeatability drift)."
+        "notes": f"ΔS/Λ from {len(distances)} perturbation smoke reruns."
     }
 
     out_json = outdir / "telemetry.json"

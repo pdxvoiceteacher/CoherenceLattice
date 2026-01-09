@@ -1,7 +1,7 @@
 {
   "bundle_version": "0.1",
   "environment": {
-    "git_commit": "a0984e85ed9065e6e7d931aac2b004a0616195e6",
+    "git_commit": "86059579ea4193e67cbfcb59e32d53095dc13949",
     "platform": "Windows-11-10.0.26100-SP0",
     "python_version": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"
   },
@@ -11,7 +11,7 @@
   },
   "input": {
     "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_out\\konomi_smoke_summary.json",
-    "sha256": "df691690415d115b3f38c47999b02b336b1aa4709f4051a65dab7a9b5c0ffa69"
+    "sha256": "bafce62b4dccd55ee1401f8551c9706af99656729aa47cfdd9c521a96f6d2e88"
   },
   "metrics": {
     "missing_sections": [],
@@ -55,5 +55,5 @@
     "konomi_smoke_checklist.md": "0f7152a4e3aa14f1b4c005c16756e628f8a107369fdcdd2f91f9af59e4604a35",
     "report.json": "c650df04355f400acaab090891b6ba20c4880d32b854b6b56fbc41b3ac483715"
   },
-  "timestamp_utc": "2026-01-09T03:16:57.335549+00:00"
+  "timestamp_utc": "2026-01-09T04:05:47.279114+00:00"
 }
