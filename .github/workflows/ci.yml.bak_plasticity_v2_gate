@@ -54,11 +54,6 @@ jobs:
 
       - name: Validate control decision schema
         run: .venv/bin/python tools/telemetry/validate_decision.py out/telemetry_smoke/control_decision.json
-      - name: Proposal approval gate (requires approved proposal for protected changes)
-        if: github.event_name == 'pull_request'
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=50
-          .venv/bin/python tools/telemetry/check_proposal_gate.py --base origin/${{ github.base_ref }} --head HEAD
       - name: Upload telemetry artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,7 +84,6 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-
 
 
 
