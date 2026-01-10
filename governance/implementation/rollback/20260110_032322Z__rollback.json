@@ -1,0 +1,17 @@
+﻿{
+    "schema_id":  "coherencelattice.rollback_plan.v1",
+    "version":  1,
+    "created_at":  "2026-01-10T03:23:22.6406517Z",
+    "trigger_conditions":  [
+                               "CI fails after merge",
+                               "telemetry_ok false",
+                               "Es drops below 0.80",
+                               "Lambda rises above 0.20"
+                           ],
+    "rollback_steps":  [
+                           "git revert \u003cmerge_commit_sha\u003e",
+                           "rerun CI",
+                           "rerun telemetry smoke and confirm baselines"
+                       ],
+    "notes":  "Fill in commit SHA after PR merge."
+}

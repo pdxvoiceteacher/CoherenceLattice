@@ -1,0 +1,118 @@
+﻿name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  workflow_dispatch:
+
+jobs:
+  python-ucc:
+    name: Python + UCC + KONOMI smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            python/pyproject.toml
+            ucc/pyproject.toml
+            tools/coherenceledger_bootstrap/pyproject.toml
+
+      - name: Bootstrap monorepo (venv + editable installs + deps)
+        run: |
+          python scripts/dev_bootstrap.py --skip-tests
+          .venv/bin/python -c "import sys; print('VENV PY:', sys.executable)"
+
+      - name: Run python tests
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Run UCC tests
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Telemetry smoke (wrapper, ΔS/Λ perturbations)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Validate telemetry (quality gates incl ΔS/Λ)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Compare telemetry vs baseline
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+      - name: State estimate (sensor fusion)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Validate state estimate schema
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Control policy (B then A then C)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Validate control decision schema
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+      - name: Proposal approval gate v2.1 (approved proposal must match decision+state digests)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=50
+          .venv/bin/python tools/telemetry/check_proposal_gate.py --base origin/${{ github.base_ref }} --head HEAD --state out/telemetry_smoke/state_estimate.json --decision out/telemetry_smoke/control_decision.json
+      - name: Implementation receipt gate v3 (receipt+rollback required for protected changes)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=50
+          .venv/bin/python tools/telemetry/check_impl_gate.py --base origin/${{ github.base_ref }} --head HEAD
+
+      - name: Validate receipt schema
+        if: github.event_name == 'pull_request'
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Validate rollback schema
+        if: github.event_name == 'pull_request'
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+      - name: Upload telemetry artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telemetry_smoke
+          path: out/telemetry_smoke
+      - name: KONOMI smoke run (quick)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Enforce policy gate (Es->Lambda->T)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Emit change proposal (proposal-only)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: Validate change proposal schema
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: UCC coverage for KONOMI smoke summary
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+      - name: UCC coverage fixtures
+        run: |
+          .venv/bin/python -m ucc.cli run ucc/modules/quantum_anchor_coverage.yml --input ucc/tasks/quantum_anchor_task.json --outdir ucc/out/ci_quantum_anchor
+          .venv/bin/python -m ucc.cli run ucc/modules/mc_ai_salvage_coverage.yml --input ucc/tasks/mc_ai_salvage_task.json --outdir ucc/out/ci_mc_ai_salvage
+          .venv/bin/python -m ucc.cli run ucc/modules/kontainer_deploy_coverage.yml --input ucc/tasks/kontainer_deploy_task.json --outdir ucc/out/ci_kontainer
+          .venv/bin/python -m ucc.cli run ucc/modules/konomi_api_security_coverage.yml --input ucc/tasks/konomi_api_security_task.json --outdir ucc/out/ci_api_security
+
+      - name: Registry walker (all packs + enforced mappings)
+        run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
