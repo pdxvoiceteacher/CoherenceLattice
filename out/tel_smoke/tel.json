@@ -414,7 +414,7 @@
       "src": "telemetry.version"
     }
   ],
-  "fingerprint_sha256": "cd00da33f601e2e3e6091d9890bed6721e8b066f14594254f842617629c5fb65",
+  "fingerprint_sha256": "24ad4544d7130f20e5d81da5d87d9c4d03bcaf32d5bc6b5ff2e1590a01115195",
   "graph_id": "tel_from_telemetry",
   "meta": {
     "source": "telemetry.json"
@@ -520,7 +520,7 @@
       "band": "STM",
       "id": "telemetry.created_at.__leaf__",
       "meta": {},
-      "payload": "2026-01-10T23:17:36.851369+00:00"
+      "payload": "2026-01-10T23:31:49.436922+00:00"
     },
     {
       "band": "STM",
@@ -542,7 +542,7 @@
       "band": "STM",
       "id": "telemetry.environment.git_commit.__leaf__",
       "meta": {},
-      "payload": "9fa2f760f1fb3f4605af0fc153e219e315516ddb"
+      "payload": "bc98dafeac398d799bc0b77907a69988ba9c6e26"
     },
     {
       "band": "STM",
@@ -592,7 +592,7 @@
       "band": "STM",
       "id": "telemetry.flags.deltaS_from_perturbations.__leaf__",
       "meta": {},
-      "payload": 1.5514409803629725e-05
+      "payload": 2.6904299389562958e-05
     },
     {
       "band": "STM",
@@ -606,7 +606,7 @@
       "band": "STM",
       "id": "telemetry.flags.lambda_from_perturbations.__leaf__",
       "meta": {},
-      "payload": 1.5514409803629725e-05
+      "payload": 2.6904299389562958e-05
     },
     {
       "band": "STM",
@@ -620,7 +620,7 @@
       "band": "STM",
       "id": "telemetry.flags.perf_index_base.__leaf__",
       "meta": {},
-      "payload": 3.3877521372546058
+      "payload": 3.3906329727366833
     },
     {
       "band": "STM",
@@ -684,7 +684,7 @@
       "band": "STM",
       "id": "telemetry.metrics.DeltaS.__leaf__",
       "meta": {},
-      "payload": 1.5514409803629725e-05
+      "payload": 2.6904299389562958e-05
     },
     {
       "band": "STM",
@@ -698,7 +698,7 @@
       "band": "STM",
       "id": "telemetry.metrics.E.__leaf__",
       "meta": {},
-      "payload": 0.9585372046893952
+      "payload": 0.9585026879610032
     },
     {
       "band": "STM",
@@ -726,7 +726,7 @@
       "band": "STM",
       "id": "telemetry.metrics.Lambda.__leaf__",
       "meta": {},
-      "payload": 1.5514409803629725e-05
+      "payload": 2.6904299389562958e-05
     },
     {
       "band": "STM",
@@ -740,7 +740,7 @@
       "band": "STM",
       "id": "telemetry.metrics.Psi.__leaf__",
       "meta": {},
-      "payload": 0.9585372046893952
+      "payload": 0.9585026879610032
     },
     {
       "band": "STM",
@@ -832,7 +832,7 @@
       "band": "STM",
       "id": "telemetry.ucc.audit_bundle_sha256.__leaf__",
       "meta": {},
-      "payload": "43d38f5fdb187d1095e26c549bdda7133eda752dacdaf1d4232bcc9ca4df244a"
+      "payload": "0a59aea2ba242e5514809f0f0aa0d3b5b52d6ddfd0bcdf8a1817f2f68018048a"
     },
     {
       "band": "STM",

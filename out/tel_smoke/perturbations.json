@@ -2,31 +2,31 @@
   "base": {
     "audit_bundle_path": "out/tel_smoke/ucc_cov_out/audit_bundle.json",
     "metrics": {
-      "E": 0.9585372046893952,
+      "E": 0.9585026879610032,
       "Es": 1.0,
-      "Psi": 0.9585372046893952,
+      "Psi": 0.9585026879610032,
       "T": 1.0
     },
-    "perf_index": 3.3877521372546058,
+    "perf_index": 3.3906329727366833,
     "perf_values_count": 123
   },
-  "deltaS": 1.5514409803629725e-05,
+  "deltaS": 2.6904299389562958e-05,
   "kind": "telemetry_perturbations.v1",
-  "lambda": 1.5514409803629725e-05,
+  "lambda": 2.6904299389562958e-05,
   "perturbations": [
     {
       "Es_source": "audit_bundle.flags.sections_complete",
       "T_source": "audit_bundle.section_coverage",
       "audit_bundle_path": "out/tel_smoke/ucc_cov_perturb_1/audit_bundle.json",
-      "drift_from_base": 1.5514409803629725e-05,
+      "drift_from_base": 2.6904299389562958e-05,
       "i": 1,
       "metrics": {
-        "E": 0.9585061758697879,
+        "E": 0.9584488793622241,
         "Es": 1.0,
-        "Psi": 0.9585061758697879,
+        "Psi": 0.9584488793622241,
         "T": 1.0
       },
-      "perf_index": 3.3903418601518225,
+      "perf_index": 3.395124153397523,
       "perf_values_count": 123
     }
   ]

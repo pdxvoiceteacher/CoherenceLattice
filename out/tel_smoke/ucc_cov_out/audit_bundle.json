@@ -1,7 +1,7 @@
 {
   "bundle_version": "0.1",
   "environment": {
-    "git_commit": "9fa2f760f1fb3f4605af0fc153e219e315516ddb",
+    "git_commit": "bc98dafeac398d799bc0b77907a69988ba9c6e26",
     "platform": "Windows-11-10.0.26100-SP0",
     "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
   },
@@ -11,7 +11,7 @@
   },
   "input": {
     "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke\\konomi_smoke_base\\konomi_smoke_summary.json",
-    "sha256": "1608b49ba7ab6081bd743e862abf09bcf98c3ff673122a5a7bdc69153efac04b"
+    "sha256": "d5735657f5bf8fb6bdd163e596dac6736deec1944e4aa5390ecc6b7eda27297a"
   },
   "metrics": {
     "missing_sections": [],
@@ -55,5 +55,5 @@
     "konomi_smoke_checklist.md": "0f7152a4e3aa14f1b4c005c16756e628f8a107369fdcdd2f91f9af59e4604a35",
     "report.json": "573aeb7aa4ec2224a73ae5054e5bfd0f9db6a6738e608ca22640146c9ad0ecfc"
   },
-  "timestamp_utc": "2026-01-10T23:17:29.560163+00:00"
+  "timestamp_utc": "2026-01-10T23:31:42.436876+00:00"
 }

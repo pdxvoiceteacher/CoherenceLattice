@@ -1,6 +1,6 @@
 {
   "blockarray_bench": {
-    "git_commit": "9fa2f760f1fb3f4605af0fc153e219e315516ddb",
+    "git_commit": "bc98dafeac398d799bc0b77907a69988ba9c6e26",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.12.10",
@@ -36,10 +36,10 @@
         "chunk": 16,
         "blocks_allocated": 19205,
         "bytes_est": 314654720,
-        "write_s": 0.24731010012328625,
-        "write_pts_per_s": 80870.13021316082,
+        "write_s": 0.24120880011469126,
+        "write_pts_per_s": 82915.71447845308,
         "scan_box": "0,256,0,256,0,256",
-        "scan_s": 0.22461130004376173,
+        "scan_s": 0.18863070011138916,
         "scan_blocks_visited": 324,
         "scan_hits": 337,
         "max_blocks": 5000,
