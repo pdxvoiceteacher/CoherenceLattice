@@ -1,6 +1,6 @@
 {
   "femto_bench": {
-    "git_commit": "96321cecb713781b8224edaa49901b5d21619500",
+    "git_commit": "9013e84d1844213dc06eb99281a5e1cedbcea712",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.14.2",
@@ -23,35 +23,35 @@
       {
         "concurrency": 1,
         "n_requests": 300,
-        "p50_ms": 0.0131,
-        "p95_ms": 0.0176,
-        "mean_ms": 0.013807,
-        "throughput_rps": 15556.292909466178,
-        "max_loop_lag_ms": 0.06429990753531456,
-        "alloc_cur_kb_delta": 19.8388671875,
-        "alloc_peak_kb": 19.8388671875
+        "p50_ms": 0.0132,
+        "p95_ms": 0.0162,
+        "mean_ms": 0.014055,
+        "throughput_rps": 15800.284414642645,
+        "max_loop_lag_ms": 0.07340032607316971,
+        "alloc_cur_kb_delta": 19.5634765625,
+        "alloc_peak_kb": 19.5634765625
       },
       {
         "concurrency": 9,
         "n_requests": 300,
-        "p50_ms": 0.0834,
-        "p95_ms": 0.0975,
-        "mean_ms": 0.08444533333333333,
-        "throughput_rps": 32646.31026742257,
-        "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 19.7109375,
-        "alloc_peak_kb": 29.4140625
+        "p50_ms": 0.0872,
+        "p95_ms": 0.1168,
+        "mean_ms": 0.09510266666666667,
+        "throughput_rps": 29160.186322449073,
+        "max_loop_lag_ms": 0.11460017412900925,
+        "alloc_cur_kb_delta": 21.1806640625,
+        "alloc_peak_kb": 30.791015625
       },
       {
         "concurrency": 64,
         "n_requests": 300,
-        "p50_ms": 0.6098,
-        "p95_ms": 0.7507,
-        "mean_ms": 0.5933006666666666,
-        "throughput_rps": 35310.73460534795,
+        "p50_ms": 0.614,
+        "p95_ms": 0.6519,
+        "mean_ms": 0.595353,
+        "throughput_rps": 34390.65510840038,
         "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 55.1328125,
-        "alloc_peak_kb": 117.171875
+        "alloc_cur_kb_delta": 55.30859375,
+        "alloc_peak_kb": 117.255859375
       }
     ],
     "gates": {},

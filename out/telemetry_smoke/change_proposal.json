@@ -4,7 +4,7 @@
     "git_commit": "",
     "run_dir": "out/telemetry_smoke",
     "state_sha256": "dcb2fa185d706fb58d8cbf37abeccd7b65a5979ffa3f46da9d3072693f961df6",
-    "telemetry_sha256": "1b28244aecfa69eaa1be2ff30fd964fc1eaa2fedbf123e4d7e966d9b95790702"
+    "telemetry_sha256": "bf110e06466e413e5ffe7f11447105c656f109460aece4c79b2bc76cf4645644"
   },
   "changes": [
     {
@@ -23,10 +23,10 @@
       "why": "System is green; maintain baselines and keep telemetry consistent."
     }
   ],
-  "created_at": "2026-01-09T22:02:22.952280+00:00",
+  "created_at": "2026-01-10T00:35:45.494641+00:00",
   "decision": {
     "actions": [],
-    "created_at": "2026-01-09T21:08:24.314488+00:00",
+    "created_at": "2026-01-10T00:35:45.064745+00:00",
     "decision": "continue",
     "gates": {
       "consent_required": false,

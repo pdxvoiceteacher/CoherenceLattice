@@ -2,62 +2,62 @@
   "base": {
     "audit_bundle_path": "out/telemetry_smoke/ucc_cov_out/audit_bundle.json",
     "metrics": {
-      "E": 0.9586950503732315,
+      "E": 0.9585269752676374,
       "Es": 1.0,
-      "Psi": 0.9586950503732315,
+      "Psi": 0.9585269752676374,
       "T": 1.0
     },
-    "perf_index": 3.3745793412075016,
+    "perf_index": 3.388605894524898,
     "perf_values_count": 121
   },
-  "deltaS": 4.277497593998166e-05,
+  "deltaS": 7.496075823520965e-05,
   "kind": "telemetry_perturbations.v1",
-  "lambda": 5.45817972034679e-05,
+  "lambda": 0.00016752905989947386,
   "perturbations": [
     {
       "Es_source": "audit_bundle.flags.sections_complete",
       "T_source": "audit_bundle.section_coverage",
       "audit_bundle_path": "out/telemetry_smoke/ucc_cov_perturb_1/audit_bundle.json",
-      "drift_from_base": 4.874080579492235e-05,
+      "drift_from_base": 4.3882931936300995e-05,
       "i": 1,
       "metrics": {
-        "E": 0.9585975687616417,
+        "E": 0.95861474113151,
         "Es": 1.0,
-        "Psi": 0.9585975687616417,
+        "Psi": 0.95861474113151,
         "T": 1.0
       },
-      "perf_index": 3.3827142798768284,
+      "perf_index": 3.3812811682882815,
       "perf_values_count": 121
     },
     {
       "Es_source": "audit_bundle.flags.sections_complete",
       "T_source": "audit_bundle.section_coverage",
       "audit_bundle_path": "out/telemetry_smoke/ucc_cov_perturb_2/audit_bundle.json",
-      "drift_from_base": 5.45817972034679e-05,
+      "drift_from_base": 1.3470282869854078e-05,
       "i": 2,
       "metrics": {
-        "E": 0.9585858867788246,
+        "E": 0.9585539158333771,
         "Es": 1.0,
-        "Psi": 0.9585858867788246,
+        "Psi": 0.9585539158333771,
         "T": 1.0
       },
-      "perf_index": 3.3836892086168784,
+      "perf_index": 3.3863574288818263,
       "perf_values_count": 121
     },
     {
       "Es_source": "audit_bundle.flags.sections_complete",
       "T_source": "audit_bundle.section_coverage",
       "audit_bundle_path": "out/telemetry_smoke/ucc_cov_perturb_3/audit_bundle.json",
-      "drift_from_base": 2.5002324821554733e-05,
+      "drift_from_base": 0.00016752905989947386,
       "i": 3,
       "metrics": {
-        "E": 0.9586450457235884,
+        "E": 0.9588620333874364,
         "Es": 1.0,
-        "Psi": 0.9586450457235884,
+        "Psi": 0.9588620333874364,
         "T": 1.0
       },
-      "perf_index": 3.378752176251737,
-      "perf_values_count": 121
+      "perf_index": 3.3606463623321536,
+      "perf_values_count": 122
     }
   ]
 }

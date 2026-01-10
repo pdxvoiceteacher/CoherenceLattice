@@ -1,26 +1,26 @@
 {
   "konomi_smoke": {
-    "git_commit": "96321cecb713781b8224edaa49901b5d21619500",
-    "timestamp_utc": "2026-01-09T21:07:58Z",
+    "git_commit": "9013e84d1844213dc06eb99281a5e1cedbcea712",
+    "timestamp_utc": "2026-01-10T00:35:35Z",
     "python": "3.14.2",
     "platform": "Windows-11-10.0.26100-SP0",
     "seed": 0,
     "quick": true,
     "evgpu": {
       "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_perturb_2\\evgpu\\evgpu_matmul_summary.json",
-      "sha256": "7a2296faa9817abee41723b092de2ed2cc3327c9539a4f8422ff79e39926f8d4"
+      "sha256": "d7692a559c0f8adc3d0c6cd11c1d28e5494dbd97aa782b6f4fae61d559decb35"
     },
     "femto": {
       "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_perturb_2\\femto\\femto_async_summary.json",
-      "sha256": "1031779dcfde90932941246a578073147395b8601c7c62da58d9fae70734cf81"
+      "sha256": "249045da01e3645dc7bc7e256838be68a7e2b1be8076d2ff42b31f6a0f1d2124"
     },
     "blockarray": {
       "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_perturb_2\\blockarray\\blockarray_summary.json",
-      "sha256": "d189b43e6680159364b7fd5a01de27ee989f8df6bdfbebf399d3d37c88850465"
+      "sha256": "806c31f5dfd5a9de17a59723cdb7bf77d8eec4896997bc16d39f1bfbac82d292"
     },
     "cube": {
       "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\telemetry_smoke\\konomi_smoke_perturb_2\\cube\\cube_summary.json",
-      "sha256": "1681979b4ecaf136f2178a8d34a15f01a6f7fdac452b2b95b041851ef16bc90e"
+      "sha256": "cbf4c903aecbcbaf99761caafd9855bdc09f1d22b1df439c8db073a72bc22da7"
     },
     "notes": "KONOMI smoke run for CI: small workloads + metadata completeness (not a perf gate)."
   }
