@@ -1,0 +1,27 @@
+{
+  "konomi_smoke": {
+    "git_commit": "747ea95b4501087e834adc79afefc2f83ec9d327",
+    "timestamp_utc": "2026-01-10T23:49:51Z",
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "seed": 0,
+    "quick": true,
+    "evgpu": {
+      "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke2\\konomi_smoke_base\\evgpu\\evgpu_matmul_summary.json",
+      "sha256": "e0e393e3df34bb64f90fe5adb3657079bac235f5850b3cb4ff96f60472de1058"
+    },
+    "femto": {
+      "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke2\\konomi_smoke_base\\femto\\femto_async_summary.json",
+      "sha256": "eb76440bb6c88af4806e75f861891cf9cf8d18aba1d6612aef08292c545bc99c"
+    },
+    "blockarray": {
+      "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke2\\konomi_smoke_base\\blockarray\\blockarray_summary.json",
+      "sha256": "1226c59d6c013a94109933b4f28a3a8284ce683b4d42558a1d5257fad4c311aa"
+    },
+    "cube": {
+      "summary_json": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke2\\konomi_smoke_base\\cube\\cube_summary.json",
+      "sha256": "af2b192e4d44ef5db766136d213fa62c11407be1430303509da8dc520f660024"
+    },
+    "notes": "KONOMI smoke run for CI: small workloads + metadata completeness (not a perf gate)."
+  }
+}

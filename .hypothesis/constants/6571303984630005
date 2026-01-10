@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\api\app.py
-# hypothesis_version: 6.150.0
-
-[0.0, 1024, 4401, '/health', '/v0/cube/send', '/v0/embed', '/v0/modules', '/v0/process', '/ws/process', 'KONOMI v0 API (Toy)', 'KONOMI_API_KEY', 'api_key', 'devkey', 'error', 'http', 'invalid api_key', 'ok', 'output', 'request_id', 'text', 'version']

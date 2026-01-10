@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\coherence_music\analyze.py
-# hypothesis_version: 6.150.0
-
-[0.0, 1e-12, 120, 1024, ' |', ' | ', '---:', 'BASE', 'DELTA_S', 'E', 'E_SYM', 'HEAD', 'LAMBDA', 'PSI', 'T', 'UNKNOWN', 'audit_json', 'audit_md', 'audit_sha256', 'bpm', 'categories_present', 'category', 'counts_by_category', 'durations_beats', 'evidence_links', 'git', 'git_commit', 'label', 'lift', 'mean_all', 'mean_cat', 'metric_lifts', 'midi_path', 'midi_sha256', 'n_all', 'n_cat', 'n_steps', 'non_base_coverage', 'notes', 'pitches', 'rb', 'replace', 'rev-parse', 'run_id', 'steps', 't', 'trace_csv', 'trace_json', 'trace_sha256', 'ucc_artifact_json', 'utf-8', 'velocities', 'w', '|', '| ', '| category | ', '| category | count |', '|---|', '|---|---:|']

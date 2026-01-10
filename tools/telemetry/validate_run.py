@@ -4,7 +4,6 @@ import argparse
 import json
 from pathlib import Path
 
-_maybe_inject_tel_summary(locals())
 from jsonschema import Draft202012Validator
 
 # --- TEL summary schema (optional) ---
@@ -59,6 +58,7 @@ def _inject_tel_summary_schema_inplace(schema_obj: dict) -> None:
 
 def _maybe_inject_tel_summary(ns: dict) -> None:
     """
+    _inject_tel_summary_schema_inplace(...)
     Heuristic injection right before Draft202012Validator(...) is constructed.
     Avoids depending on the schema variable name.
     """

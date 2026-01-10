@@ -1,0 +1,70 @@
+{
+  "cube_bench": {
+    "git_commit": "747ea95b4501087e834adc79afefc2f83ec9d327",
+    "machine_profile": {
+      "platform": "Windows-11-10.0.26100-SP0",
+      "python": "3.12.10",
+      "numpy": "2.4.0",
+      "cpu_count": 12,
+      "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
+    },
+    "workload_definition": {
+      "n_requests": 1200,
+      "concurrency": [
+        1,
+        9,
+        64
+      ],
+      "n_nodes": 9,
+      "queue_max": 1024,
+      "max_inflight": 1024,
+      "process_delay_s": 0.0
+    },
+    "results_csv": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke2\\konomi_smoke_base\\cube\\cube_results.csv",
+    "results": [
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 1,
+        "n_requests": 1200,
+        "p50_ms": 0.0494,
+        "p95_ms": 0.0763,
+        "mean_ms": 0.061609166666666666,
+        "throughput_rps": 10343.802132612816,
+        "alloc_cur_kb_delta": 913.1591796875,
+        "alloc_peak_kb": 1796.208984375
+      },
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 9,
+        "n_requests": 1200,
+        "p50_ms": 0.2955,
+        "p95_ms": 0.5381,
+        "mean_ms": 0.3800450833333333,
+        "throughput_rps": 13666.336446149324,
+        "alloc_cur_kb_delta": 928.2294921875,
+        "alloc_peak_kb": 1811.8642578125
+      },
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 64,
+        "n_requests": 1200,
+        "p50_ms": 1.725,
+        "p95_ms": 10.6401,
+        "mean_ms": 2.2102286666666666,
+        "throughput_rps": 15352.728937964297,
+        "alloc_cur_kb_delta": 870.2763671875,
+        "alloc_peak_kb": 1764.3154296875
+      }
+    ],
+    "notes": "KONOMI Cube runtime toy: deterministic routing + bounded inflight + bounded queues (CPU-only)."
+  }
+}

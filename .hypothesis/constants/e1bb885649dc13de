@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\registry.py
-# hypothesis_version: 6.150.0
-
-['/health', '/v0/cube/send', '/v0/embed', '/v0/modules', '/v0/process', '/ws/process', '0.1', '0.1.0', 'app_version', 'baseline', 'demo', 'description', 'endpoints', 'id', 'konomi.api', 'konomi.blockarray', 'konomi.cube', 'konomi.evgpu', 'konomi.femto', 'modules', 'notes', 'schema_version', 'status', 'stub', 'version']

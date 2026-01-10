@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\api\security.py
-# hypothesis_version: 6.150.0
-
-[0.0, 1.0, 10.0, 20.0, 30.0, 60.0, 401, 429, 'KONOMI_API_KEY', 'Rate limit exceeded.', 'devkey', 'unknown']

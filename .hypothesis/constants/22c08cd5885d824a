@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\blockarray\blockarray.py
-# hypothesis_version: 6.150.0
-
-[0.0, 1000, 10000, 1000000, 10000000, 'coords must be (N,3)', 'multi_index']

@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\api\audit.py
-# hypothesis_version: 6.150.0
-
-[1000000.0, 500, 1024, '%Y%m%d_%H%M%S', '%Y-%m-%dT%H:%M:%SZ', '0.1.0-dev', '0.2', 'KONOMI_AUDIT_LOG', 'KONOMI_VERSION', 'X-API-Key', 'X-Request-ID', 'a', 'api_key_hash', 'app_version', 'client', 'duration_ms', 'error_type', 'method', 'path', 'request_id', 'schema_version', 'status', 'ts_utc', 'utf-8']

@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\coherence_music\__init__.py
-# hypothesis_version: 6.150.0
-
-['CoherenceMusicEngine', 'EngineConfig', 'Note', 'Phrase', 'Sequence', 'bhairav_profile', 'taf_theme_notes', 'write_midi']
