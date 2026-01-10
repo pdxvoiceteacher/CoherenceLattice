@@ -1,8 +1,17 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 from __future__ import annotations
 import argparse, hashlib, json, platform, subprocess, sys, statistics, re, math
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+# --- TEL flag pre-parse (parser-agnostic) ---
+_TEL_EMIT = False
+if "--emit-tel" in sys.argv:
+    _TEL_EMIT = True
+    sys.argv.remove("--emit-tel")
+# --- /TEL flag pre-parse ---
+
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -251,4 +260,48 @@ def main() -> int:
     return 0
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Preserve original entrypoint semantics, but allow TEL emission after run completion.
+    try:
+        _rc = main()
+    except SystemExit as _se:
+        _rc = _se.code
+
+    if _rc is None:
+        _rc = 0
+
+    # --- TEL post-run emission ---
+    if globals().get("_TEL_EMIT", False):
+        def _tel_out_dir(argv):
+            # supports: --out PATH  or  --out=PATH
+            for i, a in enumerate(argv):
+                if a == "--out" and i + 1 < len(argv):
+                    return argv[i + 1]
+                if a.startswith("--out="):
+                    return a.split("=", 1)[1]
+            return None
+
+        try:
+            from pathlib import Path
+            import json as _json
+            from konomi.tel import TelGraph
+
+            _out = _tel_out_dir(sys.argv)
+            if not _out:
+                raise RuntimeError("TEL requested but --out was not found in argv")
+
+            _out_dir = Path(_out)
+            _telemetry_path = _out_dir / "telemetry.json"
+            if not _telemetry_path.exists():
+                raise FileNotFoundError(f"telemetry.json not found at {_telemetry_path}")
+
+            _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
+            _tel = TelGraph(graph_id="tel_from_telemetry", meta={"source": "telemetry.json"})
+            _tel.ingest_json_tree(_telemetry_data, root_id="telemetry", max_depth=3)
+            _tel.write_json(_out_dir / "tel.json")
+            print(f"[tel] wrote: {_out_dir / 'tel.json'}")
+        except Exception as _e:
+            print(f"[tel] failed: {_e}", file=sys.stderr)
+            raise
+    # --- /TEL post-run emission ---
+
+    raise SystemExit(_rc)
