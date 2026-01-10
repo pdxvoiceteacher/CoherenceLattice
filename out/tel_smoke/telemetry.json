@@ -1,0 +1,67 @@
+{
+  "artifacts": [
+    {
+      "path": "out/tel_smoke/konomi_smoke_base/konomi_smoke_summary.json",
+      "sha256": "1608b49ba7ab6081bd743e862abf09bcf98c3ff673122a5a7bdc69153efac04b"
+    },
+    {
+      "path": "out/tel_smoke/ucc_cov_out/audit_bundle.json",
+      "sha256": "43d38f5fdb187d1095e26c549bdda7133eda752dacdaf1d4232bcc9ca4df244a"
+    },
+    {
+      "path": "out/tel_smoke/perturbations.json",
+      "sha256": "c2df58ea86008e50aefee8b072803559d08536885e52032d59990327420146c2"
+    }
+  ],
+  "created_at": "2026-01-10T23:17:36.851369+00:00",
+  "environment": {
+    "git_commit": "9fa2f760f1fb3f4605af0fc153e219e315516ddb",
+    "platform": "Windows-11-10.0.26100-SP0",
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "flags": {
+    "deltaS_from_perturbations": 1.5514409803629725e-05,
+    "lambda_from_perturbations": 1.5514409803629725e-05,
+    "perf_index_base": 3.3877521372546058,
+    "perf_values_count_base": 123,
+    "perturbations_count": 1,
+    "telemetry_ok": true
+  },
+  "metrics": {
+    "DeltaS": 1.5514409803629725e-05,
+    "E": 0.9585372046893952,
+    "Es": 1.0,
+    "Lambda": 1.5514409803629725e-05,
+    "Psi": 0.9585372046893952,
+    "T": 1.0
+  },
+  "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; Î”S/Î› from perturbation drift.",
+  "run_id": "tel_smoke",
+  "schema_id": "coherencelattice.telemetry_run.v1",
+  "tel_summary": {
+    "edges_by_kind": {
+      "has_index": 3,
+      "has_key": 33,
+      "leaf": 22
+    },
+    "edges_total": 58,
+    "fingerprint_sha256": "cd00da33f601e2e3e6091d9890bed6721e8b066f14594254f842617629c5fb65",
+    "graph_id": "tel_from_telemetry",
+    "meta": {
+      "source": "telemetry.json"
+    },
+    "nodes_by_band": {
+      "LTM": 0,
+      "MTM": 0,
+      "STM": 59
+    },
+    "nodes_total": 59,
+    "schema": "tel_summary_v1",
+    "tel_schema": "tel_graph_v1"
+  },
+  "ucc": {
+    "audit_bundle_path": "out/tel_smoke/ucc_cov_out/audit_bundle.json",
+    "audit_bundle_sha256": "43d38f5fdb187d1095e26c549bdda7133eda752dacdaf1d4232bcc9ca4df244a"
+  },
+  "version": 1
+}

@@ -1,0 +1,70 @@
+{
+  "cube_bench": {
+    "git_commit": "9fa2f760f1fb3f4605af0fc153e219e315516ddb",
+    "machine_profile": {
+      "platform": "Windows-11-10.0.26100-SP0",
+      "python": "3.12.10",
+      "numpy": "2.4.0",
+      "cpu_count": 12,
+      "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
+    },
+    "workload_definition": {
+      "n_requests": 1200,
+      "concurrency": [
+        1,
+        9,
+        64
+      ],
+      "n_nodes": 9,
+      "queue_max": 1024,
+      "max_inflight": 1024,
+      "process_delay_s": 0.0
+    },
+    "results_csv": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke\\konomi_smoke_perturb_1\\cube\\cube_results.csv",
+    "results": [
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 1,
+        "n_requests": 1200,
+        "p50_ms": 0.0563,
+        "p95_ms": 0.0688,
+        "mean_ms": 0.06676033333333332,
+        "throughput_rps": 9815.750177085747,
+        "alloc_cur_kb_delta": 913.1591796875,
+        "alloc_peak_kb": 1796.208984375
+      },
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 9,
+        "n_requests": 1200,
+        "p50_ms": 0.3016,
+        "p95_ms": 0.3941,
+        "mean_ms": 0.3731589166666667,
+        "throughput_rps": 13802.051006823905,
+        "alloc_cur_kb_delta": 928.2294921875,
+        "alloc_peak_kb": 1811.8642578125
+      },
+      {
+        "n_nodes": 9,
+        "queue_max": 1024,
+        "max_inflight": 1024,
+        "process_delay_s": 0.0,
+        "concurrency": 64,
+        "n_requests": 1200,
+        "p50_ms": 1.8074,
+        "p95_ms": 12.1625,
+        "mean_ms": 2.3362594166666666,
+        "throughput_rps": 14640.234531866558,
+        "alloc_cur_kb_delta": 870.2763671875,
+        "alloc_peak_kb": 1764.3154296875
+      }
+    ],
+    "notes": "KONOMI Cube runtime toy: deterministic routing + bounded inflight + bounded queues (CPU-only)."
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "blockarray_bench": {
+    "git_commit": "9fa2f760f1fb3f4605af0fc153e219e315516ddb",
+    "machine_profile": {
+      "platform": "Windows-11-10.0.26100-SP0",
+      "python": "3.12.10",
+      "numpy": "2.4.0",
+      "cpu_count": 12,
+      "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
+    },
+    "workload_definition": {
+      "shape": [
+        1000,
+        1000,
+        1000
+      ],
+      "chunk": 16,
+      "n_points": 20000,
+      "scan_box": [
+        0,
+        256,
+        0,
+        256,
+        0,
+        256
+      ],
+      "max_blocks": 5000,
+      "max_hits": 20000,
+      "seed": 0
+    },
+    "results_csv": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_smoke\\konomi_smoke_perturb_1\\blockarray\\blockarray_results.csv",
+    "results": [
+      {
+        "n_points": 20000,
+        "shape": "1000x1000x1000",
+        "chunk": 16,
+        "blocks_allocated": 19205,
+        "bytes_est": 314654720,
+        "write_s": 0.25118139991536736,
+        "write_pts_per_s": 79623.73012786283,
+        "scan_box": "0,256,0,256,0,256",
+        "scan_s": 0.20853159995749593,
+        "scan_blocks_visited": 324,
+        "scan_hits": 337,
+        "max_blocks": 5000,
+        "max_hits": 20000
+      }
+    ],
+    "notes": "Sparse chunked 3D BlockArray (allocate-on-write, bounded scan over allocated blocks)."
+  }
+}

@@ -1,4 +1,0 @@
-# file: C:\Users\pdxvo\Documents\Lean\CoherenceLattice\python\src\konomi\tel\tel_graph.py
-# hypothesis_version: 6.150.0
-
-['0xADDR', '0x[0-9a-fA-F]+', 'LTM', 'MTM', 'STM', '__bytes_b64__', '__repr__', '__type__', 'ascii', 'band', 'bands', 'dst', 'edges', 'fingerprint_sha256', 'graph_id', 'has_index', 'has_key', 'id', 'index', 'key', 'kind', 'leaf', 'meta', 'nodes', 'payload', 'rel', 'root', 'schema', 'src', 'tel', 'tel_graph_v1', 'utf-8', 'w', 'weight']

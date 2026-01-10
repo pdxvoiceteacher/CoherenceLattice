@@ -1,0 +1,853 @@
+{
+  "bands": {
+    "LTM": [],
+    "MTM": [],
+    "STM": [
+      "telemetry",
+      "telemetry.artifacts",
+      "telemetry.artifacts[0]",
+      "telemetry.artifacts[0].path",
+      "telemetry.artifacts[0].sha256",
+      "telemetry.artifacts[1]",
+      "telemetry.artifacts[1].path",
+      "telemetry.artifacts[1].sha256",
+      "telemetry.artifacts[2]",
+      "telemetry.artifacts[2].path",
+      "telemetry.artifacts[2].sha256",
+      "telemetry.created_at",
+      "telemetry.created_at.__leaf__",
+      "telemetry.environment",
+      "telemetry.environment.git_commit",
+      "telemetry.environment.git_commit.__leaf__",
+      "telemetry.environment.platform",
+      "telemetry.environment.platform.__leaf__",
+      "telemetry.environment.python",
+      "telemetry.environment.python.__leaf__",
+      "telemetry.flags",
+      "telemetry.flags.deltaS_from_perturbations",
+      "telemetry.flags.deltaS_from_perturbations.__leaf__",
+      "telemetry.flags.lambda_from_perturbations",
+      "telemetry.flags.lambda_from_perturbations.__leaf__",
+      "telemetry.flags.perf_index_base",
+      "telemetry.flags.perf_index_base.__leaf__",
+      "telemetry.flags.perf_values_count_base",
+      "telemetry.flags.perf_values_count_base.__leaf__",
+      "telemetry.flags.perturbations_count",
+      "telemetry.flags.perturbations_count.__leaf__",
+      "telemetry.flags.telemetry_ok",
+      "telemetry.flags.telemetry_ok.__leaf__",
+      "telemetry.metrics",
+      "telemetry.metrics.DeltaS",
+      "telemetry.metrics.DeltaS.__leaf__",
+      "telemetry.metrics.E",
+      "telemetry.metrics.E.__leaf__",
+      "telemetry.metrics.Es",
+      "telemetry.metrics.Es.__leaf__",
+      "telemetry.metrics.Lambda",
+      "telemetry.metrics.Lambda.__leaf__",
+      "telemetry.metrics.Psi",
+      "telemetry.metrics.Psi.__leaf__",
+      "telemetry.metrics.T",
+      "telemetry.metrics.T.__leaf__",
+      "telemetry.notes",
+      "telemetry.notes.__leaf__",
+      "telemetry.run_id",
+      "telemetry.run_id.__leaf__",
+      "telemetry.schema_id",
+      "telemetry.schema_id.__leaf__",
+      "telemetry.ucc",
+      "telemetry.ucc.audit_bundle_path",
+      "telemetry.ucc.audit_bundle_path.__leaf__",
+      "telemetry.ucc.audit_bundle_sha256",
+      "telemetry.ucc.audit_bundle_sha256.__leaf__",
+      "telemetry.version",
+      "telemetry.version.__leaf__"
+    ]
+  },
+  "edges": [
+    {
+      "dst": "telemetry.artifacts",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.created_at",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.environment",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.flags",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.metrics",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.notes",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.run_id",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.schema_id",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.ucc",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.version",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry"
+    },
+    {
+      "dst": "telemetry.artifacts[0]",
+      "kind": "has_index",
+      "meta": {},
+      "src": "telemetry.artifacts"
+    },
+    {
+      "dst": "telemetry.artifacts[1]",
+      "kind": "has_index",
+      "meta": {},
+      "src": "telemetry.artifacts"
+    },
+    {
+      "dst": "telemetry.artifacts[2]",
+      "kind": "has_index",
+      "meta": {},
+      "src": "telemetry.artifacts"
+    },
+    {
+      "dst": "telemetry.artifacts[0].path",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[0]"
+    },
+    {
+      "dst": "telemetry.artifacts[0].sha256",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[0]"
+    },
+    {
+      "dst": "telemetry.artifacts[1].path",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[1]"
+    },
+    {
+      "dst": "telemetry.artifacts[1].sha256",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[1]"
+    },
+    {
+      "dst": "telemetry.artifacts[2].path",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[2]"
+    },
+    {
+      "dst": "telemetry.artifacts[2].sha256",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.artifacts[2]"
+    },
+    {
+      "dst": "telemetry.created_at.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.created_at"
+    },
+    {
+      "dst": "telemetry.environment.git_commit",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.environment"
+    },
+    {
+      "dst": "telemetry.environment.platform",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.environment"
+    },
+    {
+      "dst": "telemetry.environment.python",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.environment"
+    },
+    {
+      "dst": "telemetry.environment.git_commit.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.environment.git_commit"
+    },
+    {
+      "dst": "telemetry.environment.platform.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.environment.platform"
+    },
+    {
+      "dst": "telemetry.environment.python.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.environment.python"
+    },
+    {
+      "dst": "telemetry.flags.deltaS_from_perturbations",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.lambda_from_perturbations",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.perf_index_base",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.perf_values_count_base",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.perturbations_count",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.telemetry_ok",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.flags"
+    },
+    {
+      "dst": "telemetry.flags.deltaS_from_perturbations.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.deltaS_from_perturbations"
+    },
+    {
+      "dst": "telemetry.flags.lambda_from_perturbations.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.lambda_from_perturbations"
+    },
+    {
+      "dst": "telemetry.flags.perf_index_base.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.perf_index_base"
+    },
+    {
+      "dst": "telemetry.flags.perf_values_count_base.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.perf_values_count_base"
+    },
+    {
+      "dst": "telemetry.flags.perturbations_count.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.perturbations_count"
+    },
+    {
+      "dst": "telemetry.flags.telemetry_ok.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.flags.telemetry_ok"
+    },
+    {
+      "dst": "telemetry.metrics.DeltaS",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.E",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.Es",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.Lambda",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.Psi",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.T",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.metrics"
+    },
+    {
+      "dst": "telemetry.metrics.DeltaS.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.DeltaS"
+    },
+    {
+      "dst": "telemetry.metrics.E.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.E"
+    },
+    {
+      "dst": "telemetry.metrics.Es.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.Es"
+    },
+    {
+      "dst": "telemetry.metrics.Lambda.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.Lambda"
+    },
+    {
+      "dst": "telemetry.metrics.Psi.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.Psi"
+    },
+    {
+      "dst": "telemetry.metrics.T.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.metrics.T"
+    },
+    {
+      "dst": "telemetry.notes.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.notes"
+    },
+    {
+      "dst": "telemetry.run_id.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.run_id"
+    },
+    {
+      "dst": "telemetry.schema_id.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.schema_id"
+    },
+    {
+      "dst": "telemetry.ucc.audit_bundle_path",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.ucc"
+    },
+    {
+      "dst": "telemetry.ucc.audit_bundle_sha256",
+      "kind": "has_key",
+      "meta": {},
+      "src": "telemetry.ucc"
+    },
+    {
+      "dst": "telemetry.ucc.audit_bundle_path.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.ucc.audit_bundle_path"
+    },
+    {
+      "dst": "telemetry.ucc.audit_bundle_sha256.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.ucc.audit_bundle_sha256"
+    },
+    {
+      "dst": "telemetry.version.__leaf__",
+      "kind": "leaf",
+      "meta": {},
+      "src": "telemetry.version"
+    }
+  ],
+  "fingerprint_sha256": "cd00da33f601e2e3e6091d9890bed6721e8b066f14594254f842617629c5fb65",
+  "graph_id": "tel_from_telemetry",
+  "meta": {
+    "source": "telemetry.json"
+  },
+  "nodes": [
+    {
+      "band": "STM",
+      "id": "telemetry",
+      "meta": {},
+      "payload": {
+        "kind": "root"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts",
+      "meta": {},
+      "payload": {
+        "key": "artifacts"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[0]",
+      "meta": {},
+      "payload": {
+        "index": 0
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[0].path",
+      "meta": {},
+      "payload": {
+        "key": "path"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[0].sha256",
+      "meta": {},
+      "payload": {
+        "key": "sha256"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[1]",
+      "meta": {},
+      "payload": {
+        "index": 1
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[1].path",
+      "meta": {},
+      "payload": {
+        "key": "path"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[1].sha256",
+      "meta": {},
+      "payload": {
+        "key": "sha256"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[2]",
+      "meta": {},
+      "payload": {
+        "index": 2
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[2].path",
+      "meta": {},
+      "payload": {
+        "key": "path"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.artifacts[2].sha256",
+      "meta": {},
+      "payload": {
+        "key": "sha256"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.created_at",
+      "meta": {},
+      "payload": {
+        "key": "created_at"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.created_at.__leaf__",
+      "meta": {},
+      "payload": "2026-01-10T23:17:36.851369+00:00"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment",
+      "meta": {},
+      "payload": {
+        "key": "environment"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.git_commit",
+      "meta": {},
+      "payload": {
+        "key": "git_commit"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.git_commit.__leaf__",
+      "meta": {},
+      "payload": "9fa2f760f1fb3f4605af0fc153e219e315516ddb"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.platform",
+      "meta": {},
+      "payload": {
+        "key": "platform"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.platform.__leaf__",
+      "meta": {},
+      "payload": "Windows-11-10.0.26100-SP0"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.python",
+      "meta": {},
+      "payload": {
+        "key": "python"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.environment.python.__leaf__",
+      "meta": {},
+      "payload": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags",
+      "meta": {},
+      "payload": {
+        "key": "flags"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.deltaS_from_perturbations",
+      "meta": {},
+      "payload": {
+        "key": "deltaS_from_perturbations"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.deltaS_from_perturbations.__leaf__",
+      "meta": {},
+      "payload": 1.5514409803629725e-05
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.lambda_from_perturbations",
+      "meta": {},
+      "payload": {
+        "key": "lambda_from_perturbations"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.lambda_from_perturbations.__leaf__",
+      "meta": {},
+      "payload": 1.5514409803629725e-05
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perf_index_base",
+      "meta": {},
+      "payload": {
+        "key": "perf_index_base"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perf_index_base.__leaf__",
+      "meta": {},
+      "payload": 3.3877521372546058
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perf_values_count_base",
+      "meta": {},
+      "payload": {
+        "key": "perf_values_count_base"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perf_values_count_base.__leaf__",
+      "meta": {},
+      "payload": 123
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perturbations_count",
+      "meta": {},
+      "payload": {
+        "key": "perturbations_count"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.perturbations_count.__leaf__",
+      "meta": {},
+      "payload": 1
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.telemetry_ok",
+      "meta": {},
+      "payload": {
+        "key": "telemetry_ok"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.flags.telemetry_ok.__leaf__",
+      "meta": {},
+      "payload": true
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics",
+      "meta": {},
+      "payload": {
+        "key": "metrics"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.DeltaS",
+      "meta": {},
+      "payload": {
+        "key": "DeltaS"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.DeltaS.__leaf__",
+      "meta": {},
+      "payload": 1.5514409803629725e-05
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.E",
+      "meta": {},
+      "payload": {
+        "key": "E"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.E.__leaf__",
+      "meta": {},
+      "payload": 0.9585372046893952
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Es",
+      "meta": {},
+      "payload": {
+        "key": "Es"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Es.__leaf__",
+      "meta": {},
+      "payload": 1.0
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Lambda",
+      "meta": {},
+      "payload": {
+        "key": "Lambda"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Lambda.__leaf__",
+      "meta": {},
+      "payload": 1.5514409803629725e-05
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Psi",
+      "meta": {},
+      "payload": {
+        "key": "Psi"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.Psi.__leaf__",
+      "meta": {},
+      "payload": 0.9585372046893952
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.T",
+      "meta": {},
+      "payload": {
+        "key": "T"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.metrics.T.__leaf__",
+      "meta": {},
+      "payload": 1.0
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.notes",
+      "meta": {},
+      "payload": {
+        "key": "notes"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.notes.__leaf__",
+      "meta": {},
+      "payload": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; Î”S/Î› from perturbation drift."
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.run_id",
+      "meta": {},
+      "payload": {
+        "key": "run_id"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.run_id.__leaf__",
+      "meta": {},
+      "payload": "tel_smoke"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.schema_id",
+      "meta": {},
+      "payload": {
+        "key": "schema_id"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.schema_id.__leaf__",
+      "meta": {},
+      "payload": "coherencelattice.telemetry_run.v1"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.ucc",
+      "meta": {},
+      "payload": {
+        "key": "ucc"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.ucc.audit_bundle_path",
+      "meta": {},
+      "payload": {
+        "key": "audit_bundle_path"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.ucc.audit_bundle_path.__leaf__",
+      "meta": {},
+      "payload": "out/tel_smoke/ucc_cov_out/audit_bundle.json"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.ucc.audit_bundle_sha256",
+      "meta": {},
+      "payload": {
+        "key": "audit_bundle_sha256"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.ucc.audit_bundle_sha256.__leaf__",
+      "meta": {},
+      "payload": "43d38f5fdb187d1095e26c549bdda7133eda752dacdaf1d4232bcc9ca4df244a"
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.version",
+      "meta": {},
+      "payload": {
+        "key": "version"
+      }
+    },
+    {
+      "band": "STM",
+      "id": "telemetry.version.__leaf__",
+      "meta": {},
+      "payload": 1
+    }
+  ],
+  "schema": "tel_graph_v1"
+}
