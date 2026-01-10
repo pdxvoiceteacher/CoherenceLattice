@@ -4,7 +4,6 @@ import argparse
 import json
 from pathlib import Path
 
-_maybe_inject_tel_summary(locals())
 from jsonschema import Draft202012Validator
 
 # --- TEL summary schema (optional) ---
