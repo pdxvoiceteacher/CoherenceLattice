@@ -251,7 +251,7 @@ def main() -> int:
             "audit_bundle_path": str(base_bundle.relative_to(REPO)).replace("\\", "/"),
             "audit_bundle_sha256": sha256_file(base_bundle)
         },
-        "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; ΔS/Λ from perturbation drift."
+        "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; Î”S/Î› from perturbation drift."
     }
 
     out_json = outdir / "telemetry.json"
@@ -298,6 +298,14 @@ if __name__ == "__main__":
             _tel = TelGraph(graph_id="tel_from_telemetry", meta={"source": "telemetry.json"})
             _tel.ingest_json_tree(_telemetry_data, root_id="telemetry", max_depth=3)
             _tel.write_json(_out_dir / "tel.json")
+            # Embed a lean TEL summary into telemetry.json (full graph stays in tel.json)
+            _telemetry_data["tel_summary"] = _tel.summary()
+            (_out_dir / "telemetry.json").write_text(
+                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            print("[tel] updated telemetry.json with tel_summary")
             print(f"[tel] wrote: {_out_dir / 'tel.json'}")
         except Exception as _e:
             print(f"[tel] failed: {_e}", file=sys.stderr)

@@ -203,6 +203,35 @@ class TelGraph:
         base["fingerprint_sha256"] = fp
         return base
 
+    def summary(self) -> Dict[str, Any]:
+        """
+        Lean rollup for embedding into telemetry.json.
+        Deterministic by construction; avoid timestamps.
+        """
+        nodes_total = len(self._nodes)
+        edges_total = len(self._edges)
+
+        nodes_by_band: Dict[str, int] = {"STM": 0, "MTM": 0, "LTM": 0}
+        for n in self._nodes.values():
+            nodes_by_band[n.band] = nodes_by_band.get(n.band, 0) + 1
+
+        edges_by_kind: Dict[str, int] = {}
+        for e in self._edges:
+            edges_by_kind[e.kind] = edges_by_kind.get(e.kind, 0) + 1
+
+        fp = self.to_canonical_dict()["fingerprint_sha256"]
+
+        return {
+            "schema": "tel_summary_v1",
+            "tel_schema": self.schema,
+            "graph_id": self.graph_id,
+            "fingerprint_sha256": fp,
+            "nodes_total": nodes_total,
+            "edges_total": edges_total,
+            "nodes_by_band": nodes_by_band,
+            "edges_by_kind": {k: edges_by_kind[k] for k in sorted(edges_by_kind)},
+            "meta": _normalize(self.meta),
+        }
     def to_json(self, *, indent: int = 2) -> str:
         return _canonical_dumps(self.to_canonical_dict(), indent=indent)
 

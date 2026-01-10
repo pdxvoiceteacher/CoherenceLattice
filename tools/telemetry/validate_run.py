@@ -1,10 +1,75 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
 
+_maybe_inject_tel_summary(locals())
 from jsonschema import Draft202012Validator
+
+# --- TEL summary schema (optional) ---
+TEL_SUMMARY_SCHEMA = {
+    "type": "object",
+    "required": [
+        "schema",
+        "tel_schema",
+        "graph_id",
+        "fingerprint_sha256",
+        "nodes_total",
+        "edges_total",
+        "nodes_by_band",
+        "edges_by_kind",
+    ],
+    "properties": {
+        "schema": {"type": "string"},
+        "tel_schema": {"type": "string"},
+        "graph_id": {"type": "string"},
+        "fingerprint_sha256": {"type": "string"},
+        "nodes_total": {"type": "integer", "minimum": 0},
+        "edges_total": {"type": "integer", "minimum": 0},
+        "nodes_by_band": {
+            "type": "object",
+            "required": ["STM", "MTM", "LTM"],
+            "properties": {
+                "STM": {"type": "integer", "minimum": 0},
+                "MTM": {"type": "integer", "minimum": 0},
+                "LTM": {"type": "integer", "minimum": 0},
+            },
+            "additionalProperties": False,
+        },
+        "edges_by_kind": {
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0},
+        },
+        "meta": {"type": "object"},
+    },
+    "additionalProperties": False,
+}
+
+def _inject_tel_summary_schema_inplace(schema_obj: dict) -> None:
+    """
+    Add optional tel_summary to the *telemetry* JSON schema.
+    This keeps schema enforcement strict while allowing a feature-flagged extension.
+    """
+    if not isinstance(schema_obj, dict):
+        return
+    props = schema_obj.setdefault("properties", {})
+    if isinstance(props, dict) and "tel_summary" not in props:
+        props["tel_summary"] = TEL_SUMMARY_SCHEMA
+
+def _maybe_inject_tel_summary(ns: dict) -> None:
+    """
+    Heuristic injection right before Draft202012Validator(...) is constructed.
+    Avoids depending on the schema variable name.
+    """
+    for v in ns.values():
+        if v is TEL_SUMMARY_SCHEMA:
+            continue
+        if isinstance(v, dict) and v.get("type") == "object" and isinstance(v.get("properties"), dict):
+            _inject_tel_summary_schema_inplace(v)
+            return
+# --- /TEL summary schema (optional) ---
+
 
 REPO = Path(__file__).resolve().parents[2]
 SCHEMA = REPO / "schema" / "telemetry" / "telemetry_run.schema.json"

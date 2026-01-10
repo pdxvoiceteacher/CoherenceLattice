@@ -1,6 +1,22 @@
 import json
 from jsonschema import Draft202012Validator
 
+def test_telgraph_summary_is_deterministic_and_shaped():
+    g = TelGraph(graph_id="s", meta={"source": "test"})
+    g.add_node("a", band="STM")
+    g.add_node("b", band="LTM")
+    g.add_edge("a", "b", kind="supports")
+
+    s1 = g.summary()
+    s2 = g.summary()
+    assert s1 == s2
+
+    assert s1["schema"] == "tel_summary_v1"
+    assert s1["nodes_total"] == 2
+    assert s1["edges_total"] == 1
+    assert s1["nodes_by_band"]["STM"] == 1
+    assert s1["nodes_by_band"]["LTM"] == 1
+    assert "fingerprint_sha256" in s1
 from konomi.tel import TelGraph
 
 TEL_SCHEMA = {
