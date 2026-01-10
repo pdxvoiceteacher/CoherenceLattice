@@ -87,7 +87,9 @@ if (-not $NoSmoke) {
   & $PY .\tools\telemetry\validate_decision.py .\out\telemetry_smoke\control_decision.json
 
   & $PY .\tools\telemetry\propose_change.py --run-dir .\out\telemetry_smoke --telemetry .\out\telemetry_smoke\telemetry.json --state .\out\telemetry_smoke\state_estimate.json --decision .\out\telemetry_smoke\control_decision.json --out .\out\telemetry_smoke\change_proposal.json
-  & $PY .\tools\telemetry\validate_proposal.py .\out\telemetry_smoke\change_proposal.json
+  & $PY .\tools\telemetry\validate_proposal.py
+  & $PY .\tools\telemetry\emit_patch_plan.py --proposal .\out\telemetry_smoke\change_proposal.json --out .\out\telemetry_smoke\change_patch_plan.json
+  & $PY .\tools\telemetry\validate_patch_plan.py .\out\telemetry_smoke\change_patch_plan.json .\out\telemetry_smoke\change_proposal.json
 } else {
   Write-Host "Skipping smoke run (NoSmoke set)." -ForegroundColor Yellow
 }
@@ -122,4 +124,6 @@ if ($repoUrl) {
 
 Write-Host "`nDONE." -ForegroundColor Green
 Write-Host "Reminder: after major changes, run scripts/make_uvlm_bundle.ps1 and upload zip to GPT project folder." -ForegroundColor Yellow
+
+
 

@@ -65,12 +65,6 @@ jobs:
       - name: Validate change proposal schema
         run: .venv/bin/python tools/telemetry/validate_proposal.py out/telemetry_smoke/change_proposal.json
 
-      - name: Emit patch plan (diff-hints)
-        run: .venv/bin/python tools/telemetry/emit_patch_plan.py --proposal out/telemetry_smoke/change_proposal.json --out out/telemetry_smoke/change_patch_plan.json
-
-      - name: Validate patch plan schema
-        run: .venv/bin/python tools/telemetry/validate_patch_plan.py out/telemetry_smoke/change_patch_plan.json
-
       - name: Proposal approval gate v2.1 (approved proposal must match decision+state digests)
         if: github.event_name == 'pull_request'
         run: |
@@ -119,4 +113,3 @@ jobs:
 
       - name: Registry walker (all packs + enforced mappings)
         run: .venv/bin/python ucc/tools/run_registry_walker.py
-

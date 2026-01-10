@@ -1,9 +1,9 @@
 {
   "femto_bench": {
-    "git_commit": "2dab33f6f63a86ccba1dcfe89c95515fe04fcb9c",
+    "git_commit": "a00208685d0f54d7ba39d0436a700b34faddd001",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
-      "python": "3.14.2",
+      "python": "3.12.10",
       "numpy": "2.4.0",
       "cpu_count": 12,
       "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
@@ -23,35 +23,35 @@
       {
         "concurrency": 1,
         "n_requests": 300,
-        "p50_ms": 0.0131,
-        "p95_ms": 0.0143,
-        "mean_ms": 0.013578333333333333,
-        "throughput_rps": 15808.277284374191,
-        "max_loop_lag_ms": 0.061800237745046616,
-        "alloc_cur_kb_delta": 29.0185546875,
-        "alloc_peak_kb": 29.0185546875
+        "p50_ms": 0.0371,
+        "p95_ms": 0.0443,
+        "mean_ms": 0.038182,
+        "throughput_rps": 6983.337758225174,
+        "max_loop_lag_ms": -9.999999776482582,
+        "alloc_cur_kb_delta": 45.3330078125,
+        "alloc_peak_kb": 45.63671875
       },
       {
         "concurrency": 9,
         "n_requests": 300,
-        "p50_ms": 0.08,
-        "p95_ms": 0.0917,
-        "mean_ms": 0.08224266666666666,
-        "throughput_rps": 32941.33036128772,
-        "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 20.966796875,
-        "alloc_peak_kb": 30.6240234375
+        "p50_ms": 0.1348,
+        "p95_ms": 0.1431,
+        "mean_ms": 0.14010566666666666,
+        "throughput_rps": 20430.539660522238,
+        "max_loop_lag_ms": -9.999999776482582,
+        "alloc_cur_kb_delta": 23.990234375,
+        "alloc_peak_kb": 34.9677734375
       },
       {
         "concurrency": 64,
         "n_requests": 300,
-        "p50_ms": 0.5612,
-        "p95_ms": 0.6315,
-        "mean_ms": 0.548971,
-        "throughput_rps": 38062.37292653755,
-        "max_loop_lag_ms": NaN,
-        "alloc_cur_kb_delta": 55.31640625,
-        "alloc_peak_kb": 117.263671875
+        "p50_ms": 0.8037,
+        "p95_ms": 0.8372,
+        "mean_ms": 0.7737303333333333,
+        "throughput_rps": 25332.274857569995,
+        "max_loop_lag_ms": 6.000000052154064,
+        "alloc_cur_kb_delta": 61.654296875,
+        "alloc_peak_kb": 128.1865234375
       }
     ],
     "gates": {},

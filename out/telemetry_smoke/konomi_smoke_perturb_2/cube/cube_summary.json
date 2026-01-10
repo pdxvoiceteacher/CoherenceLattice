@@ -1,9 +1,9 @@
 {
   "cube_bench": {
-    "git_commit": "2dab33f6f63a86ccba1dcfe89c95515fe04fcb9c",
+    "git_commit": "a00208685d0f54d7ba39d0436a700b34faddd001",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
-      "python": "3.14.2",
+      "python": "3.12.10",
       "numpy": "2.4.0",
       "cpu_count": 12,
       "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
@@ -29,12 +29,12 @@
         "process_delay_s": 0.0,
         "concurrency": 1,
         "n_requests": 1200,
-        "p50_ms": 0.0384,
-        "p95_ms": 0.0551,
-        "mean_ms": 0.04558558333333333,
-        "throughput_rps": 14256.065050903557,
-        "alloc_cur_kb_delta": 853.6943359375,
-        "alloc_peak_kb": 1717.341796875
+        "p50_ms": 0.053,
+        "p95_ms": 0.059,
+        "mean_ms": 0.0628425,
+        "throughput_rps": 10341.029930924524,
+        "alloc_cur_kb_delta": 913.1591796875,
+        "alloc_peak_kb": 1796.208984375
       },
       {
         "n_nodes": 9,
@@ -43,12 +43,12 @@
         "process_delay_s": 0.0,
         "concurrency": 9,
         "n_requests": 1200,
-        "p50_ms": 0.2377,
-        "p95_ms": 0.3321,
-        "mean_ms": 0.28038808333333337,
-        "throughput_rps": 18034.31923911977,
-        "alloc_cur_kb_delta": 833.4638671875,
-        "alloc_peak_kb": 1693.5283203125
+        "p50_ms": 0.3029,
+        "p95_ms": 0.3785,
+        "mean_ms": 0.37124025,
+        "throughput_rps": 13391.123447736385,
+        "alloc_cur_kb_delta": 992.2294921875,
+        "alloc_peak_kb": 1875.8642578125
       },
       {
         "n_nodes": 9,
@@ -57,12 +57,12 @@
         "process_delay_s": 0.0,
         "concurrency": 64,
         "n_requests": 1200,
-        "p50_ms": 1.5041,
-        "p95_ms": 7.5136,
-        "mean_ms": 1.8118064166666665,
-        "throughput_rps": 18791.841216089466,
-        "alloc_cur_kb_delta": 840.3779296875,
-        "alloc_peak_kb": 1710.6357421875
+        "p50_ms": 1.7976,
+        "p95_ms": 11.7782,
+        "mean_ms": 2.296862,
+        "throughput_rps": 14796.748135759182,
+        "alloc_cur_kb_delta": 870.2763671875,
+        "alloc_peak_kb": 1764.3154296875
       }
     ],
     "notes": "KONOMI Cube runtime toy: deterministic routing + bounded inflight + bounded queues (CPU-only)."

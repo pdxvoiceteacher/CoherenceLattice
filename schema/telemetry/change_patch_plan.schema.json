@@ -1,0 +1,57 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:change_patch_plan:v1",
+  "title": "CoherenceLattice Change Patch Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id","version","created_at","proposal","basis","items"],
+  "properties": {
+    "schema_id": { "const": "coherencelattice.change_patch_plan.v1" },
+    "version": { "type": "integer", "minimum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path","sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+
+    "basis": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["state_sha256","decision_sha256","telemetry_sha256"],
+      "properties": {
+        "state_sha256": { "type": "string" },
+        "decision_sha256": { "type": "string" },
+        "telemetry_sha256": { "type": "string" }
+      }
+    },
+
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id","action","priority","why","targets","suggested_edits","tests_required","safety_notes"],
+        "properties": {
+          "id": { "type": "string" },
+          "action": { "type": "string" },
+          "priority": { "type": "string", "enum": ["low","medium","high"] },
+          "why": { "type": "string" },
+          "targets": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "suggested_edits": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "tests_required": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "safety_notes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "expected_effects": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+
+    "notes": { "type": "string" }
+  }
+}
