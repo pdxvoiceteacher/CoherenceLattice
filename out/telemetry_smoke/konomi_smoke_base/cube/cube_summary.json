@@ -1,6 +1,6 @@
 {
   "cube_bench": {
-    "git_commit": "9013e84d1844213dc06eb99281a5e1cedbcea712",
+    "git_commit": "2dab33f6f63a86ccba1dcfe89c95515fe04fcb9c",
     "machine_profile": {
       "platform": "Windows-11-10.0.26100-SP0",
       "python": "3.14.2",
@@ -29,10 +29,10 @@
         "process_delay_s": 0.0,
         "concurrency": 1,
         "n_requests": 1200,
-        "p50_ms": 0.0376,
-        "p95_ms": 0.0641,
-        "mean_ms": 0.046866,
-        "throughput_rps": 13758.548972334278,
+        "p50_ms": 0.0379,
+        "p95_ms": 0.0611,
+        "mean_ms": 0.04646325,
+        "throughput_rps": 14185.554139662187,
         "alloc_cur_kb_delta": 853.6943359375,
         "alloc_peak_kb": 1717.341796875
       },
@@ -43,10 +43,10 @@
         "process_delay_s": 0.0,
         "concurrency": 9,
         "n_requests": 1200,
-        "p50_ms": 0.2502,
-        "p95_ms": 0.422,
-        "mean_ms": 0.30112466666666665,
-        "throughput_rps": 16584.000090508016,
+        "p50_ms": 0.2363,
+        "p95_ms": 0.3356,
+        "mean_ms": 0.27718475,
+        "throughput_rps": 17795.62608216979,
         "alloc_cur_kb_delta": 833.4638671875,
         "alloc_peak_kb": 1693.5283203125
       },
@@ -57,10 +57,10 @@
         "process_delay_s": 0.0,
         "concurrency": 64,
         "n_requests": 1200,
-        "p50_ms": 1.6109,
-        "p95_ms": 8.212,
-        "mean_ms": 1.9393063333333336,
-        "throughput_rps": 17375.439837121914,
+        "p50_ms": 1.4396,
+        "p95_ms": 7.7146,
+        "mean_ms": 1.7615845833333332,
+        "throughput_rps": 19338.681528332705,
         "alloc_cur_kb_delta": 840.3779296875,
         "alloc_peak_kb": 1710.6357421875
       }

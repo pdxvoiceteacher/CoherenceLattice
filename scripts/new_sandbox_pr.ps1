@@ -2,11 +2,19 @@
   [string]$ApprovedProposalFile = "",
   [switch]$NoSmoke,
   [int]$Perturbations = 3,
-  [string]$BranchPrefix = "auto/impl"
+  [string]$BranchPrefix = "auto/impl",
+  [string]$BaseBranch = "master",
+  [switch]$NoOpenBrowser
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+function Normalize-GitHubUrl([string]$u) {
+  if ($u -match '^git@github\.com:(.+?)(\.git)?$') { return "https://github.com/$($Matches[1])" }
+  if ($u -match '^https://github\.com/(.+?)(\.git)?$') { return "https://github.com/$($Matches[1])" }
+  return ""
+}
 
 $repo = (Resolve-Path "$PSScriptRoot\..").Path
 Set-Location $repo
@@ -70,7 +78,6 @@ if (-not $NoSmoke) {
   Remove-Item -Recurse -Force .\out\telemetry_smoke -ErrorAction SilentlyContinue
 
   & $PY .\tools\telemetry\run_wrapper.py --out .\out\telemetry_smoke --quick --perturbations $Perturbations
-
   & $PY .\tools\telemetry\validate_run.py .\out\telemetry_smoke\telemetry.json --min-psi 0.80 --min-t 0.80 --min-es 0.80 --max-lambda 0.01 --max-deltas 0.01 --warn-only
 
   & $PY .\tools\telemetry\state_estimator.py --telemetry .\out\telemetry_smoke\telemetry.json --perturbations .\out\telemetry_smoke\perturbations.json --history .\out\history\state_history.jsonl --window 50 --alpha 0.70 --out .\out\telemetry_smoke\state_estimate.json
@@ -97,7 +104,21 @@ git commit -m "Plasticity v4: sandbox PR scaffold (receipt+rollback) for proposa
 
 git push -u origin $branch
 
+# --- v4.1: Print + open PR URL ---
+$origin = (git remote get-url origin) 2>$null
+$repoUrl = Normalize-GitHubUrl $origin
+
+if ($repoUrl) {
+  $prUrl = "$repoUrl/compare/$BaseBranch...$branch?expand=1"
+  Write-Host "`nPR URL (auto-generated):" -ForegroundColor Green
+  Write-Host "  $prUrl" -ForegroundColor Green
+  if (-not $NoOpenBrowser) {
+    Start-Process $prUrl | Out-Null
+  }
+} else {
+  Write-Host "`nCould not derive GitHub URL from origin: $origin" -ForegroundColor Yellow
+  Write-Host "Open PR manually from branch: $branch" -ForegroundColor Yellow
+}
+
 Write-Host "`nDONE." -ForegroundColor Green
-Write-Host "Open a PR from branch:" -ForegroundColor Yellow
-Write-Host "  $branch" -ForegroundColor Yellow
 Write-Host "Reminder: after major changes, run scripts/make_uvlm_bundle.ps1 and upload zip to GPT project folder." -ForegroundColor Yellow
