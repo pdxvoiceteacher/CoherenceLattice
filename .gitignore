@@ -72,3 +72,4 @@ python/kontainer/logs/
 # Local vote artifacts
 /ucc/out/votes/
 
+.hypothesis/
