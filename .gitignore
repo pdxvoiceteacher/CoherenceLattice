@@ -75,3 +75,7 @@ python/kontainer/logs/
 .hypothesis/
 out/
 .tmp/
+out\
+\.hypothesis/
+\.hypothesis\
+out/_tmp/
