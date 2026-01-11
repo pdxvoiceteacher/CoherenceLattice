@@ -37,10 +37,10 @@ jobs:
       - name: Run UCC tests
         run: .venv/bin/python -m pytest -q ucc/tests
 
-      - name: Telemetry smoke (wrapper, Î”S/Î› perturbations)
+      - name: Telemetry smoke (wrapper, ÃŽâ€S/ÃŽâ€º perturbations)
         run: .venv/bin/python tools/telemetry/run_wrapper.py --out out/telemetry_smoke --quick --perturbations 3
 
-      - name: Validate telemetry (quality gates incl Î”S/Î›)
+      - name: Validate telemetry (quality gates incl ÃŽâ€S/ÃŽâ€º)
         run: .venv/bin/python tools/telemetry/validate_run.py out/telemetry_smoke/telemetry.json --min-psi 0.80 --min-t 0.80 --min-es 0.80 --max-lambda 0.01 --max-deltas 0.01
 
       - name: Compare telemetry vs baseline
@@ -125,4 +125,11 @@ jobs:
         run: .venv/bin/python ucc/tools/run_registry_walker.py
 
       - name: TEL summary regression check
+        run: .venv/bin/python tools/telemetry/check_tel_summary.py --out-dir out/telemetry_smoke
+      - name: TEL flag-path smoke (--emit-tel)
+        run: |
+          rm -rf out/tel_flag_check
+          .venv/bin/python tools/telemetry/run_wrapper.py --out out/tel_flag_check --quick --perturbations 1 --emit-tel
+          .venv/bin/python tools/telemetry/validate_run.py out/tel_flag_check/telemetry.json --min-psi 0.80 --min-t 0.80 --min-es 0.80 --max-lambda 0.01 --max-deltas 0.01
+          .venv/bin/python tools/telemetry/check_tel_summary.py --out-dir out/tel_flag_check
         run: .venv/bin/python tools/telemetry/check_tel_summary.py --out-dir out/telemetry_smoke
