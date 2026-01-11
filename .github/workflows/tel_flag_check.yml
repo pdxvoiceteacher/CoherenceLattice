@@ -1,0 +1,34 @@
+name: tel-flag-check
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  tel_flag_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup venv + install
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e ./ucc[dev]
+          .venv/bin/python -m pip install -e ./python[dev]
+          .venv/bin/python -m pip install -e ./tools/coherenceledger_bootstrap
+          .venv/bin/python -m pip install numpy fastapi httpx cryptography jsonschema pytest
+
+      - name: TEL flag-path smoke (--emit-tel) isolated
+        run: |
+          rm -rf out/tel_flag_check
+          .venv/bin/python tools/telemetry/run_wrapper.py --out out/tel_flag_check --quick --perturbations 1 --emit-tel
+          .venv/bin/python tools/telemetry/validate_run.py out/tel_flag_check/telemetry.json --min-psi 0.80 --min-t 0.80 --min-es 0.80 --max-lambda 0.01 --max-deltas 0.01
+          .venv/bin/python tools/telemetry/check_tel_summary.py --out-dir out/tel_flag_check
