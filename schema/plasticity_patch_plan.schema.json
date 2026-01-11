@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Patch Plan v1",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","operations","notes"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_patch_plan_v1" },
+    "proposal_id": { "type": "string", "minLength": 1 },
+    "created_at_utc": { "type": "string" },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op","path"],
+        "properties": {
+          "op": { "type": "string", "enum": ["noop","write_file","text_replace","json_set"] },
+          "path": { "type": "string" },
+          "content": { "type": ["string","null"] },
+          "pattern": { "type": ["string","null"] },
+          "replacement": { "type": ["string","null"] },
+          "json_path": { "type": ["string","null"] },
+          "value": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "notes": { "type": "object" }
+  },
+  "additionalProperties": false
+}
