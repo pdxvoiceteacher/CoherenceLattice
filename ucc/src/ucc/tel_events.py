@@ -30,14 +30,9 @@ def _out_path() -> Optional[Path]:
     return Path(v)
 
 def emit_tel_event(kind: str, data: Dict[str, Any]) -> None:
-    """
-    Append-only JSONL event sink for UCC step dispatcher.
-    Enabled when env var UCC_TEL_EVENTS_OUT is set to a file path.
-    """
     out = _out_path()
     if out is None:
         return
-
     evt = {"seq": _next_seq(), "kind": str(kind), "data": data}
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("a", encoding="utf-8", newline="\n") as f:
