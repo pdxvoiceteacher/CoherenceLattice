@@ -7,8 +7,6 @@
 **Lean proofs:**  
 [![Lean proofs](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/lean_proofs_ci.yml/badge.svg?branch=master)](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/lean_proofs_ci.yml?query=branch%3Amaster)
 
-**Python + UCC + KONOMI:**  
-[![Python + UCC + KONOMI](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/pdxvoiceteacher/CoherenceLattice/actions/workflows/ci.yml?query=branch%3Amaster)
 
 ## CoherenceLattice — GUFT / Coherence / Sacred Geometry / Generative Engines (Lean + Python)
 
