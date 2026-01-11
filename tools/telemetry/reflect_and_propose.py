@@ -283,8 +283,7 @@ def main() -> int:
             "evidence": {"ucc_errors_total": len(ucc_errors)},
             "action_v2": None,
         })
-recommendations = _dedupe_recommendations(recommendations)
-
+    recommendations = _dedupe_recommendations(recommendations)
     no_action = (not args.force_proposal) and (len(recommendations) == 0)
     created_at = args.created_at_utc.strip() or _now_utc_iso()
 

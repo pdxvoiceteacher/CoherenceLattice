@@ -1,0 +1,35 @@
+{
+  "created_at_utc": "2026-01-01T00:00:00Z",
+  "guardrails": {
+    "allow_prefixes": [
+      "config/plasticity/",
+      "governance/",
+      "schema/"
+    ],
+    "budget_keys": [
+      "perturb",
+      "retry",
+      "timeout",
+      "concurrency",
+      "parallel",
+      "workers",
+      "matrix",
+      "interval",
+      "freq",
+      "schedule",
+      "max_",
+      "attempt",
+      "budget"
+    ],
+    "deny_prefixes": [
+      ".github/",
+      "tools/",
+      "ucc/",
+      "python/",
+      "config/"
+    ]
+  },
+  "operations": [],
+  "proposal_id": "v2_struct_20260111_125228",
+  "schema": "plasticity_patch_plan_v2"
+}
