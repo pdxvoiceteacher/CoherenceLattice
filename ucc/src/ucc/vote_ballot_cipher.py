@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 """
 Secret Ballot v0.2 (ciphertext payload + nullifier, NO DID signature)

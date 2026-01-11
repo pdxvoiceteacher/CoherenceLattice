@@ -1,4 +1,4 @@
-﻿"""
+"""
 Vote Registry v0 (Replay Protection)
 
 Open ballots only:

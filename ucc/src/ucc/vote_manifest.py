@@ -1,4 +1,4 @@
-﻿"""
+"""
 Vote Manifest v0 (purpose-bound governance object)
 
 This manifest defines *what a vote is*, not the ballots themselves.

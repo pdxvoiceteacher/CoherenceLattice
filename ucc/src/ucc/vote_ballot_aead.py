@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 """
 Secret Ballot v0.3 (AEAD: AES-GCM) + nullifier, NO DID signature.

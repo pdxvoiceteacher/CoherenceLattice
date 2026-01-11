@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 """
 Secret Tally v0.2 (ciphertext + reveal key)

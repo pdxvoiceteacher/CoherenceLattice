@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import csv
 import json
@@ -18,6 +18,7 @@ from .json_assertions import verify_json_assertions_task
 from .json_patterns import verify_json_patterns_task
 from .json_extract import extract_json_fields_task
 from .mapping_validators import validate_mapping_table_task, validate_mapping_index_task
+from ucc.tel_events import emit_tel_event
 
 
 BUILTIN_STEP_TYPES = {
@@ -535,250 +536,268 @@ def compare_helmholtz_runs(task_dir: Path, cfg: Dict[str, Any], outdir: Path, th
     return metrics, flags, [p_curve, p_curve_md, p_md, p_js]
 
 def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    module_doc = load_yaml(module_path)
-    schema_doc = load_schema(schema_path)
-    validate_module(module_doc, schema_doc)
+    _ucc_name = None
+    try:
+        _m = locals().get('module') or locals().get('spec') or locals().get('module_spec') or locals().get('step')
+        if isinstance(_m, dict):
+            _ucc_name = _m.get('name') or _m.get('id') or _m.get('module_id') or _m.get('type')
+        else:
+            _ucc_name = str(_m) if _m is not None else None
+    except Exception:
+        _ucc_name = None
+    emit_tel_event("ucc_run_module_start", {"name": _ucc_name})
+    _ucc_ok = True
+    try:
+        module_doc = load_yaml(module_path)
+        schema_doc = load_schema(schema_path)
+        validate_module(module_doc, schema_doc)
 
-    mod = module_doc["module"]
-    thresholds = mod.get("thresholds", {})
+        mod = module_doc["module"]
+        thresholds = mod.get("thresholds", {})
 
-    context: Dict[str, Any] = {"input": None, "metrics": {}, "flags": {}, "output_files": []}
+        context: Dict[str, Any] = {"input": None, "metrics": {}, "flags": {}, "output_files": []}
 
-    for step in module_doc["steps"]:
-        stype = step["type"]
-        params = step.get("params", {}) or {}
+        for step in module_doc["steps"]:
+            stype = step["type"]
+            params = step.get("params", {}) or {}
 
-        if stype == "ingest_json":
-            context["input"] = load_json(input_path)
+            if stype == "ingest_json":
+                context["input"] = load_json(input_path)
 
-        elif stype == "ingest_csv":
-            context["input"] = load_csv_table(input_path)
+            elif stype == "ingest_csv":
+                context["input"] = load_csv_table(input_path)
 
-        elif stype == "check_lean_symbols":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("check_lean_symbols requires ingest_json of a config dict")
-            task_dir = Path(input_path).parent
-            m, fl, outs = check_lean_symbols_task(task_dir, context["input"], outdir, thresholds)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
+            elif stype == "check_lean_symbols":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("check_lean_symbols requires ingest_json of a config dict")
+                task_dir = Path(input_path).parent
+                m, fl, outs = check_lean_symbols_task(task_dir, context["input"], outdir, thresholds)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
 
-        elif stype == "check_required_sections":
-            m, fl = check_required_sections(context["input"], str(params.get("sections_key", "sections")), list(params.get("required_sections", [])))
-            context["metrics"].update(m); context["flags"].update(fl)
+            elif stype == "check_required_sections":
+                m, fl = check_required_sections(context["input"], str(params.get("sections_key", "sections")), list(params.get("required_sections", [])))
+                context["metrics"].update(m); context["flags"].update(fl)
 
-        elif stype == "require_evidence_links":
-            m, fl = require_evidence_links(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","EVALUATION_EVIDENCE")),
-                                           int(params.get("min_links",1)), bool(params.get("allow_explanation",True)))
-            context["metrics"].update(m); context["flags"].update(fl)
+            elif stype == "require_evidence_links":
+                m, fl = require_evidence_links(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","EVALUATION_EVIDENCE")),
+                                               int(params.get("min_links",1)), bool(params.get("allow_explanation",True)))
+                context["metrics"].update(m); context["flags"].update(fl)
 
-        elif stype == "misuse_taxonomy_check":
-            rc = params.get("required_categories", None)
-            if rc is not None: rc = list(rc)
-            m, fl = misuse_taxonomy_check(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","MISUSE_MONITORING")), rc)
-            context["metrics"].update(m); context["flags"].update(fl)
+            elif stype == "misuse_taxonomy_check":
+                rc = params.get("required_categories", None)
+                if rc is not None: rc = list(rc)
+                m, fl = misuse_taxonomy_check(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","MISUSE_MONITORING")), rc)
+                context["metrics"].update(m); context["flags"].update(fl)
 
-        elif stype == "disclosure_channel_check":
-            m, fl = disclosure_channel_check(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","DISCLOSURE")), bool(params.get("require_escalation",True)))
-            context["metrics"].update(m); context["flags"].update(fl)
+            elif stype == "disclosure_channel_check":
+                m, fl = disclosure_channel_check(context["input"], str(params.get("sections_key","genai_profile")), str(params.get("field_key","DISCLOSURE")), bool(params.get("require_escalation",True)))
+                context["metrics"].update(m); context["flags"].update(fl)
 
-        elif stype == "compare_tches_runs":
-            task_dir = Path(input_path).parent
-            m, fl, outs = compare_tches_runs(task_dir, context["input"], outdir, thresholds)
-            context["metrics"].update(m); context["flags"].update(fl); context["output_files"].extend(outs)
+            elif stype == "compare_tches_runs":
+                task_dir = Path(input_path).parent
+                m, fl, outs = compare_tches_runs(task_dir, context["input"], outdir, thresholds)
+                context["metrics"].update(m); context["flags"].update(fl); context["output_files"].extend(outs)
 
-        elif stype == "compare_helmholtz_runs":
-            task_dir = Path(input_path).parent
-            m, fl, outs = compare_helmholtz_runs(task_dir, context["input"], outdir, thresholds)
-            context["metrics"].update(m); context["flags"].update(fl); context["output_files"].extend(outs)
+            elif stype == "compare_helmholtz_runs":
+                task_dir = Path(input_path).parent
+                m, fl, outs = compare_helmholtz_runs(task_dir, context["input"], outdir, thresholds)
+                context["metrics"].update(m); context["flags"].update(fl); context["output_files"].extend(outs)
 
-        elif stype == "emit_checklist":
-            p = emit_checklist(outdir, context["metrics"], str(params.get("checklist_md","checklist.md")), title=str(params.get("title","Checklist")))
-            context["output_files"].append(p)
+            elif stype == "emit_checklist":
+                p = emit_checklist(outdir, context["metrics"], str(params.get("checklist_md","checklist.md")), title=str(params.get("title","Checklist")))
+                context["output_files"].append(p)
 
-        elif stype == "validate_authority_profile":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("validate_authority_profile requires ingest_json of a dict")
-            sections_key = str(params.get("sections_key", ""))
-            if not sections_key:
-                raise ValueError("validate_authority_profile requires params.sections_key")
-            min_links = int(params.get("min_links", 1))
-            require_review = bool(params.get("require_review_dates", True))
-            require_exc = bool(params.get("require_exception_items", True))
-            m, fl = validate_authority_profile(context["input"], sections_key, min_links=min_links, require_review_dates=require_review, require_exception_items=require_exc)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-        elif stype == "emit_telemetry_snapshot":             # Canonical telemetry snapshot emitter (non-trivial E/T for KONOMI smoke).             # IMPORTANT: Do NOT import json or Path in this function scope (avoid UnboundLocalError in other steps).             import hashlib as _hashlib             import sys as _sys             import platform as _platform             import math as _math             from datetime import datetime as _datetime, timezone as _timezone                      params = step.get("params", {}) or {}             name_json = str(params.get("name_json", "telemetry_snapshot.json"))                      src = context.get("input", {}) or {}  # expected: audit_bundle.json (ingested)             m = src.get("metrics", {}) or {}             fl = src.get("flags", {}) or {}             env = src.get("environment", {}) or {}                      def _f(x, d):                 try:                     return float(x)                 except Exception:                     return float(d)                      def _clamp01(x):                 try:                     return max(0.0, min(1.0, float(x)))                 except Exception:                     return 0.0                      def _ratio(num, den, default=1.0):                 try:                     den = float(den)                     if den <= 0:                         return float(default)                     return float(num) / den                 except Exception:                     return float(default)                      # ------------------------------             # T: transparency proxy from coverage metrics             # ------------------------------             if "T" in m:                 T = _f(m.get("T"), 1.0)             elif "T_required_sections_coverage" in m:                 T = _f(m.get("T_required_sections_coverage"), 1.0)             elif "section_coverage" in m:                 T = _f(m.get("section_coverage"), 1.0)             elif ("present_count" in m) and ("required_count" in m):                 T = _ratio(m.get("present_count"), m.get("required_count"), default=1.0)             else:                 T = 1.0             T = _clamp01(T)                      # ------------------------------             # E: empathy proxy from numeric performance signals in input JSON (KONOMI summary + per-engine summaries).             # This yields stable non-1.0 values and allows ΔS/Λ to reflect real drift when performance changes.             # ------------------------------             if "E" in m:                 E = _f(m.get("E"), 1.0)             elif "E_claim_coverage" in m:                 E = _f(m.get("E_claim_coverage"), 1.0)             else:                 perf_vals = []                 inp_path = src.get("input_path")                 if isinstance(inp_path, str) and inp_path:                     p = Path(inp_path)                     if (not p.exists()) and (not p.is_absolute()):                         p = (Path.cwd() / p).resolve()                     if p.exists():                         base_dir = p.parent                         docs = []                         # primary summary                         try:                             docs.append(("summary", json.loads(p.read_text(encoding="utf-8-sig"))))                         except Exception:                             docs = []                                  # per-engine summaries (best-effort)                         candidates = [                             ("evgpu", base_dir / "evgpu" / "evgpu_matmul_summary.json"),                             ("femto", base_dir / "femto" / "femto_async_summary.json"),                             ("blockarray", base_dir / "blockarray" / "blockarray_summary.json"),                             ("cube", base_dir / "cube" / "cube_summary.json"),                         ]                         for name, fp in candidates:                             if fp.exists():                                 try:                                     docs.append((name, json.loads(fp.read_text(encoding="utf-8-sig"))))                                 except Exception:                                     pass                                  def walk(obj, keypath=""):                             if isinstance(obj, dict):                                 for k,v in obj.items():                                     kp = (keypath + "." + str(k)) if keypath else str(k)                                     walk(v, kp)                             elif isinstance(obj, list):                                 for i,v in enumerate(obj):                                     walk(v, f"{keypath}[{i}]")                             elif isinstance(obj, (int,float)):                                 kp = keypath.lower()                                 if ("timestamp" in kp) or ("git" in kp) or ("commit" in kp):                                     return                                 perf_vals.append(float(obj))                             elif isinstance(obj, str):                                 s = obj.strip()                                 # parse numeric-looking strings                                 try:                                     fv = float(s)                                 except Exception:                                     return                                 if not _math.isfinite(fv):                                     return                                 perf_vals.append(float(fv))                                  for name, doc in docs:                             walk(doc, name)                          if perf_vals:                     vals = [_math.log1p(abs(v)) for v in perf_vals[:600]]                     perf_index = sum(vals) / max(1, len(vals))                     # scale factor chosen to keep E in a readable band (typically ~0.75-0.95)                     E = _math.exp(-perf_index / 20.0)                 else:                     E = T             E = _clamp01(E)                      Psi = _clamp01(_f(m.get("Psi", E * T), E * T))             DeltaS = _f(m.get("DeltaS", 0.0), 0.0)             Lambda = _f(m.get("Lambda", 0.0), 0.0)                      if "Es" in m:                 Es = _clamp01(_f(m.get("Es"), 1.0))             else:                 ok_flag = fl.get("sections_complete", fl.get("overall_pass", True))                 Es = 1.0 if bool(ok_flag) else 0.0                      telemetry_ok = bool(fl.get("overall_pass", fl.get("sections_complete", True)))                      outdir.mkdir(parents=True, exist_ok=True)             out_path = outdir / name_json                      pyver = env.get("python_version") or (_sys.version.replace("\\n", " "))             plat = env.get("platform") or _platform.platform()             gsha = env.get("git_commit") or ""                      telemetry = {                 "schema_id": "coherencelattice.telemetry_run.v1",                 "version": 1,                 "run_id": outdir.name,                 "created_at": _datetime.now(_timezone.utc).isoformat(),                 "environment": {"python": str(pyver), "platform": str(plat), "git_commit": str(gsha)},                 "metrics": {"E": E, "T": T, "Psi": Psi, "DeltaS": DeltaS, "Lambda": Lambda, "Es": Es},                 "flags": {"telemetry_ok": telemetry_ok},                 "artifacts": [],                 "notes": "telemetry snapshot: T from coverage; E from numeric perf leaves in KONOMI summaries"             }                      out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")             h = _hashlib.sha256(out_path.read_bytes()).hexdigest()             telemetry["artifacts"] = [{"path": out_path.name, "sha256": h}]             out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")             context["output_files"].append(out_path)         elif stype == "emit_report":
-            report_name = str(params.get("report_name", "report.json"))
-            outdir.mkdir(parents=True, exist_ok=True)
-            report_path = outdir / report_name
-            report = {
-                "module": {"id": mod["id"], "version": mod["version"], "title": mod.get("title", "")},
-                "input_path": str(input_path),
-                "metrics": context["metrics"],
-                "flags": context["flags"],
-            }
-            report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-            context["output_files"].append(report_path)
+            elif stype == "validate_authority_profile":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("validate_authority_profile requires ingest_json of a dict")
+                sections_key = str(params.get("sections_key", ""))
+                if not sections_key:
+                    raise ValueError("validate_authority_profile requires params.sections_key")
+                min_links = int(params.get("min_links", 1))
+                require_review = bool(params.get("require_review_dates", True))
+                require_exc = bool(params.get("require_exception_items", True))
+                m, fl = validate_authority_profile(context["input"], sections_key, min_links=min_links, require_review_dates=require_review, require_exception_items=require_exc)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+            elif stype == "emit_telemetry_snapshot":             # Canonical telemetry snapshot emitter (non-trivial E/T for KONOMI smoke).             # IMPORTANT: Do NOT import json or Path in this function scope (avoid UnboundLocalError in other steps).             import hashlib as _hashlib             import sys as _sys             import platform as _platform             import math as _math             from datetime import datetime as _datetime, timezone as _timezone                      params = step.get("params", {}) or {}             name_json = str(params.get("name_json", "telemetry_snapshot.json"))                      src = context.get("input", {}) or {}  # expected: audit_bundle.json (ingested)             m = src.get("metrics", {}) or {}             fl = src.get("flags", {}) or {}             env = src.get("environment", {}) or {}                      def _f(x, d):                 try:                     return float(x)                 except Exception:                     return float(d)                      def _clamp01(x):                 try:                     return max(0.0, min(1.0, float(x)))                 except Exception:                     return 0.0                      def _ratio(num, den, default=1.0):                 try:                     den = float(den)                     if den <= 0:                         return float(default)                     return float(num) / den                 except Exception:                     return float(default)                      # ------------------------------             # T: transparency proxy from coverage metrics             # ------------------------------             if "T" in m:                 T = _f(m.get("T"), 1.0)             elif "T_required_sections_coverage" in m:                 T = _f(m.get("T_required_sections_coverage"), 1.0)             elif "section_coverage" in m:                 T = _f(m.get("section_coverage"), 1.0)             elif ("present_count" in m) and ("required_count" in m):                 T = _ratio(m.get("present_count"), m.get("required_count"), default=1.0)             else:                 T = 1.0             T = _clamp01(T)                      # ------------------------------             # E: empathy proxy from numeric performance signals in input JSON (KONOMI summary + per-engine summaries).             # This yields stable non-1.0 values and allows ΔS/Λ to reflect real drift when performance changes.             # ------------------------------             if "E" in m:                 E = _f(m.get("E"), 1.0)             elif "E_claim_coverage" in m:                 E = _f(m.get("E_claim_coverage"), 1.0)             else:                 perf_vals = []                 inp_path = src.get("input_path")                 if isinstance(inp_path, str) and inp_path:                     p = Path(inp_path)                     if (not p.exists()) and (not p.is_absolute()):                         p = (Path.cwd() / p).resolve()                     if p.exists():                         base_dir = p.parent                         docs = []                         # primary summary                         try:                             docs.append(("summary", json.loads(p.read_text(encoding="utf-8-sig"))))                         except Exception:                             docs = []                                  # per-engine summaries (best-effort)                         candidates = [                             ("evgpu", base_dir / "evgpu" / "evgpu_matmul_summary.json"),                             ("femto", base_dir / "femto" / "femto_async_summary.json"),                             ("blockarray", base_dir / "blockarray" / "blockarray_summary.json"),                             ("cube", base_dir / "cube" / "cube_summary.json"),                         ]                         for name, fp in candidates:                             if fp.exists():                                 try:                                     docs.append((name, json.loads(fp.read_text(encoding="utf-8-sig"))))                                 except Exception:                                     pass                                  def walk(obj, keypath=""):                             if isinstance(obj, dict):                                 for k,v in obj.items():                                     kp = (keypath + "." + str(k)) if keypath else str(k)                                     walk(v, kp)                             elif isinstance(obj, list):                                 for i,v in enumerate(obj):                                     walk(v, f"{keypath}[{i}]")                             elif isinstance(obj, (int,float)):                                 kp = keypath.lower()                                 if ("timestamp" in kp) or ("git" in kp) or ("commit" in kp):                                     return                                 perf_vals.append(float(obj))                             elif isinstance(obj, str):                                 s = obj.strip()                                 # parse numeric-looking strings                                 try:                                     fv = float(s)                                 except Exception:                                     return                                 if not _math.isfinite(fv):                                     return                                 perf_vals.append(float(fv))                                  for name, doc in docs:                             walk(doc, name)                          if perf_vals:                     vals = [_math.log1p(abs(v)) for v in perf_vals[:600]]                     perf_index = sum(vals) / max(1, len(vals))                     # scale factor chosen to keep E in a readable band (typically ~0.75-0.95)                     E = _math.exp(-perf_index / 20.0)                 else:                     E = T             E = _clamp01(E)                      Psi = _clamp01(_f(m.get("Psi", E * T), E * T))             DeltaS = _f(m.get("DeltaS", 0.0), 0.0)             Lambda = _f(m.get("Lambda", 0.0), 0.0)                      if "Es" in m:                 Es = _clamp01(_f(m.get("Es"), 1.0))             else:                 ok_flag = fl.get("sections_complete", fl.get("overall_pass", True))                 Es = 1.0 if bool(ok_flag) else 0.0                      telemetry_ok = bool(fl.get("overall_pass", fl.get("sections_complete", True)))                      outdir.mkdir(parents=True, exist_ok=True)             out_path = outdir / name_json                      pyver = env.get("python_version") or (_sys.version.replace("\\n", " "))             plat = env.get("platform") or _platform.platform()             gsha = env.get("git_commit") or ""                      telemetry = {                 "schema_id": "coherencelattice.telemetry_run.v1",                 "version": 1,                 "run_id": outdir.name,                 "created_at": _datetime.now(_timezone.utc).isoformat(),                 "environment": {"python": str(pyver), "platform": str(plat), "git_commit": str(gsha)},                 "metrics": {"E": E, "T": T, "Psi": Psi, "DeltaS": DeltaS, "Lambda": Lambda, "Es": Es},                 "flags": {"telemetry_ok": telemetry_ok},                 "artifacts": [],                 "notes": "telemetry snapshot: T from coverage; E from numeric perf leaves in KONOMI summaries"             }                      out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")             h = _hashlib.sha256(out_path.read_bytes()).hexdigest()             telemetry["artifacts"] = [{"path": out_path.name, "sha256": h}]             out_path.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")             context["output_files"].append(out_path)         elif stype == "emit_report":
+                report_name = str(params.get("report_name", "report.json"))
+                outdir.mkdir(parents=True, exist_ok=True)
+                report_path = outdir / report_name
+                report = {
+                    "module": {"id": mod["id"], "version": mod["version"], "title": mod.get("title", "")},
+                    "input_path": str(input_path),
+                    "metrics": context["metrics"],
+                    "flags": context["flags"],
+                }
+                report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+                context["output_files"].append(report_path)
 
-        elif stype == "emit_threshold_table":
-            outs = emit_threshold_table(outdir, context["metrics"], context["flags"], thresholds,
-                                        str(params.get("name_csv","thresholds.csv")), str(params.get("name_md","thresholds.md")))
-            context["output_files"].extend(outs)
+            elif stype == "emit_threshold_table":
+                outs = emit_threshold_table(outdir, context["metrics"], context["flags"], thresholds,
+                                            str(params.get("name_csv","thresholds.csv")), str(params.get("name_md","thresholds.md")))
+                context["output_files"].extend(outs)
 
-        elif stype == "compute_lambdaT":
-            if context["input"] is None:
-                raise ValueError("compute_lambdaT requires prior ingest step")
+            elif stype == "compute_lambdaT":
+                if context["input"] is None:
+                    raise ValueError("compute_lambdaT requires prior ingest step")
 
-            dT_design = float(params.get("dT_design_C", 1.0))
-            tau_res = float(params.get("tau_res_s", 1.0))
-            src = context["input"]
+                dT_design = float(params.get("dT_design_C", 1.0))
+                tau_res = float(params.get("tau_res_s", 1.0))
+                src = context["input"]
 
-            # Two supported shapes:
-            # - dict input: { series_key: [...], dt_key: ... }
-            # - list-of-dicts from ingest_csv: infer dt from t_col and read series_col
-            if isinstance(src, dict):
-                series_key = str(params.get("series_key", "T_block_C"))
-                dt_key = str(params.get("dt_key", "dt_s"))
-                series = [float(x) for x in src[series_key]]
-                dt_s = float(src[dt_key])
+                # Two supported shapes:
+                # - dict input: { series_key: [...], dt_key: ... }
+                # - list-of-dicts from ingest_csv: infer dt from t_col and read series_col
+                if isinstance(src, dict):
+                    series_key = str(params.get("series_key", "T_block_C"))
+                    dt_key = str(params.get("dt_key", "dt_s"))
+                    series = [float(x) for x in src[series_key]]
+                    dt_s = float(src[dt_key])
 
-            elif isinstance(src, list):
-                series_col = str(params.get("series_col", "u_mag_sq"))
-                t_col = str(params.get("t_col", "t_s"))
+                elif isinstance(src, list):
+                    series_col = str(params.get("series_col", "u_mag_sq"))
+                    t_col = str(params.get("t_col", "t_s"))
 
-                ts = [float(r[t_col]) for r in src if r.get(t_col, "") != ""]
-                dt_s = None
-                for i in range(1, len(ts)):
-                    d = ts[i] - ts[i - 1]
-                    if d > 0:
-                        dt_s = d
-                        break
-                if dt_s is None or dt_s <= 0:
-                    raise ValueError("Could not infer dt_s from t_col")
+                    ts = [float(r[t_col]) for r in src if r.get(t_col, "") != ""]
+                    dt_s = None
+                    for i in range(1, len(ts)):
+                        d = ts[i] - ts[i - 1]
+                        if d > 0:
+                            dt_s = d
+                            break
+                    if dt_s is None or dt_s <= 0:
+                        raise ValueError("Could not infer dt_s from t_col")
 
-                series = [float(r[series_col]) for r in src]
+                    series = [float(r[series_col]) for r in src]
+
+                else:
+                    raise ValueError("Unsupported input type for compute_lambdaT")
+
+                if dt_s <= 0:
+                    raise ValueError("dt_s must be > 0")
+                if len(series) < 2:
+                    raise ValueError("series must have >= 2 samples")
+
+                dTdt = [(series[i] - series[i - 1]) / dt_s for i in range(1, len(series))]
+                max_abs = max(abs(x) for x in dTdt) if dTdt else 0.0
+
+                denom = dT_design / max(tau_res, 1e-12)
+                lam = max_abs / max(denom, 1e-12)
+
+                context["metrics"].update({"max_abs_dTdt": max_abs, "Lambda_T": lam})
+            elif stype == "threshold_flags":
+                context["flags"].update(threshold_flags(context["metrics"], thresholds))
+
+            elif stype == "extract_json_fields":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("extract_json_fields requires ingest_json of a dict")
+                m, fl, outs = extract_json_fields_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "verify_json_assertions":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("verify_json_assertions requires ingest_json of a dict")
+                m, fl, outs = verify_json_assertions_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "verify_json_patterns":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("verify_json_patterns requires ingest_json of a dict")
+                m, fl, outs = verify_json_patterns_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "coherence_audit":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("coherence_audit requires ingest_json of a dict")
+                m, fl, outs = coherence_audit_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "validate_mapping_index":
+                if context["input"] is None or not isinstance(context["input"], dict):
+                    raise ValueError("validate_mapping_index requires ingest_json of a dict")
+                m, fl, outs = validate_mapping_index_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "validate_mapping_table":
+                if context["input"] is None or not isinstance(context["input"], list):
+                    raise ValueError("validate_mapping_table requires ingest_csv (list of dict rows)")
+                m, fl, outs = validate_mapping_table_task(context["input"], outdir, thresholds, **params)
+                context["metrics"].update(m)
+                context["flags"].update(fl)
+                context["output_files"].extend(outs)
+
+            elif stype == "emit_report":
+
+                # UCC_PATCH_EMIT_REPORT_RUNTIME_FIX
+
+                report_name = str((step.get("params", {}) or {}).get("report_name", "report.json"))
+
+                outdir.mkdir(parents=True, exist_ok=True)
+
+                report_path = outdir / report_name
+
+                report = {
+
+                    "module": {"id": mod["id"], "version": mod["version"], "title": mod.get("title", "")},
+
+                    "input_path": str(input_path),
+
+                    "metrics": context["metrics"],
+
+                    "flags": context["flags"],
+
+                }
+
+                report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+
+                context["output_files"].append(report_path)
+
 
             else:
-                raise ValueError("Unsupported input type for compute_lambdaT")
 
-            if dt_s <= 0:
-                raise ValueError("dt_s must be > 0")
-            if len(series) < 2:
-                raise ValueError("series must have >= 2 samples")
+                raise ValueError(f"Unsupported step type: {stype}")
+        module_sha = sha256_file(module_path)
+        input_sha = sha256_file(input_path)
+        outputs: Dict[str, str] = {}
+        for p in context["output_files"]:
+            outputs[str(Path(p).name)] = sha256_file(Path(p))
 
-            dTdt = [(series[i] - series[i - 1]) / dt_s for i in range(1, len(series))]
-            max_abs = max(abs(x) for x in dTdt) if dTdt else 0.0
+        bundle = AuditBundle(
+            bundle_version="0.1",
+            timestamp_utc=now_utc_iso(),
+            module_id=mod["id"],
+            module_version=mod["version"],
+            module_path=str(module_path),
+            module_sha256=module_sha,
+            input_path=str(input_path),
+            input_sha256=input_sha,
+            outputs=outputs,
+            metrics=context["metrics"],
+            flags=context["flags"],
+            environment=env_info(),
+            notes={"runner": "ucc.core.run_module", "schema": str(schema_path)},
+        )
+        write_bundle(outdir, bundle)
 
-            denom = dT_design / max(tau_res, 1e-12)
-            lam = max_abs / max(denom, 1e-12)
-
-            context["metrics"].update({"max_abs_dTdt": max_abs, "Lambda_T": lam})
-        elif stype == "threshold_flags":
-            context["flags"].update(threshold_flags(context["metrics"], thresholds))
-
-        elif stype == "extract_json_fields":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("extract_json_fields requires ingest_json of a dict")
-            m, fl, outs = extract_json_fields_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "verify_json_assertions":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("verify_json_assertions requires ingest_json of a dict")
-            m, fl, outs = verify_json_assertions_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "verify_json_patterns":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("verify_json_patterns requires ingest_json of a dict")
-            m, fl, outs = verify_json_patterns_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "coherence_audit":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("coherence_audit requires ingest_json of a dict")
-            m, fl, outs = coherence_audit_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "validate_mapping_index":
-            if context["input"] is None or not isinstance(context["input"], dict):
-                raise ValueError("validate_mapping_index requires ingest_json of a dict")
-            m, fl, outs = validate_mapping_index_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "validate_mapping_table":
-            if context["input"] is None or not isinstance(context["input"], list):
-                raise ValueError("validate_mapping_table requires ingest_csv (list of dict rows)")
-            m, fl, outs = validate_mapping_table_task(context["input"], outdir, thresholds, **params)
-            context["metrics"].update(m)
-            context["flags"].update(fl)
-            context["output_files"].extend(outs)
-
-        elif stype == "emit_report":
-
-            # UCC_PATCH_EMIT_REPORT_RUNTIME_FIX
-
-            report_name = str((step.get("params", {}) or {}).get("report_name", "report.json"))
-
-            outdir.mkdir(parents=True, exist_ok=True)
-
-            report_path = outdir / report_name
-
-            report = {
-
-                "module": {"id": mod["id"], "version": mod["version"], "title": mod.get("title", "")},
-
-                "input_path": str(input_path),
-
-                "metrics": context["metrics"],
-
-                "flags": context["flags"],
-
-            }
-
-            report_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-
-            context["output_files"].append(report_path)
-
-
-        else:
-
-            raise ValueError(f"Unsupported step type: {stype}")
-    module_sha = sha256_file(module_path)
-    input_sha = sha256_file(input_path)
-    outputs: Dict[str, str] = {}
-    for p in context["output_files"]:
-        outputs[str(Path(p).name)] = sha256_file(Path(p))
-
-    bundle = AuditBundle(
-        bundle_version="0.1",
-        timestamp_utc=now_utc_iso(),
-        module_id=mod["id"],
-        module_version=mod["version"],
-        module_path=str(module_path),
-        module_sha256=module_sha,
-        input_path=str(input_path),
-        input_sha256=input_sha,
-        outputs=outputs,
-        metrics=context["metrics"],
-        flags=context["flags"],
-        environment=env_info(),
-        notes={"runner": "ucc.core.run_module", "schema": str(schema_path)},
-    )
-    write_bundle(outdir, bundle)
-
-    return context["metrics"], context["flags"]
+        return context["metrics"], context["flags"]
+    except Exception as _e:
+        _ucc_ok = False
+        emit_tel_event("ucc_run_module_error", {"name": _ucc_name, "error": str(_e)})
+        raise
+    finally:
+        emit_tel_event("ucc_run_module_end", {"name": _ucc_name, "ok": _ucc_ok})
 
 # --- AUTO ENABLE EXTRA STEP TYPES ---
 BUILTIN_STEP_TYPES.update({
@@ -789,11 +808,3 @@ BUILTIN_STEP_TYPES.update({
     "validate_mapping_table",
     "validate_mapping_index",
 })
-
-
-
-
-
-
-
-

@@ -4,6 +4,30 @@ import argparse, hashlib, json, platform, subprocess, sys, statistics, re, math
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
+import os
+
+# --- TEL events flag pre-parse (parser-agnostic) ---
+_TEL_EVENTS_EMIT = False
+if "--emit-tel-events" in sys.argv:
+    _TEL_EVENTS_EMIT = True
+    sys.argv.remove("--emit-tel-events")
+    # Auto-wire UCC step-event sink to <out>/ucc_tel_events.jsonl
+    _out = None
+    for i, a in enumerate(sys.argv):
+        if a == "--out" and i + 1 < len(sys.argv):
+            _out = sys.argv[i + 1]
+            break
+        if a.startswith("--out="):
+            _out = a.split("=", 1)[1]
+            break
+    if _out and not os.environ.get("UCC_TEL_EVENTS_OUT"):
+        try:
+            from pathlib import Path as _Path
+            os.environ["UCC_TEL_EVENTS_OUT"] = str(_Path(_out) / "ucc_tel_events.jsonl")
+        except Exception:
+            pass
+# --- /TEL events flag pre-parse ---
+
 
 def _safe_relpath(p: Path, base: Path) -> str:
     try:

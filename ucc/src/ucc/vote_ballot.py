@@ -1,4 +1,4 @@
-﻿"""
+"""
 Ballots v0 (purpose-bound to Vote Manifest v0)
 
 A ballot is an individual vote that references a manifest_id.

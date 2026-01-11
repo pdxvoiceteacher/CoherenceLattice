@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 """
 Secret Tally v0.3 (AES-GCM commits + reveal keys, DEMO reveal)
