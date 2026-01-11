@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Decision v2",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","sandbox_branch","checks","thermo","decision","reasons"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_decision_v2" },
+    "proposal_id": { "type": "string" },
+    "created_at_utc": { "type": "string" },
+    "sandbox_branch": { "type": "string" },
+    "checks": {
+      "type": "object",
+      "required": ["pytest_ucc","pytest_python","validate_run","compare_runs"],
+      "properties": {
+        "pytest_ucc": { "type": "boolean" },
+        "pytest_python": { "type": "boolean" },
+        "validate_run": { "type": "boolean" },
+        "compare_runs": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "thermo": {
+      "type": "object",
+      "required": ["allowlist_ok","budget_ok","notes"],
+      "properties": {
+        "allowlist_ok": { "type": "boolean" },
+        "budget_ok": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "decision": { "type": "string", "enum": ["accept","reject","no_action"] },
+    "reasons": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}
