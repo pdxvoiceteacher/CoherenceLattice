@@ -6,6 +6,66 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
+# --- TEL summary handling (optional; schema’d) ---
+TEL_SUMMARY_SCHEMA = {
+    "type": "object",
+    "required": [
+        "schema",
+        "tel_schema",
+        "graph_id",
+        "fingerprint_sha256",
+        "nodes_total",
+        "edges_total",
+        "nodes_by_band",
+        "edges_by_kind",
+    ],
+    "properties": {
+        "schema": {"type": "string"},
+        "tel_schema": {"type": "string"},
+        "graph_id": {"type": "string"},
+        "fingerprint_sha256": {"type": "string"},
+        "nodes_total": {"type": "integer", "minimum": 0},
+        "edges_total": {"type": "integer", "minimum": 0},
+        "nodes_by_band": {
+            "type": "object",
+            "required": ["STM", "MTM", "LTM"],
+            "properties": {
+                "STM": {"type": "integer", "minimum": 0},
+                "MTM": {"type": "integer", "minimum": 0},
+                "LTM": {"type": "integer", "minimum": 0},
+            },
+            "additionalProperties": False,
+        },
+        "edges_by_kind": {
+            "type": "object",
+            "additionalProperties": {"type": "integer", "minimum": 0},
+        },
+        "meta": {"type": "object"},
+    },
+    "additionalProperties": False,
+}
+
+def _tel_sanitize_for_schema(instance):
+    """
+    Validate tel_summary (if present) against TEL_SUMMARY_SCHEMA,
+    then return a shallow copy with tel_summary removed so the strict root schema still passes.
+    """
+    if not isinstance(instance, dict):
+        return instance
+
+    if "tel_summary" not in instance:
+        return instance
+
+    tel = instance.get("tel_summary")
+    if tel is not None:
+        Draft202012Validator(TEL_SUMMARY_SCHEMA).validate(tel)
+
+    inst2 = dict(instance)
+    inst2.pop("tel_summary", None)
+    return inst2
+# --- /TEL summary handling ---
+
+
 # --- TEL summary schema (optional) ---
 TEL_SUMMARY_SCHEMA = {
     "type": "object",
@@ -100,7 +160,7 @@ def main() -> int:
 
     # 1) Schema validation
     v = Draft202012Validator(schema)
-    errors = sorted(v.iter_errors(data), key=lambda e: e.path)
+    errors = sorted(v.iter_errors(_tel_sanitize_for_schema(data)), key=lambda e: e.path)
     if errors:
         print("[validate_run] FAIL schema")
         for e in errors[:120]:
