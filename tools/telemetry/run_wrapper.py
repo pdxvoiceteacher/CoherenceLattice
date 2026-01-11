@@ -296,9 +296,7 @@ if __name__ == "__main__":
 
             import json as _json
 
-            from konomi.tel import TelGraph
-
-            from konomi.tel.recorder import TelRecorder
+            from konomi.tel.build import build_tel_for_out_dir
 
 
             _out = _tel_out_dir(sys.argv)
@@ -320,71 +318,21 @@ if __name__ == "__main__":
             _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
 
 
-            # Build TEL graph with explicit checkpoints (deterministic ordering)
-
-            _tel = TelGraph(graph_id="tel_run_wrapper", meta={"source": "run_wrapper.py"})
-
-            _rec = TelRecorder(_tel)
-
-
-            _rec.checkpoint("run:telemetry_loaded", meta={"telemetry_path": str(_telemetry_path)})
-
-
-            # Step checkpoints: stage dirs in out/ (sorted)
-
-            stage_dirs = []
-
-            for sp in sorted(_out_dir.iterdir(), key=lambda x: x.name):
-
-                if not sp.is_dir():
-
-                    continue
-
-                name = sp.name
-
-                if name.startswith("konomi_smoke_") or name.startswith("ucc_cov_"):
-
-                    stage_dirs.append(sp)
-
-
-            for stage in stage_dirs:
-
-                cp = _rec.checkpoint(f"step:{stage.name}", meta={"dir": stage.name})
-
-                # Attach key artifacts (sorted for determinism)
-
-                for f in sorted(stage.rglob("*_summary.json"), key=lambda x: x.as_posix()):
-
-                    _rec.attach_file(cp, f, root=_out_dir, kind="summary_json")
-
-                for f in sorted(stage.rglob("audit_bundle.json"), key=lambda x: x.as_posix()):
-
-                    _rec.attach_file(cp, f, root=_out_dir, kind="audit_bundle")
-
-
-            # Shallow telemetry tree for connectivity
-
-            _tel.ingest_json_tree(_telemetry_data, root_id="telemetry", max_depth=2)
-
-            _rec.checkpoint("run:tel_built")
-
-
-            # Persist full TEL graph
+            _tel = build_tel_for_out_dir(_out_dir, _telemetry_data, max_depth=2)
 
             _tel.write_json(_out_dir / "tel.json")
-
-
-            # Embed lean summary into telemetry.json
 
             _telemetry_data["tel_summary"] = _tel.summary()
 
             (_out_dir / "telemetry.json").write_text(
 
-                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "
+",
 
                 encoding="utf-8",
 
-                newline="\n",
+                newline="
+",
 
             )
 
