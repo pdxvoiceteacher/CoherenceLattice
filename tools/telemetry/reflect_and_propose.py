@@ -112,7 +112,7 @@ def main() -> int:
         "tune_step": float(args.tune_step),
     }
 
-    # Load tuning config values (thermo-safe knobs live here)
+    # Load tuning config values
     cfg_path = Path(args.tuning_config)
     cfg = {}
     if cfg_path.exists():
@@ -129,7 +129,7 @@ def main() -> int:
 
     recommendations: List[Dict[str, Any]] = []
 
-    # 1) Thermo-safe: relax min_psi_threshold (decrease only)
+    # 1) Thermo-safe: relax min_psi_threshold (decrease only) when Psi is low
     if triggers["psi_below_threshold"]:
         new_min = max(0.0, cfg_min - step)
         action_v2 = None
@@ -150,24 +150,7 @@ def main() -> int:
             "action_v2": action_v2,
         })
 
-    # 2) Thermo-safe: cap max_proposals_per_run to 1 IF it is currently > 1 (never increases)
-    if cfg_max_props is not None and cfg_max_props > 1:
-        recommendations.append({
-            "id": "thermo_safe_cap_max_proposals_per_run",
-            "kind": "budget_cap",
-            "target": "config/plasticity/tuning.json:max_proposals_per_run",
-            "suggestion": f"Thermo-safe: cap max_proposals_per_run to 1 (from {int(cfg_max_props)}) to prevent runaway proposal generation.",
-            "rationale": "Hard cap reduces risk of runaway compute / repeated attempts.",
-            "evidence": {"current": int(cfg_max_props), "proposed": 1},
-            "action_v2": {
-                "op": "json_set",
-                "path": "config/plasticity/tuning.json",
-                "json_path": "max_proposals_per_run",
-                "value": 1,
-            },
-        })
-
-    # 3) Thermo-safe: cap max_sandbox_attempts to 1 IF it is currently > 1 (never increases)
+    # 2) Thermo-safe: cap max_sandbox_attempts to 1 if currently >1 (never increases)
     if cfg_max_sandbox is not None and cfg_max_sandbox > 1:
         recommendations.append({
             "id": "thermo_safe_cap_max_sandbox_attempts",
@@ -184,7 +167,54 @@ def main() -> int:
             },
         })
 
-    # UCC errors: human review (no auto action)
+    # 3) Thermo-safe: cap max_proposals_per_run to 1 if currently >1 when Psi is low
+    #    (keeps the original tuning-trigger behavior)
+    if cfg_max_props is not None and cfg_max_props > 1 and triggers["psi_below_threshold"]:
+        recommendations.append({
+            "id": "thermo_safe_cap_max_proposals_per_run",
+            "kind": "budget_cap",
+            "target": "config/plasticity/tuning.json:max_proposals_per_run",
+            "suggestion": f"Thermo-safe: cap max_proposals_per_run to 1 (from {int(cfg_max_props)}) to prevent runaway proposal generation.",
+            "rationale": "Hard cap reduces risk of runaway compute / repeated attempts.",
+            "evidence": {"current": int(cfg_max_props), "proposed": 1},
+            "action_v2": {
+                "op": "json_set",
+                "path": "config/plasticity/tuning.json",
+                "json_path": "max_proposals_per_run",
+                "value": 1,
+            },
+        })
+
+    # 4) NEW: Thermo-safe: cap max_proposals_per_run to 1 whenever UCC errors are present (even if Psi is fine)
+    #    Only applies if current value exists and is >1 (a decrease; never introduces new budget keys).
+    if cfg_max_props is not None and cfg_max_props > 1 and triggers["ucc_errors_present"]:
+        recommendations.append({
+            "id": "thermo_safe_cap_max_proposals_on_ucc_error",
+            "kind": "budget_cap",
+            "target": "config/plasticity/tuning.json:max_proposals_per_run",
+            "suggestion": f"Thermo-safe: cap max_proposals_per_run to 1 (from {int(cfg_max_props)}) because UCC errors were observed (even if Psi is fine).",
+            "rationale": "When governance errors occur, reduce proposal fan-out to limit runaway loops during unstable control states.",
+            "evidence": {"ucc_errors_total": len(ucc_errors), "current": int(cfg_max_props), "proposed": 1},
+            "action_v2": {
+                "op": "json_set",
+                "path": "config/plasticity/tuning.json",
+                "json_path": "max_proposals_per_run",
+                "value": 1,
+            },
+        })
+    elif triggers["ucc_errors_present"] and cfg_max_props is None:
+        # Budget invariant will forbid introducing the key; recommend human change only.
+        recommendations.append({
+            "id": "thermo_safe_recommend_add_cap_max_proposals_on_ucc_error",
+            "kind": "human_review",
+            "target": "config/plasticity/tuning.json:max_proposals_per_run",
+            "suggestion": "UCC errors observed: ensure max_proposals_per_run exists and is capped at 1 to prevent runaway proposal loops during instability.",
+            "rationale": "We avoid auto-introducing budget keys; this is a guided manual recommendation.",
+            "evidence": {"ucc_errors_total": len(ucc_errors)},
+            "action_v2": None,
+        })
+
+    # Human review when UCC errors are present (no auto action)
     if triggers["ucc_errors_present"]:
         recommendations.append({
             "id": "ucc_errors_review",
