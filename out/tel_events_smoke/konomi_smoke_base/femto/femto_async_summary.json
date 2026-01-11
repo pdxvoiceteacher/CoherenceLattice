@@ -1,0 +1,60 @@
+{
+  "femto_bench": {
+    "git_commit": "d7bdb506b46c9407ec47bede22e9c526e4bbfa4f",
+    "machine_profile": {
+      "platform": "Windows-11-10.0.26100-SP0",
+      "python": "3.12.10",
+      "numpy": "2.4.0",
+      "cpu_count": 12,
+      "processor": "Intel64 Family 6 Model 165 Stepping 2, GenuineIntel"
+    },
+    "workload_definition": {
+      "n_requests": 300,
+      "concurrency": [
+        1,
+        9,
+        64
+      ],
+      "warmup": 20,
+      "seed": 0
+    },
+    "results_csv": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\out\\tel_events_smoke\\konomi_smoke_base\\femto\\femto_async_results.csv",
+    "results": [
+      {
+        "concurrency": 1,
+        "n_requests": 300,
+        "p50_ms": 0.0351,
+        "p95_ms": 0.0531,
+        "mean_ms": 0.03789733333333333,
+        "throughput_rps": 6922.9224624308645,
+        "max_loop_lag_ms": -9.999999776482582,
+        "alloc_cur_kb_delta": 43.134765625,
+        "alloc_peak_kb": 43.392578125
+      },
+      {
+        "concurrency": 9,
+        "n_requests": 300,
+        "p50_ms": 0.127,
+        "p95_ms": 0.1747,
+        "mean_ms": 0.13189800000000002,
+        "throughput_rps": 21195.421477743206,
+        "max_loop_lag_ms": -9.999999776482582,
+        "alloc_cur_kb_delta": 23.2197265625,
+        "alloc_peak_kb": 34.1513671875
+      },
+      {
+        "concurrency": 64,
+        "n_requests": 300,
+        "p50_ms": 0.7598,
+        "p95_ms": 1.1534,
+        "mean_ms": 0.808548,
+        "throughput_rps": 24839.37254631012,
+        "max_loop_lag_ms": -9.999999776482582,
+        "alloc_cur_kb_delta": 57.74609375,
+        "alloc_peak_kb": 124.232421875
+      }
+    ],
+    "gates": {},
+    "notes": "FemtoModel is a stub for wiring + concurrency (not trained unless stated)."
+  }
+}

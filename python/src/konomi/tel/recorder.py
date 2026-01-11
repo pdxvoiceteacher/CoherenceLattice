@@ -16,9 +16,6 @@ def _stable_file_id(rel_path: str) -> str:
 
 @dataclass
 class TelRecorder:
-    """
-    Append-only recorder that writes checkpoints into a TelGraph and records a deterministic event stream.
-    """
     graph: TelGraph
     default_band: MemoryBand = "STM"
 

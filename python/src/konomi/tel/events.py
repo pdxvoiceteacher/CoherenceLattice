@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, Literal, Mapping, Sequence, Union
+from typing import Any, Dict, Literal, Mapping, Sequence, Union
 
 TelEventKind = Literal["checkpoint", "edge", "attach_file", "note"]
 
@@ -17,7 +17,7 @@ class TelEvent:
         return {"seq": self.seq, "kind": self.kind, "data": self.data}
 
 def _canonical_json(obj: Any) -> str:
-    # Deterministic single-line JSON (ideal for JSONL)
+    # Deterministic one-line JSON (good for jsonl)
     return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 def events_to_jsonl(events: Sequence[Union[TelEvent, Mapping[str, Any]]]) -> str:

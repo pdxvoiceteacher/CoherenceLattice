@@ -336,26 +336,24 @@ if __name__ == "__main__":
 
                 (_out_dir / "telemetry.json").write_text(
 
-                    _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "
-",
+                    _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
 
                     encoding="utf-8",
 
-                    newline="
-",
+                    newline="\n",
 
                 )
 
                 print("[tel] updated telemetry.json with tel_summary")
 
-                print(f"[tel] wrote: {_out_dir / "tel.json"}")
+                print(f"[tel] wrote: {_out_dir / 'tel.json'}")
 
 
             if globals().get("_TEL_EVENTS_EMIT", False):
 
                 write_events_jsonl(_events, _out_dir / "tel_events.jsonl")
 
-                print(f"[tel_events] wrote: {_out_dir / "tel_events.jsonl"}")
+                print(f"[tel_events] wrote: {_out_dir / 'tel_events.jsonl'}")
 
 
         except Exception as _e:
