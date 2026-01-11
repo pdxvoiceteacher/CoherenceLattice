@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Rollback Plan v2.1",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","patch_plan_path","operations"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_rollback_plan_v2_1" },
+    "proposal_id": { "type": "string" },
+    "created_at_utc": { "type": "string" },
+    "patch_plan_path": { "type": "string" },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op","path"],
+        "properties": {
+          "op": { "type": "string", "enum": ["json_set","restore_file"] },
+          "path": { "type": "string" },
+          "json_path": { "type": ["string","null"] },
+          "value": {},
+          "backup_path": { "type": ["string","null"] },
+          "note": { "type": ["string","null"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,14 @@
+{
+  "created_at_utc": "2026-01-11T22:49:52.286797Z",
+  "dry_run": false,
+  "file_changes": [],
+  "patch_plan_path": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/governance/proposals/queue/v2_1_20260111_144911_patch_plan_v2.json",
+  "proposal_id": "v2_1_20260111_144911",
+  "rollback_plan_path": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/governance/proposals/rollbacks/v2_1_20260111_144911_rollback_plan_v2_1.json",
+  "schema": "plasticity_receipt_v2_1",
+  "thermo": {
+    "allowlist_ok": true,
+    "budget_ok": true,
+    "notes": []
+  }
+}

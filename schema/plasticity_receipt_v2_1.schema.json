@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Receipt v2.1",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","patch_plan_path","dry_run","thermo","file_changes","rollback_plan_path"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_receipt_v2_1" },
+    "proposal_id": { "type": "string" },
+    "created_at_utc": { "type": "string" },
+    "patch_plan_path": { "type": "string" },
+    "dry_run": { "type": "boolean" },
+    "thermo": {
+      "type": "object",
+      "required": ["allowlist_ok","budget_ok","notes"],
+      "properties": {
+        "allowlist_ok": { "type": "boolean" },
+        "budget_ok": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "file_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op_index","op","path","ok","before_hash","after_hash"],
+        "properties": {
+          "op_index": { "type": "integer", "minimum": 0 },
+          "op": { "type": "string" },
+          "path": { "type": "string" },
+          "ok": { "type": "boolean" },
+          "before_hash": { "type": "string" },
+          "after_hash": { "type": "string" },
+          "details": { "type": ["object","null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "rollback_plan_path": { "type": ["string","null"] }
+  },
+  "additionalProperties": false
+}

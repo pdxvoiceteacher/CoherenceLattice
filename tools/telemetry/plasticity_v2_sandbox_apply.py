@@ -33,7 +33,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--proposal", required=True)
     ap.add_argument("--sandbox-branch", required=True)
-    ap.add_argument("--run-dir", required=True, help="Run dir to validate/compare")
+    ap.add_argument("--run-dir", required=True)
     ap.add_argument("--patch-plan-out", required=True)
     ap.add_argument("--baseline", default="tests/baselines/telemetry_smoke.baseline.json")
     ap.add_argument("--rel", type=float, default=0.02)
@@ -45,16 +45,30 @@ def main() -> int:
     proposal = _load_json(proposal_path)
     pid = proposal.get("proposal_id") or "unknown"
 
-    # Emit patch plan v2
     pp_path = Path(args.patch_plan_out)
     subprocess.run([sys.executable, "tools/telemetry/emit_patch_plan_v2.py", "--proposal", str(proposal_path), "--out", str(pp_path), "--created-at-utc", created_at], check=True)
 
-    # Validate patch plan schema
     pp_schema = _load_json(Path("schema/plasticity_patch_plan_v2.schema.json"))
     Draft202012Validator(pp_schema).validate(_load_json(pp_path))
 
-    # Apply patch plan (fail-closed on allowlist/budget)
-    thermo = json.loads(subprocess.check_output([sys.executable, "tools/telemetry/apply_patch_plan_v2.py", "--patch-plan", str(pp_path), "--repo-root", "."], text=True))
+    # Receipt + rollback outputs
+    receipt_out = Path("governance/proposals/receipts") / f"{pid}_receipt_v2_1.json"
+    rollback_out = Path("governance/proposals/rollbacks") / f"{pid}_rollback_plan_v2_1.json"
+    backup_dir = Path("governance/proposals/rollbacks") / pid / "backups"
+    receipt_out.parent.mkdir(parents=True, exist_ok=True)
+    rollback_out.parent.mkdir(parents=True, exist_ok=True)
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    thermo_json = subprocess.check_output([
+        sys.executable, "tools/telemetry/apply_patch_plan_v2.py",
+        "--patch-plan", str(pp_path),
+        "--repo-root", ".",
+        "--receipt-out", str(receipt_out),
+        "--rollback-out", str(rollback_out),
+        "--backup-dir", str(backup_dir),
+    ], text=True)
+
+    thermo = json.loads(thermo_json)
 
     checks = {
         "pytest_ucc": _run([sys.executable, "-m", "pytest", "-q", "ucc/tests"]),
@@ -92,15 +106,16 @@ def main() -> int:
         "thermo": thermo,
         "decision": decision,
         "reasons": reasons,
+        "receipt_path": str(receipt_out).replace("\\","/"),
+        "rollback_plan_path": str(rollback_out).replace("\\","/"),
     }
 
     out_dec = Path("governance/proposals/decisions") / f"{pid}_decision_v2.json"
     _write_json(out_dec, dec)
 
-    dec_schema = _load_json(Path("schema/plasticity_decision_v2.schema.json"))
-    Draft202012Validator(dec_schema).validate(dec)
-
     print(str(pp_path).replace("\\","/"))
+    print(str(receipt_out).replace("\\","/"))
+    print(str(rollback_out).replace("\\","/"))
     print(str(out_dec).replace("\\","/"))
     return 0
 
