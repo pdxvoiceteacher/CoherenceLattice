@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "compare_runs": true,
+    "pytest_python": true,
+    "pytest_ucc": true,
+    "validate_run": true
+  },
+  "created_at_utc": "2026-01-11T19:10:31.396186Z",
+  "decision": "accept",
+  "proposal_id": "v1_20260111_111014",
+  "reasons": [],
+  "sandbox_branch": "sandbox/plasticity_v1_20260111_111014_20260111_111014",
+  "schema": "plasticity_decision_v1"
+}

@@ -1,0 +1,20 @@
+{
+  "created_at_utc": "2026-01-11T19:10:31.396186Z",
+  "notes": {
+    "intent": "v1 sandbox apply plan (no auto-modifications yet). Extend operations to apply real tuning changes.",
+    "proposal_source": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/governance/proposals/queue/tuning_proposal_v1_20260111_111014.json"
+  },
+  "operations": [
+    {
+      "content": null,
+      "json_path": null,
+      "op": "noop",
+      "path": "",
+      "pattern": null,
+      "replacement": null,
+      "value": null
+    }
+  ],
+  "proposal_id": "v1_20260111_111014",
+  "schema": "plasticity_patch_plan_v1"
+}
