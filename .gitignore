@@ -73,3 +73,5 @@ python/kontainer/logs/
 /ucc/out/votes/
 
 .hypothesis/
+out/
+.tmp/
