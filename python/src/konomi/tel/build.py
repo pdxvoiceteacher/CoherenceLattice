@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, List, Tuple
 
 from .tel_graph import TelGraph
 from .recorder import TelRecorder
 
 
 def iter_stage_dirs(out_dir: Path) -> List[Path]:
-    """Deterministic stage discovery: sorted, limited allowlist by prefix."""
     stage_dirs: List[Path] = []
     for p in sorted(out_dir.iterdir(), key=lambda x: x.name):
         if not p.is_dir():
@@ -19,16 +18,8 @@ def iter_stage_dirs(out_dir: Path) -> List[Path]:
     return stage_dirs
 
 
-def build_tel_for_out_dir(out_dir: Path, telemetry_data: Dict[str, Any], *, max_depth: int = 2) -> TelGraph:
-    """
-    Deterministically build a TEL graph from an output directory + telemetry dict.
-
-    - Adds run checkpoints
-    - Adds a checkpoint per stage dir (sorted)
-    - Attaches *_summary.json and audit_bundle.json files
-    - Optionally ingests shallow telemetry tree for connectivity
-    """
-    tel = TelGraph(graph_id="tel_run_wrapper", meta={"source": "build_tel_for_out_dir"})
+def build_tel_and_events_for_out_dir(out_dir: Path, telemetry_data: Dict[str, Any], *, max_depth: int = 2) -> Tuple[TelGraph, List[Dict[str, Any]]]:
+    tel = TelGraph(graph_id="tel_run_wrapper", meta={"source": "build_tel_and_events_for_out_dir"})
     rec = TelRecorder(tel)
 
     rec.checkpoint("run:telemetry_loaded", meta={"out_dir": str(out_dir)})
@@ -46,4 +37,9 @@ def build_tel_for_out_dir(out_dir: Path, telemetry_data: Dict[str, Any], *, max_
     tel.ingest_json_tree(telemetry_data, root_id="telemetry", max_depth=max_depth)
     rec.checkpoint("run:tel_built")
 
+    return tel, rec.events
+
+
+def build_tel_for_out_dir(out_dir: Path, telemetry_data: Dict[str, Any], *, max_depth: int = 2) -> TelGraph:
+    tel, _ = build_tel_and_events_for_out_dir(out_dir, telemetry_data, max_depth=max_depth)
     return tel

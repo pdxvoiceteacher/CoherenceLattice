@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-from .tel_graph import TelGraph, MemoryBand
+from .events import write_events_jsonl
+from .tel_graph import TelGraph, MemoryBand, _normalize
 
 
 def _stable_file_id(rel_path: str) -> str:
@@ -16,17 +17,28 @@ def _stable_file_id(rel_path: str) -> str:
 @dataclass
 class TelRecorder:
     """
-    Append-only recorder that writes cognition checkpoints into a TelGraph.
-
-    Design goals:
-      - deterministic IDs (sequence + sorted discovery upstream)
-      - lightweight per-step checkpoint nodes
-      - optional file attachments as artifact nodes
+    Append-only recorder that writes checkpoints into a TelGraph and records a deterministic event stream.
     """
     graph: TelGraph
     default_band: MemoryBand = "STM"
-    _counter: int = 0
+
+    _checkpoint_counter: int = 0
+    _event_counter: int = 0
     _last_checkpoint_id: Optional[str] = None
+    _events: List[Dict[str, Any]] = field(default_factory=list, repr=False)
+
+    def record_event(self, kind: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        self._event_counter += 1
+        evt = {"seq": self._event_counter, "kind": str(kind), "data": _normalize(data)}
+        self._events.append(evt)
+        return evt
+
+    @property
+    def events(self) -> List[Dict[str, Any]]:
+        return list(self._events)
+
+    def write_events(self, path: Union[str, Path]) -> Path:
+        return write_events_jsonl(self._events, path)
 
     def checkpoint(
         self,
@@ -38,8 +50,9 @@ class TelRecorder:
         link_from_last: bool = True,
         edge_kind: str = "next",
     ) -> str:
-        self._counter += 1
-        node_id = f"cp_{self._counter:05d}"
+        self._checkpoint_counter += 1
+        node_id = f"cp_{self._checkpoint_counter:05d}"
+
         node_payload: Dict[str, Any] = {"kind": "checkpoint", "label": str(label)}
         if payload is not None:
             node_payload["payload"] = payload
@@ -51,8 +64,11 @@ class TelRecorder:
             meta=dict(meta or {}),
         )
 
+        self.record_event("checkpoint", {"node_id": node_id, "label": str(label), "band": (band or self.default_band), "meta": dict(meta or {})})
+
         if link_from_last and self._last_checkpoint_id is not None:
             self.graph.add_edge(self._last_checkpoint_id, node_id, kind=edge_kind)
+            self.record_event("edge", {"src": self._last_checkpoint_id, "dst": node_id, "kind": edge_kind})
 
         self._last_checkpoint_id = node_id
         return node_id
@@ -80,4 +96,8 @@ class TelRecorder:
             overwrite=False,
         )
         self.graph.add_edge(parent_checkpoint_id, node_id, kind=f"file:{kind}")
+
+        self.record_event("attach_file", {"checkpoint_id": parent_checkpoint_id, "file_node_id": node_id, "path": rel, "role": kind, "meta": dict(meta or {})})
+        self.record_event("edge", {"src": parent_checkpoint_id, "dst": node_id, "kind": f"file:{kind}"})
+
         return node_id

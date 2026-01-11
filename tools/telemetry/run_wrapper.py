@@ -10,6 +10,11 @@ _TEL_EMIT = False
 if "--emit-tel" in sys.argv:
     _TEL_EMIT = True
     sys.argv.remove("--emit-tel")
+_TEL_EVENTS_EMIT = False
+if "--emit-tel-events" in sys.argv:
+    _TEL_EVENTS_EMIT = True
+    sys.argv.remove("--emit-tel-events")
+
 # --- /TEL flag pre-parse ---
 
 
@@ -271,7 +276,7 @@ if __name__ == "__main__":
 
     # --- TEL post-run emission ---
 
-    if globals().get("_TEL_EMIT", False):
+    if globals().get("_TEL_EMIT", False) or globals().get("_TEL_EVENTS_EMIT", False):
 
         def _tel_out_dir(argv):
 
@@ -296,7 +301,9 @@ if __name__ == "__main__":
 
             import json as _json
 
-            from konomi.tel.build import build_tel_for_out_dir
+            from konomi.tel.build import build_tel_and_events_for_out_dir
+
+            from konomi.tel.events import write_events_jsonl
 
 
             _out = _tel_out_dir(sys.argv)
@@ -318,27 +325,37 @@ if __name__ == "__main__":
             _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
 
 
-            _tel = build_tel_for_out_dir(_out_dir, _telemetry_data, max_depth=2)
+            _tel, _events = build_tel_and_events_for_out_dir(_out_dir, _telemetry_data, max_depth=2)
 
-            _tel.write_json(_out_dir / "tel.json")
 
-            _telemetry_data["tel_summary"] = _tel.summary()
+            if globals().get("_TEL_EMIT", False):
 
-            (_out_dir / "telemetry.json").write_text(
+                _tel.write_json(_out_dir / "tel.json")
 
-                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "
+                _telemetry_data["tel_summary"] = _tel.summary()
+
+                (_out_dir / "telemetry.json").write_text(
+
+                    _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "
 ",
 
-                encoding="utf-8",
+                    encoding="utf-8",
 
-                newline="
+                    newline="
 ",
 
-            )
+                )
 
-            print("[tel] updated telemetry.json with tel_summary")
+                print("[tel] updated telemetry.json with tel_summary")
 
-            print(f"[tel] wrote: {_out_dir / "tel.json"}")
+                print(f"[tel] wrote: {_out_dir / "tel.json"}")
+
+
+            if globals().get("_TEL_EVENTS_EMIT", False):
+
+                write_events_jsonl(_events, _out_dir / "tel_events.jsonl")
+
+                print(f"[tel_events] wrote: {_out_dir / "tel_events.jsonl"}")
 
 
         except Exception as _e:
