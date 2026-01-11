@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Tuning Proposal v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "proposal_id",
+    "created_at_utc",
+    "run_dir",
+    "inputs",
+    "measures",
+    "triggers",
+    "recommendations",
+    "no_action"
+  ],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_tuning_proposal_v1" },
+    "proposal_id": { "type": "string", "minLength": 1 },
+    "created_at_utc": { "type": "string" },
+    "run_dir": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "required": ["telemetry_path"],
+      "properties": {
+        "telemetry_path": { "type": "string" },
+        "tel_events_path": { "type": ["string","null"] },
+        "ucc_tel_events_path": { "type": ["string","null"] },
+        "tel_summary_present": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "measures": {
+      "type": "object",
+      "required": ["coherence_metrics", "event_counts"],
+      "properties": {
+        "coherence_metrics": { "type": "object" },
+        "event_counts": {
+          "type": "object",
+          "required": ["tel_events_total", "ucc_events_total", "ucc_errors_total"],
+          "properties": {
+            "tel_events_total": { "type": "integer", "minimum": 0 },
+            "ucc_events_total": { "type": "integer", "minimum": 0 },
+            "ucc_errors_total": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "tel_summary": { "type": ["object","null"] }
+      },
+      "additionalProperties": false
+    },
+    "triggers": {
+      "type": "object",
+      "properties": {
+        "force_proposal": { "type": "boolean" },
+        "ucc_errors_present": { "type": "boolean" },
+        "psi_below_threshold": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "suggestion", "rationale"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "target": { "type": ["string","null"] },
+          "suggestion": { "type": "string" },
+          "rationale": { "type": "string" },
+          "evidence": { "type": ["object","null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "no_action": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

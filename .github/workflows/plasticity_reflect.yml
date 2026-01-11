@@ -1,0 +1,39 @@
+name: plasticity-reflect
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  plasticity_reflect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup venv + install
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e ./ucc[dev]
+          .venv/bin/python -m pip install -e ./python[dev]
+          .venv/bin/python -m pip install -e ./tools/coherenceledger_bootstrap
+          .venv/bin/python -m pip install numpy fastapi httpx cryptography jsonschema pytest
+
+      - name: Run isolated TEL smoke (emit-tel + emit-tel-events)
+        run: |
+          rm -rf out/plasticity_reflect_ci
+          .venv/bin/python tools/telemetry/run_wrapper.py --out out/plasticity_reflect_ci --quick --perturbations 1 --emit-tel --emit-tel-events
+
+      - name: Reflect and propose (forced, deterministic id)
+        run: |
+          mkdir -p out/plasticity_reflect_ci/proposals
+          OUT=$(.venv/bin/python tools/telemetry/reflect_and_propose.py --run-dir out/plasticity_reflect_ci --out-proposals-dir out/plasticity_reflect_ci/proposals --force-proposal --proposal-id ci --created-at-utc 2026-01-01T00:00:00Z)
+          echo "proposal=$OUT"
+          .venv/bin/python tools/telemetry/validate_tuning_proposal.py "$OUT"
