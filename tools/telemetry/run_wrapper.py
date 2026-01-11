@@ -5,6 +5,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
+def _safe_relpath(p: Path, base: Path) -> str:
+    try:
+        return str(p.relative_to(base)).replace('\\', '/')
+    except Exception:
+        return str(p.resolve()).replace('\\', '/')
+
+
 # --- TEL flag pre-parse (parser-agnostic) ---
 _TEL_EMIT = False
 if "--emit-tel" in sys.argv:
@@ -194,7 +201,7 @@ def main() -> int:
 
         pert_results.append({
             "i": i,
-            "audit_bundle_path": str(bundle_i.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_path": _safe_relpath(bundle_i, REPO),
             "metrics": vec_i,
             "drift_from_base": d_i,
             "perf_index": perf_index_i,
@@ -210,7 +217,7 @@ def main() -> int:
     pert_doc = {
         "kind": "telemetry_perturbations.v1",
         "base": {
-            "audit_bundle_path": str(base_bundle.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_path": _safe_relpath(base_bundle, REPO),
             "metrics": base_vec,
             "perf_index": perf_index_base,
             "perf_values_count": nvals_base
@@ -227,9 +234,9 @@ def main() -> int:
     metrics["Lambda"] = lam
 
     artifacts = [
-        {"path": str(base_summary.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(base_summary)},
-        {"path": str(base_bundle.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(base_bundle)},
-        {"path": str(pert_path.relative_to(REPO)).replace("\\", "/"), "sha256": sha256_file(pert_path)}
+        {"path": _safe_relpath(base_summary, REPO), "sha256": sha256_file(base_summary)},
+        {"path": _safe_relpath(base_bundle, REPO), "sha256": sha256_file(base_bundle)},
+        {"path": _safe_relpath(pert_path, REPO), "sha256": sha256_file(pert_path)}
     ]
 
     telemetry = {
@@ -253,7 +260,7 @@ def main() -> int:
         },
         "artifacts": artifacts,
         "ucc": {
-            "audit_bundle_path": str(base_bundle.relative_to(REPO)).replace("\\", "/"),
+            "audit_bundle_path": _safe_relpath(base_bundle, REPO),
             "audit_bundle_sha256": sha256_file(base_bundle)
         },
         "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; Î”S/Î› from perturbation drift."
