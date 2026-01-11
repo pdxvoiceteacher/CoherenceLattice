@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Decision v2.2",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","sandbox_branch","runs","checks","thermo","decision","reasons"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_decision_v2_2" },
+    "proposal_id": { "type": "string" },
+    "created_at_utc": { "type": "string" },
+    "sandbox_branch": { "type": "string" },
+    "runs": {
+      "type": "object",
+      "required": ["run_a_dir","run_b_dir"],
+      "properties": {
+        "run_a_dir": { "type": "string" },
+        "run_b_dir": { "type": ["string","null"] }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "object",
+      "required": ["pytest_ucc","pytest_python","validate_a","validate_b","compare_baseline_a","compare_baseline_b","compare_a_b"],
+      "properties": {
+        "pytest_ucc": { "type": "boolean" },
+        "pytest_python": { "type": "boolean" },
+        "validate_a": { "type": "boolean" },
+        "validate_b": { "type": "boolean" },
+        "compare_baseline_a": { "type": "boolean" },
+        "compare_baseline_b": { "type": "boolean" },
+        "compare_a_b": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "thermo": {
+      "type": "object",
+      "required": ["allowlist_ok","budget_ok","notes","rollback_applied"],
+      "properties": {
+        "allowlist_ok": { "type": "boolean" },
+        "budget_ok": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "rollback_applied": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "decision": { "type": "string", "enum": ["accept","reject","no_action"] },
+    "reasons": { "type": "array", "items": { "type": "string" } },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "patch_plan_path": { "type": ["string","null"] },
+        "receipt_path": { "type": ["string","null"] },
+        "rollback_plan_path": { "type": ["string","null"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
