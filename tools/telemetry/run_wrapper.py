@@ -270,46 +270,150 @@ if __name__ == "__main__":
         _rc = 0
 
     # --- TEL post-run emission ---
+
     if globals().get("_TEL_EMIT", False):
+
         def _tel_out_dir(argv):
+
             # supports: --out PATH  or  --out=PATH
+
             for i, a in enumerate(argv):
+
                 if a == "--out" and i + 1 < len(argv):
+
                     return argv[i + 1]
+
                 if a.startswith("--out="):
+
                     return a.split("=", 1)[1]
+
             return None
 
+    
+
         try:
+
             from pathlib import Path
+
             import json as _json
+
             from konomi.tel import TelGraph
 
+            from konomi.tel.recorder import TelRecorder
+
+    
+
             _out = _tel_out_dir(sys.argv)
+
             if not _out:
+
                 raise RuntimeError("TEL requested but --out was not found in argv")
 
+    
+
             _out_dir = Path(_out)
+
             _telemetry_path = _out_dir / "telemetry.json"
+
             if not _telemetry_path.exists():
+
                 raise FileNotFoundError(f"telemetry.json not found at {_telemetry_path}")
 
-            _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
-            _tel = TelGraph(graph_id="tel_from_telemetry", meta={"source": "telemetry.json"})
-            _tel.ingest_json_tree(_telemetry_data, root_id="telemetry", max_depth=3)
-            _tel.write_json(_out_dir / "tel.json")
-            # Embed a lean TEL summary into telemetry.json (full graph stays in tel.json)
-            _telemetry_data["tel_summary"] = _tel.summary()
-            (_out_dir / "telemetry.json").write_text(
-                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-                encoding="utf-8",
-                newline="\n",
-            )
-            print("[tel] updated telemetry.json with tel_summary")
-            print(f"[tel] wrote: {_out_dir / 'tel.json'}")
-        except Exception as _e:
-            print(f"[tel] failed: {_e}", file=sys.stderr)
-            raise
-    # --- /TEL post-run emission ---
+    
 
+            _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
+
+    
+
+            # Build TEL graph with explicit checkpoints (deterministic ordering)
+
+            _tel = TelGraph(graph_id="tel_run_wrapper", meta={"source": "run_wrapper.py"})
+
+            _rec = TelRecorder(_tel)
+
+    
+
+            _rec.checkpoint("run:telemetry_loaded", meta={"telemetry_path": str(_telemetry_path)})
+
+    
+
+            # Step checkpoints: stage dirs in out/ (sorted) — captures per-step artifacts
+
+            stage_dirs = []
+
+            for p in sorted(_out_dir.iterdir(), key=lambda x: x.name):
+
+                if not p.is_dir():
+
+                    continue
+
+                name = p.name
+
+                if name.startswith("konomi_smoke_") or name.startswith("ucc_cov_"):
+
+                    stage_dirs.append(p)
+
+    
+
+            for stage in stage_dirs:
+
+                cp = _rec.checkpoint(f"step:{stage.name}", meta={"dir": stage.name})
+
+    
+
+                # Attach key artifacts (sorted for determinism)
+
+                for f in sorted(stage.rglob("*_summary.json"), key=lambda x: x.as_posix()):
+
+                    _rec.attach_file(cp, f, root=_out_dir, kind="summary_json")
+
+                for f in sorted(stage.rglob("audit_bundle.json"), key=lambda x: x.as_posix()):
+
+                    _rec.attach_file(cp, f, root=_out_dir, kind="audit_bundle")
+
+    
+
+            # Shallow telemetry tree (kept small) for connectivity
+
+            _tel.ingest_json_tree(_telemetry_data, root_id="telemetry", max_depth=2)
+
+            _rec.checkpoint("run:tel_built")
+
+    
+
+            # Persist full TEL graph
+
+            _tel.write_json(_out_dir / "tel.json")
+
+    
+
+            # Embed lean summary into telemetry.json
+
+            _telemetry_data["tel_summary"] = _tel.summary()
+
+            (_out_dir / "telemetry.json").write_text(
+
+                _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "
+",
+
+                encoding="utf-8",
+
+                newline="
+",
+
+            )
+
+            print("[tel] updated telemetry.json with tel_summary")
+
+            print(f"[tel] wrote: {_out_dir / 'tel.json'}")
+
+    
+
+        except Exception as _e:
+
+            print(f"[tel] failed: {_e}", file=sys.stderr)
+
+            raise
+
+    # --- /TEL post-run emission ---
     raise SystemExit(_rc)
