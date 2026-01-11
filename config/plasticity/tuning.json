@@ -1,0 +1,7 @@
+{
+  "schema": "plasticity_tuning_config_v1",
+  "min_psi_threshold": 0.90,
+  "max_proposals_per_run": 1,
+  "max_sandbox_attempts": 1,
+  "notes": "Safe knobs only. Plasticity v2 may ONLY lower budgets, never raise them."
+}

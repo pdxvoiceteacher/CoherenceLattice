@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Plasticity Patch Plan v2",
+  "type": "object",
+  "required": ["schema","proposal_id","created_at_utc","guardrails","operations"],
+  "properties": {
+    "schema": { "type": "string", "const": "plasticity_patch_plan_v2" },
+    "proposal_id": { "type": "string", "minLength": 1 },
+    "created_at_utc": { "type": "string" },
+    "guardrails": {
+      "type": "object",
+      "required": ["allow_prefixes","deny_prefixes","budget_keys"],
+      "properties": {
+        "allow_prefixes": { "type": "array", "items": { "type": "string" } },
+        "deny_prefixes": { "type": "array", "items": { "type": "string" } },
+        "budget_keys": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["op","path"],
+        "properties": {
+          "op": { "type": "string", "enum": ["json_set","text_replace"] },
+          "path": { "type": "string" },
+
+          "json_path": { "type": ["string","null"] },
+          "value": {},
+
+          "pattern": { "type": ["string","null"] },
+          "replacement": { "type": ["string","null"] },
+
+          "max_replacements": { "type": ["integer","null"], "minimum": 0 },
+          "note": { "type": ["string","null"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
