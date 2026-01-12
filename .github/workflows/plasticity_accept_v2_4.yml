@@ -131,6 +131,25 @@ jobs:
           name: plasticity_reject_reason
           path: out/reject_reason.json
           if-no-files-found: ignore
+      - name: Plasticity v2.4 Acceptance Summary
+        if: always()
+        run: |
+          echo '### Plasticity v2.4 Acceptance Summary' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '**Baseline median (A)**' >> $GITHUB_STEP_SUMMARY
+          cat out/A_v24_ci/telemetry_median.json >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '**Candidate median (B)**' >> $GITHUB_STEP_SUMMARY
+          cat out/B_v24_ci/telemetry_median.json >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          if [ -f out/reject_reason.json ]; then
+            echo '**Decision: REJECT**' >> $GITHUB_STEP_SUMMARY
+            echo '' >> $GITHUB_STEP_SUMMARY
+            echo '**Reject reason (JSON):**' >> $GITHUB_STEP_SUMMARY
+            cat out/reject_reason.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo '**Decision: ACCEPT**' >> $GITHUB_STEP_SUMMARY
+          fi
       - name: Cleanup worktree
         if: always()
         run: |
