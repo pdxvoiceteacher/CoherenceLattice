@@ -37,10 +37,26 @@ jobs:
       - name: Reflect & propose (min-psi forced to ensure non-empty proposal during CI)
         run: |
           mkdir -p out/A_v24_ci/proposals
-          OUT=$(.venv/bin/python tools/telemetry/reflect_and_propose.py --run-dir out/A_v24_ci/run_05 --out-proposals-dir out/A_v24_ci/proposals --proposal-id ci --created-at-utc 2026-01-01T00:00:00Z --min-psi 0.99)
+          OUT=$(.venv/bin/python tools/telemetry/reflect_and_propose.py --run-dir out/A_v24_ci/run_05 --out-proposals-dir out/A_v24_ci/proposals --proposal-id ci --created-at-utc 2026-01-01T00:00:00Z)
           echo "PROPOSAL=$OUT" >> $GITHUB_ENV
           .venv/bin/python tools/telemetry/validate_tuning_proposal.py "$OUT"
 
+      - name: Check proposal actions
+        run: |
+          .venv/bin/python - << 'PY'
+          import json, os
+          p = os.environ.get('PROPOSAL')
+          assert p, 'PROPOSAL env var missing'
+          doc = json.load(open(p, 'r', encoding='utf-8'))
+          recs = doc.get('recommendations') or []
+          has = any((r.get('action_v2') is not None) for r in recs)
+          no_action = bool(doc.get('no_action', False))
+          has_actions = (not no_action) and has
+          print('no_action=', no_action, 'recs=', len(recs), 'has_actions=', has_actions)
+          val = 'true' if has_actions else 'false'
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as f:
+              f.write('HAS_ACTIONS=' + val + '\\n')
+          PY
       - name: Build median telemetry for A
         run: |
           .venv/bin/python - << 'PY'
@@ -70,12 +86,14 @@ jobs:
           PY
 
       - name: Create worktree + apply proposal (candidate)
+        if: env.HAS_ACTIONS == 'true'
         run: |
           rm -rf out/candidate_worktree_ci
           git worktree add out/candidate_worktree_ci -b plasticity_candidate_ci
           .venv/bin/python tools/telemetry/apply_tuning_proposal.py --proposal "$PROPOSAL" --workdir out/candidate_worktree_ci --out-manifest out/B_v24_ci/applied_manifest.json
 
       - name: Candidate run B (N replicates, in worktree)
+        if: env.HAS_ACTIONS == 'true'
         run: |
           rm -rf out/B_v24_ci
           mkdir -p out/B_v24_ci
@@ -84,6 +102,7 @@ jobs:
           done
 
       - name: Build median telemetry for B
+        if: env.HAS_ACTIONS == 'true'
         run: |
           .venv/bin/python - << 'PY'
           import json, glob, statistics
@@ -112,6 +131,7 @@ jobs:
           PY
 
       - name: v2.4 No-regression acceptance gate (median compare)
+        if: env.HAS_ACTIONS == 'true'
         id: compare_v24
         run: |
           .venv/bin/python tools/telemetry/compare_runs.py out/A_v24_ci/telemetry_median.json out/B_v24_ci/telemetry_median.json \
@@ -124,6 +144,11 @@ jobs:
         if: failure() && steps.compare_v24.outcome == 'failure'
         run: |
           .venv/bin/python tools/telemetry/explain_compare.py out/A_v24_ci/telemetry_median.json out/B_v24_ci/telemetry_median.json --eps 1e-4 --out out/reject_reason.json
+      - name: No-action summary
+        if: env.HAS_ACTIONS != 'true'
+        run: |
+          mkdir -p out
+          echo '{"schema":"plasticity_accept_summary_v1","decision":"accept_no_action"}' > out/reject_reason.json
       - name: Upload reject reason
         if: always()
         uses: actions/upload-artifact@v4

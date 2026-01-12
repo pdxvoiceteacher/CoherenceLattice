@@ -234,10 +234,10 @@ def main() -> int:
     base_summary = run_smoke(base_smoke, args.quick)
 
     base_cov = outdir / "ucc_cov_out"
-    _step_end(outdir, "konomi_smoke_base", t0_base, "ok")
+    _step_end(outdir, "konomi_smoke_base", t0_base, "ok", details={"out":"konomi_smoke_base"})
     t0_ucc_base = _step_start(outdir, "ucc_cov_base")
     base_bundle = run_ucc_coverage(base_summary, base_cov)
-    _step_end(outdir, "ucc_cov_base", t0_ucc_base, "ok")
+    _step_end(outdir, "ucc_cov_base", t0_ucc_base, "ok", details={"out":"ucc_cov_out"})
 
     E_base, perf_index_base, nvals_base = perf_E_from_konomi(base_smoke)
     T_base, Es_base = T_Es_from_audit_bundle(base_bundle)
@@ -253,7 +253,7 @@ def main() -> int:
 
         cov_i = outdir / f"ucc_cov_perturb_{i}"
         bundle_i = run_ucc_coverage(summary_i, cov_i)
-        _step_end(outdir, f"konomi_smoke_perturb_{i}", t0_p, "ok")
+        _step_end(outdir, f"konomi_smoke_perturb_{i}", t0_p, "ok", details={"i": i, "out": f"konomi_smoke_perturb_{i}"})
 
         E_i, perf_index_i, nvals_i = perf_E_from_konomi(smoke_i)
         T_i, Es_i = T_Es_from_audit_bundle(bundle_i)
@@ -333,7 +333,7 @@ def main() -> int:
     out_json = outdir / "telemetry.json"
     out_json.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")
     print(f"[run_wrapper] wrote {out_json}")
-    _step_end(outdir, "write_telemetry_json", t0_write, "ok")
+    _step_end(outdir, "write_telemetry_json", t0_write, "ok", details={"path":"telemetry.json"})
     return 0
 
 if __name__ == "__main__":
@@ -437,6 +437,7 @@ if __name__ == "__main__":
 
     # --- /TEL post-run emission ---
     raise SystemExit(_rc)
+
 
 
 
