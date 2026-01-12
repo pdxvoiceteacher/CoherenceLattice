@@ -113,6 +113,21 @@ jobs:
       - name: Verify artifacts (B representative run)
         run: |
           .venv/bin/python tools/telemetry/verify_artifacts.py out/B_plumbing_ci/run_03/telemetry.json --repo-root .
+      - name: Validate TEL JSONL
+        if: always()
+        run: |
+          # Representative runs:
+          # - accept: out/A_v24_ci/run_05 and out/B_v24_ci/run_05
+          # - plumbing: out/A_plumbing_ci/run_03 and out/B_plumbing_ci/run_03
+          for d in out/A_v24_ci/run_05 out/B_v24_ci/run_05 out/A_plumbing_ci/run_03 out/B_plumbing_ci/run_03; do
+            if [ -f "$d/tel_events.jsonl" ]; then
+              .venv/bin/python tools/telemetry/validate_jsonl.py "$d/tel_events.jsonl" --require-keys event,name,ts,run_id
+            fi
+            if [ -f "$d/ucc_tel_events.jsonl" ]; then
+              .venv/bin/python tools/telemetry/validate_jsonl.py "$d/ucc_tel_events.jsonl"
+            fi
+          done
+
 
       - name: Cleanup worktree
         if: always()
@@ -134,3 +149,4 @@ jobs:
             out/B_plumbing_ci/run_03/tel_events.jsonl
             out/B_plumbing_ci/run_03/ucc_tel_events.jsonl
           if-no-files-found: ignore
+
