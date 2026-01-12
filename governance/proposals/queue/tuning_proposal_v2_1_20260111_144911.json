@@ -1,0 +1,61 @@
+{
+  "created_at_utc": "2026-01-01T00:00:00Z",
+  "inputs": {
+    "tel_events_path": null,
+    "tel_summary_present": true,
+    "telemetry_path": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/out/plasticity_v2_1_smoke/telemetry.json",
+    "ucc_tel_events_path": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/out/plasticity_v2_1_smoke/ucc_tel_events.jsonl"
+  },
+  "measures": {
+    "coherence_metrics": {
+      "DeltaS": 6.17790827540654e-05,
+      "E": 0.9582507036019754,
+      "Es": 1.0,
+      "Lambda": 6.17790827540654e-05,
+      "Psi": 0.9582507036019754,
+      "T": 1.0
+    },
+    "event_counts": {
+      "tel_events_total": 0,
+      "ucc_errors_total": 0,
+      "ucc_events_total": 4
+    },
+    "tel_summary": {
+      "edges_by_kind": {
+        "file:audit_bundle": 2,
+        "file:summary_json": 10,
+        "has_index": 3,
+        "has_key": 27,
+        "leaf": 5,
+        "next": 5
+      },
+      "edges_total": 52,
+      "fingerprint_sha256": "4a169ea527e6e063705ee8f52d76f63278058cffbb7421d0b99cf7cff4c0c8eb",
+      "graph_id": "tel_run_wrapper",
+      "meta": {
+        "source": "build_tel_and_events_for_out_dir"
+      },
+      "nodes_by_band": {
+        "LTM": 0,
+        "MTM": 12,
+        "STM": 42
+      },
+      "nodes_total": 54,
+      "schema": "tel_summary_v1",
+      "tel_schema": "tel_graph_v1"
+    }
+  },
+  "no_action": false,
+  "proposal_id": "v2_1_20260111_144911",
+  "recommendations": [],
+  "run_dir": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/out/plasticity_v2_1_smoke",
+  "schema": "plasticity_tuning_proposal_v1",
+  "triggers": {
+    "force_proposal": true,
+    "min_psi_threshold": 0.9,
+    "psi_below_threshold": false,
+    "psi_observed": 0.9582507036019754,
+    "tune_step": 0.01,
+    "ucc_errors_present": false
+  }
+}

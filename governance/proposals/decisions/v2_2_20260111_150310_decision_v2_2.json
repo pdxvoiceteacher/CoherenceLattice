@@ -1,0 +1,36 @@
+{
+  "artifacts": {
+    "patch_plan_path": "governance/proposals/queue/v2_2_20260111_150310_patch_plan_v2.json",
+    "receipt_path": null,
+    "rollback_plan_path": null
+  },
+  "checks": {
+    "compare_a_b": true,
+    "compare_baseline_a": true,
+    "compare_baseline_b": true,
+    "pytest_python": true,
+    "pytest_ucc": true,
+    "validate_a": true,
+    "validate_b": true
+  },
+  "created_at_utc": "2026-01-11T23:24:02.086851Z",
+  "decision": "no_action",
+  "proposal_id": "v2_2_20260111_150310",
+  "reasons": [
+    "patch plan contained zero operations"
+  ],
+  "runs": {
+    "run_a_dir": "out/plasticity_v2_2_runs/run_A",
+    "run_b_dir": null
+  },
+  "sandbox_branch": "feat/plasticity_v2_2_confirm_gate_20260111_150310",
+  "schema": "plasticity_decision_v2_2",
+  "thermo": {
+    "allowlist_ok": true,
+    "budget_ok": true,
+    "notes": [
+      "no operations"
+    ],
+    "rollback_applied": false
+  }
+}
