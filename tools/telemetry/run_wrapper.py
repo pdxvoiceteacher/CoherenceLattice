@@ -6,6 +6,37 @@ from pathlib import Path
 import sys
 import os
 
+# --- TEL step events (module-level) ---
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def _tel_events_path(outdir: Path) -> Path:
+    return outdir / "tel_events.jsonl"
+
+def _tel_emit(outdir: Path, obj: dict) -> None:
+    p = _tel_events_path(outdir)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(obj, ensure_ascii=False, sort_keys=True) + "\n")
+
+def _step_start(outdir: Path, name: str) -> float:
+    t0 = datetime.now(timezone.utc).timestamp()
+    _tel_emit(outdir, {"event":"step_start","name":name,"ts":_utc_now_iso(),"run_id":outdir.name})
+    return t0
+
+def _step_end(outdir: Path, name: str, t0: float, status: str = "ok", details: dict | None = None) -> None:
+    dt_ms = int((datetime.now(timezone.utc).timestamp() - t0) * 1000)
+    obj = {"event":"step_end","name":name,"ts":_utc_now_iso(),"run_id":outdir.name,"status":status,"duration_ms":dt_ms}
+    if details:
+        obj["details"] = details
+    _tel_emit(outdir, obj)
+
+def _step_error(outdir: Path, name: str, t0: float, err: Exception) -> None:
+    dt_ms = int((datetime.now(timezone.utc).timestamp() - t0) * 1000)
+    _tel_emit(outdir, {"event":"step_error","name":name,"ts":_utc_now_iso(),"run_id":outdir.name,"duration_ms":dt_ms,"error":repr(err)})
+# --- /TEL step events ---
+
+
 # --- TEL events flag pre-parse (parser-agnostic) ---
 _TEL_EVENTS_EMIT = False
 if "--emit-tel-events" in sys.argv:
@@ -144,6 +175,8 @@ def run_ucc_coverage(input_path: Path, outdir: Path) -> Path:
     Runs konomi_smoke_coverage.yml and returns the path to audit_bundle.json.
     """
     outdir.mkdir(parents=True, exist_ok=True)
+    
+    
     run([sys.executable, "-m", "ucc.cli", "run",
          "ucc/modules/konomi_smoke_coverage.yml",
          "--input", str(input_path),
@@ -197,10 +230,14 @@ def main() -> int:
 
     # Base run
     base_smoke = outdir / "konomi_smoke_base"
+    t0_base = _step_start(outdir, "konomi_smoke_base")
     base_summary = run_smoke(base_smoke, args.quick)
 
     base_cov = outdir / "ucc_cov_out"
+    _step_end(outdir, "konomi_smoke_base", t0_base, "ok")
+    t0_ucc_base = _step_start(outdir, "ucc_cov_base")
     base_bundle = run_ucc_coverage(base_summary, base_cov)
+    _step_end(outdir, "ucc_cov_base", t0_ucc_base, "ok")
 
     E_base, perf_index_base, nvals_base = perf_E_from_konomi(base_smoke)
     T_base, Es_base = T_Es_from_audit_bundle(base_bundle)
@@ -211,10 +248,12 @@ def main() -> int:
 
     for i in range(1, max(0, args.perturbations) + 1):
         smoke_i = outdir / f"konomi_smoke_perturb_{i}"
+        t0_p = _step_start(outdir, f"konomi_smoke_perturb_{i}")
         summary_i = run_smoke(smoke_i, args.quick)
 
         cov_i = outdir / f"ucc_cov_perturb_{i}"
         bundle_i = run_ucc_coverage(summary_i, cov_i)
+        _step_end(outdir, f"konomi_smoke_perturb_{i}", t0_p, "ok")
 
         E_i, perf_index_i, nvals_i = perf_E_from_konomi(smoke_i)
         T_i, Es_i = T_Es_from_audit_bundle(bundle_i)
@@ -290,9 +329,11 @@ def main() -> int:
         "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; ÃŽâ€S/ÃŽâ€º from perturbation drift."
     }
 
+    t0_write = _step_start(outdir, "write_telemetry_json")
     out_json = outdir / "telemetry.json"
     out_json.write_text(json.dumps(telemetry, indent=2, sort_keys=True), encoding="utf-8")
     print(f"[run_wrapper] wrote {out_json}")
+    _step_end(outdir, "write_telemetry_json", t0_write, "ok")
     return 0
 
 if __name__ == "__main__":
@@ -396,6 +437,9 @@ if __name__ == "__main__":
 
     # --- /TEL post-run emission ---
     raise SystemExit(_rc)
+
+
+
 
 
 
