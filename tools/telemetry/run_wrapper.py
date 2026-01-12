@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 from __future__ import annotations
 import argparse, hashlib, json, platform, subprocess, sys, statistics, re, math
 from datetime import datetime, timezone
@@ -21,11 +21,11 @@ if "--emit-tel-events" in sys.argv:
             _out = a.split("=", 1)[1]
             break
     if _out and not os.environ.get("UCC_TEL_EVENTS_OUT"):
-        try:
-            from pathlib import Path as _Path
-            os.environ["UCC_TEL_EVENTS_OUT"] = str(_Path(_out) / "ucc_tel_events.jsonl")
-        except Exception:
-            pass
+        from pathlib import Path as _Path
+        os.environ["UCC_TEL_EVENTS_OUT"] = str(_Path(_out) / "ucc_tel_events.jsonl")
+        # Ensure TEL events file exists whenever --emit-tel-events is requested (even if later empty)
+        _Path(_out).mkdir(parents=True, exist_ok=True)
+        (_Path(_out) / "tel_events.jsonl").write_text("", encoding="utf-8", newline="\n")
 # --- /TEL events flag pre-parse ---
 
 
@@ -287,7 +287,7 @@ def main() -> int:
             "audit_bundle_path": _safe_relpath(base_bundle, REPO),
             "audit_bundle_sha256": sha256_file(base_bundle)
         },
-        "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; Î”S/Î› from perturbation drift."
+        "notes": "Telemetry derived without telemetry_snapshot module. E from KONOMI CSV numeric substrings; T/Es from UCC coverage audit_bundle; Psi=E*T; ÃŽâ€S/ÃŽâ€º from perturbation drift."
     }
 
     out_json = outdir / "telemetry.json"
@@ -381,9 +381,10 @@ if __name__ == "__main__":
 
 
             if globals().get("_TEL_EVENTS_EMIT", False):
-
+                # Always create tel_events.jsonl when TEL event emission is enabled (even if empty),
+                # so downstream tooling can rely on deterministic presence.
+                (_out_dir / "tel_events.jsonl").write_text("", encoding="utf-8", newline="\n")
                 write_events_jsonl(_events, _out_dir / "tel_events.jsonl")
-
                 print(f"[tel_events] wrote: {_out_dir / 'tel_events.jsonl'}")
 
 
@@ -395,3 +396,6 @@ if __name__ == "__main__":
 
     # --- /TEL post-run emission ---
     raise SystemExit(_rc)
+
+
+
