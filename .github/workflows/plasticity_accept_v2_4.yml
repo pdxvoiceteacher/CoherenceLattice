@@ -112,6 +112,7 @@ jobs:
           PY
 
       - name: v2.4 No-regression acceptance gate (median compare)
+        id: compare_v24
         run: |
           .venv/bin/python tools/telemetry/compare_runs.py out/A_v24_ci/telemetry_median.json out/B_v24_ci/telemetry_median.json \
             --keys Psi,E,T,Es,DeltaS,Lambda \
@@ -119,6 +120,17 @@ jobs:
             --nonincreasing Lambda,DeltaS \
             --eps 1e-4
 
+      - name: Explain rejection (v2.4)
+        if: failure() && steps.compare_v24.outcome == 'failure'
+        run: |
+          .venv/bin/python tools/telemetry/explain_compare.py out/A_v24_ci/telemetry_median.json out/B_v24_ci/telemetry_median.json --eps 1e-4 --out out/reject_reason.json
+      - name: Upload reject reason
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plasticity_reject_reason
+          path: out/reject_reason.json
+          if-no-files-found: ignore
       - name: Cleanup worktree
         if: always()
         run: |
