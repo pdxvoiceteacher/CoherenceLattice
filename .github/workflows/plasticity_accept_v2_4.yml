@@ -1,0 +1,126 @@
+name: plasticity-accept-v2-4
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  plasticity_accept_v2_4:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup venv + install
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e ./ucc[dev]
+          .venv/bin/python -m pip install -e ./python[dev]
+          .venv/bin/python -m pip install -e ./tools/coherenceledger_bootstrap
+          .venv/bin/python -m pip install numpy fastapi httpx cryptography jsonschema pytest
+
+      - name: Baseline run A (N replicates)
+        run: |
+          rm -rf out/A_v24_ci
+          for i in 01 02 03 04 05; do
+            .venv/bin/python tools/telemetry/run_wrapper.py --out out/A_v24_ci/run_$i --quick --perturbations 1 --emit-tel --emit-tel-events
+          done
+
+      - name: Reflect & propose (min-psi forced to ensure non-empty proposal during CI)
+        run: |
+          mkdir -p out/A_v24_ci/proposals
+          OUT=$(.venv/bin/python tools/telemetry/reflect_and_propose.py --run-dir out/A_v24_ci/run_05 --out-proposals-dir out/A_v24_ci/proposals --proposal-id ci --created-at-utc 2026-01-01T00:00:00Z --min-psi 0.99)
+          echo "PROPOSAL=$OUT" >> $GITHUB_ENV
+          .venv/bin/python tools/telemetry/validate_tuning_proposal.py "$OUT"
+
+      - name: Build median telemetry for A
+        run: |
+          .venv/bin/python - << 'PY'
+          import json, glob, statistics
+          from pathlib import Path
+
+          root = Path("out/A_v24_ci")
+          tele_paths = sorted(Path(p) for p in glob.glob(str(root / "run_*" / "telemetry.json")))
+          assert tele_paths, "no A telemetry.json files"
+
+          runs = [json.loads(p.read_text(encoding="utf-8")) for p in tele_paths]
+          for p, r in zip(tele_paths, runs):
+            assert r["flags"]["telemetry_ok"] is True, f"telemetry_ok false: {p}"
+
+          keys = ["E","T","Psi","Es","DeltaS","Lambda"]
+          med = {k: statistics.median([r["metrics"][k] for r in runs]) for k in keys}
+
+          base = runs[0]
+          base["run_id"] = "A_v24_ci_median"
+          base["created_at"] = "2026-01-01T00:00:00Z"
+          for k,v in med.items():
+            base["metrics"][k] = float(v)
+
+          outp = root / "telemetry_median.json"
+          outp.write_text(json.dumps(base, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+          print("Wrote", outp)
+          PY
+
+      - name: Create worktree + apply proposal (candidate)
+        run: |
+          rm -rf out/candidate_worktree_ci
+          git worktree add out/candidate_worktree_ci -b plasticity_candidate_ci
+          .venv/bin/python tools/telemetry/apply_tuning_proposal.py --proposal "$PROPOSAL" --workdir out/candidate_worktree_ci --out-manifest out/B_v24_ci/applied_manifest.json
+
+      - name: Candidate run B (N replicates, in worktree)
+        run: |
+          rm -rf out/B_v24_ci
+          mkdir -p out/B_v24_ci
+          for i in 01 02 03 04 05; do
+            (cd out/candidate_worktree_ci && ../../.venv/bin/python tools/telemetry/run_wrapper.py --out ../B_v24_ci/run_$i --quick --perturbations 1 --emit-tel --emit-tel-events)
+          done
+
+      - name: Build median telemetry for B
+        run: |
+          .venv/bin/python - << 'PY'
+          import json, glob, statistics
+          from pathlib import Path
+
+          root = Path("out/B_v24_ci")
+          tele_paths = sorted(Path(p) for p in glob.glob(str(root / "run_*" / "telemetry.json")))
+          assert tele_paths, "no B telemetry.json files"
+
+          runs = [json.loads(p.read_text(encoding="utf-8")) for p in tele_paths]
+          for p, r in zip(tele_paths, runs):
+            assert r["flags"]["telemetry_ok"] is True, f"telemetry_ok false: {p}"
+
+          keys = ["E","T","Psi","Es","DeltaS","Lambda"]
+          med = {k: statistics.median([r["metrics"][k] for r in runs]) for k in keys}
+
+          base = runs[0]
+          base["run_id"] = "B_v24_ci_median"
+          base["created_at"] = "2026-01-01T00:00:00Z"
+          for k,v in med.items():
+            base["metrics"][k] = float(v)
+
+          outp = root / "telemetry_median.json"
+          outp.write_text(json.dumps(base, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+          print("Wrote", outp)
+          PY
+
+      - name: v2.4 No-regression acceptance gate (median compare)
+        run: |
+          .venv/bin/python tools/telemetry/compare_runs.py out/A_v24_ci/telemetry_median.json out/B_v24_ci/telemetry_median.json \
+            --keys Psi,E,T,Es,DeltaS,Lambda \
+            --nondecreasing Psi,E,T,Es \
+            --nonincreasing Lambda,DeltaS \
+            --eps 1e-4
+
+      - name: Cleanup worktree
+        if: always()
+        run: |
+          git worktree remove out/candidate_worktree_ci --force || true
+          git branch -D plasticity_candidate_ci || true
