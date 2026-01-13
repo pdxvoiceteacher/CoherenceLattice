@@ -76,15 +76,31 @@ def main() -> int:
     except Exception as e:
         # Receipt generation should not hide failures; record it in results instead
         results.append({"label": "_receipt", "path": str(subdir), "status": "fail", "error": "receipt_generation_failed: " + repr(e)})
-report = {
+
+    # Generate submission receipt (canonical manifest SHA256)
+    try:
+        run_py(py, ["tools/telemetry/make_submission_receipt.py", "--submission-dir", str(subdir)], cwd=repo)
+    except Exception as e:
+        results.append({
+            "label": "_receipt",
+            "path": str(subdir),
+            "status": "fail",
+            "error": "receipt_generation_failed: " + repr(e),
+        })
+
+    report = {
         "schema": "ingest_report_v1",
-        "submission": str(sub_json).replace("\\", "/"),
+        "submission": str(sub_json).replace("\\\\", "/"),
         "title": doc.get("title"),
         "results": results,
     }
 
     outp = Path(args.out) if args.out else (subdir / "ingest_report.json")
-    outp.write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8", newline="\n")
+    outp.write_text(
+        json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
     print(f"[ingest_submission] OK wrote {outp}")
     return 0
@@ -92,5 +108,3 @@ report = {
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
