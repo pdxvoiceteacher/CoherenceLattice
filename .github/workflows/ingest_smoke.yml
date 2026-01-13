@@ -1,0 +1,40 @@
+﻿name: ingest-smoke
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  ingest_smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup venv + install
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -e ./ucc[dev]
+          .venv/bin/python -m pip install -e ./python[dev]
+          .venv/bin/python -m pip install -e ./tools/coherenceledger_bootstrap
+          .venv/bin/python -m pip install numpy fastapi httpx cryptography jsonschema pytest
+
+      - name: Ingest example submission
+        run: |
+          .venv/bin/python tools/telemetry/ingest_submission.py --submission-dir examples/submission_demo --repo-root .
+          cat examples/submission_demo/ingest_report.json
+
+      - name: Upload ingest report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest_report_example
+          path: examples/submission_demo/ingest_report.json
+          if-no-files-found: error
