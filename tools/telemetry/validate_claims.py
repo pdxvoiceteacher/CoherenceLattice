@@ -17,14 +17,14 @@ def main() -> int:
 
     repo = Path(args.repo_root).resolve()
     tele_path = Path(args.telemetry_json).resolve()
-    doc = json.loads(tele_path.read_text(encoding="utf-8"))
+    doc = json.loads(tele_path.read_text(encoding="utf-8-sig"))
     claims = doc.get("claims", None)
 
     if claims is None:
         print("[validate_claims] OK (no claims present)")
         return 0
 
-    schema = json.loads((repo / args.claims_schema).read_text(encoding="utf-8"))
+    schema = json.loads((repo / args.claims_schema).read_text(encoding="utf-8-sig"))
     Draft202012Validator(schema).validate(claims)
 
     # Unique IDs + evidence existence
@@ -47,3 +47,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
