@@ -50,3 +50,4 @@ jobs:
           name: ingest_report_example
           path: examples/submission_demo/ingest_report.json
           if-no-files-found: error
+
