@@ -1,8 +1,28 @@
 {
-  "decision": "pass",
-  "findings": [],
-  "repairs": [],
+  "decision": "fail",
+  "findings": [
+    {
+      "data": {
+        "claim_id": "claim_demo_method_perturbations_v1",
+        "evidence": "out/tel_events_enriched_verify/perturbations.json"
+      },
+      "id": "finding_missing_evidence_claim_demo_method_perturbations_v1",
+      "message": "Claim claim_demo_method_perturbations_v1 references evidence not present in graph artifacts: out/tel_events_enriched_verify/perturbations.json",
+      "severity": "fail",
+      "type": "missing_evidence"
+    }
+  ],
+  "repairs": [
+    {
+      "action": "Ensure evidence paths are included in telemetry.artifacts and epistemic graph artifact nodes.",
+      "details": {
+        "missing_evidence": "out/tel_events_enriched_verify/perturbations.json"
+      },
+      "id": "repair_add_artifact_claim_demo_method_perturbations_v1",
+      "priority": "high"
+    }
+  ],
   "run_id": "tel_events_enriched_verify",
   "schema": "sophia_audit_v1",
-  "summary": "Sophia audit complete: pass. Findings=0 Repairs=0"
+  "summary": "Sophia audit complete: fail. Findings=1 Repairs=1"
 }

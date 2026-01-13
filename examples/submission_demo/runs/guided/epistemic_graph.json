@@ -74,19 +74,19 @@
     },
     {
       "data": null,
-      "dst": "artifact:out/tel_events_steps_verify2/konomi_smoke_base/konomi_smoke_summary.json",
+      "dst": "artifact:konomi_smoke_base/konomi_smoke_summary.json",
       "kind": "produced",
       "src": "run:tel_events_steps_verify2"
     },
     {
       "data": null,
-      "dst": "artifact:out/tel_events_steps_verify2/perturbations.json",
+      "dst": "artifact:perturbations.json",
       "kind": "produced",
       "src": "run:tel_events_steps_verify2"
     },
     {
       "data": null,
-      "dst": "artifact:out/tel_events_steps_verify2/ucc_cov_out/audit_bundle.json",
+      "dst": "artifact:ucc_cov_out/audit_bundle.json",
       "kind": "produced",
       "src": "run:tel_events_steps_verify2"
     }
@@ -94,26 +94,26 @@
   "nodes": [
     {
       "data": {
-        "path": "out/tel_events_steps_verify2/konomi_smoke_base/konomi_smoke_summary.json",
+        "path": "konomi_smoke_base/konomi_smoke_summary.json",
         "sha256": "336b4549831acee39054942f469ac63d530e7a3e964af6b62947ef5bc8645ea6"
       },
-      "id": "artifact:out/tel_events_steps_verify2/konomi_smoke_base/konomi_smoke_summary.json",
+      "id": "artifact:konomi_smoke_base/konomi_smoke_summary.json",
       "kind": "artifact"
     },
     {
       "data": {
-        "path": "out/tel_events_steps_verify2/perturbations.json",
+        "path": "perturbations.json",
         "sha256": "2722f530239f60e9e59c4b64f4a32454a68a30d1be373c9a7180fa1b459f1bf4"
       },
-      "id": "artifact:out/tel_events_steps_verify2/perturbations.json",
+      "id": "artifact:perturbations.json",
       "kind": "artifact"
     },
     {
       "data": {
-        "path": "out/tel_events_steps_verify2/ucc_cov_out/audit_bundle.json",
+        "path": "ucc_cov_out/audit_bundle.json",
         "sha256": "d75bd35ffb27b3f9d925b3d83d993470829ba9c4c492feaa8fefca20d767d8af"
       },
-      "id": "artifact:out/tel_events_steps_verify2/ucc_cov_out/audit_bundle.json",
+      "id": "artifact:ucc_cov_out/audit_bundle.json",
       "kind": "artifact"
     },
     {

@@ -1,15 +1,15 @@
 {
   "artifacts": [
     {
-      "path": "out/tel_events_enriched_verify/konomi_smoke_base/konomi_smoke_summary.json",
+      "path": "konomi_smoke_base/konomi_smoke_summary.json",
       "sha256": "28cac24f5c11310e7a2ec42a4f80a57f1f6508fdd11241d6e5885aac1056829a"
     },
     {
-      "path": "out/tel_events_enriched_verify/ucc_cov_out/audit_bundle.json",
+      "path": "ucc_cov_out/audit_bundle.json",
       "sha256": "64d0563c16ef098702149ad7c6f6dc294fb93ec0fdbb3651a1180f7160d41a5d"
     },
     {
-      "path": "out/tel_events_enriched_verify/perturbations.json",
+      "path": "perturbations.json",
       "sha256": "28edc1b32325392054c0124436f042c627cf8f99203d37f439fc1fc34f4a5f29"
     }
   ],
