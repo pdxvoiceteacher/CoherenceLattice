@@ -1,0 +1,15 @@
+﻿{
+  "schema": "coherencelattice_submission_v1",
+  "title": "Demo submission: Guided vs Unguided (Local Smoke)",
+  "description": "A minimal demo submission showing two runs for ingest and Sophia audit.",
+  "domain_tags": ["demo", "telemetry", "plasticity"],
+  "guidance": {
+    "unguided_label": "unguided",
+    "guided_label": "guided",
+    "notes": "Guided run may include tuning or governance adjustments; this demo is for pipeline verification."
+  },
+  "runs": {
+    "unguided": { "path": "runs/unguided" },
+    "guided": { "path": "runs/guided" }
+  }
+}

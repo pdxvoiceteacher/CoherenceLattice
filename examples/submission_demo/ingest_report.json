@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "label": "unguided",
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\examples\\submission_demo\\runs\\unguided",
+      "status": "ok"
+    },
+    {
+      "label": "guided",
+      "path": "C:\\Users\\pdxvo\\Documents\\Lean\\CoherenceLattice\\examples\\submission_demo\\runs\\guided",
+      "status": "ok"
+    }
+  ],
+  "schema": "ingest_report_v1",
+  "submission": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/examples/submission_demo/submission.json",
+  "title": "Demo submission: Guided vs Unguided (Local Smoke)"
+}

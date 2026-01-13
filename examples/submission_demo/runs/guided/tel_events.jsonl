@@ -1,0 +1,8 @@
+{"event": "step_start", "name": "konomi_smoke_base", "run_id": "tel_events_steps_verify2", "ts": "2026-01-12T17:45:38.588433+00:00"}
+{"duration_ms": 6900, "event": "step_end", "name": "konomi_smoke_base", "run_id": "tel_events_steps_verify2", "status": "ok", "ts": "2026-01-12T17:45:45.488937+00:00"}
+{"event": "step_start", "name": "ucc_cov_base", "run_id": "tel_events_steps_verify2", "ts": "2026-01-12T17:45:45.489935+00:00"}
+{"duration_ms": 950, "event": "step_end", "name": "ucc_cov_base", "run_id": "tel_events_steps_verify2", "status": "ok", "ts": "2026-01-12T17:45:46.440431+00:00"}
+{"event": "step_start", "name": "konomi_smoke_perturb_1", "run_id": "tel_events_steps_verify2", "ts": "2026-01-12T17:45:46.500550+00:00"}
+{"duration_ms": 8140, "event": "step_end", "name": "konomi_smoke_perturb_1", "run_id": "tel_events_steps_verify2", "status": "ok", "ts": "2026-01-12T17:45:54.641286+00:00"}
+{"event": "step_start", "name": "write_telemetry_json", "run_id": "tel_events_steps_verify2", "ts": "2026-01-12T17:45:55.038293+00:00"}
+{"duration_ms": 2, "event": "step_end", "name": "write_telemetry_json", "run_id": "tel_events_steps_verify2", "status": "ok", "ts": "2026-01-12T17:45:55.040294+00:00"}

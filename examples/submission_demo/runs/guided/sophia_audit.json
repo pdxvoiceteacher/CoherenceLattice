@@ -1,0 +1,8 @@
+{
+  "decision": "pass",
+  "findings": [],
+  "repairs": [],
+  "run_id": "tel_events_steps_verify2",
+  "schema": "sophia_audit_v1",
+  "summary": "Sophia audit complete: pass. Findings=0 Repairs=0"
+}

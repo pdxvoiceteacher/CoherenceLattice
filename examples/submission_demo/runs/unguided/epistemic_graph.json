@@ -1,0 +1,305 @@
+{
+  "edges": [
+    {
+      "data": null,
+      "dst": "run:tel_events_enriched_verify",
+      "kind": "asserted_in",
+      "src": "claim:claim_demo_method_perturbations_v1"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:0",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:1",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:2",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:3",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:4",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:5",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:6",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:tel:7",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:ucc:0",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:ucc:1",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:ucc:2",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "event:ucc:3",
+      "kind": "emitted",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "artifact:out/tel_events_enriched_verify/perturbations.json",
+      "kind": "evidenced_by",
+      "src": "claim:claim_demo_method_perturbations_v1"
+    },
+    {
+      "data": null,
+      "dst": "artifact:out/tel_events_enriched_verify/konomi_smoke_base/konomi_smoke_summary.json",
+      "kind": "produced",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "artifact:out/tel_events_enriched_verify/perturbations.json",
+      "kind": "produced",
+      "src": "run:tel_events_enriched_verify"
+    },
+    {
+      "data": null,
+      "dst": "artifact:out/tel_events_enriched_verify/ucc_cov_out/audit_bundle.json",
+      "kind": "produced",
+      "src": "run:tel_events_enriched_verify"
+    }
+  ],
+  "nodes": [
+    {
+      "data": {
+        "path": "out/tel_events_enriched_verify/konomi_smoke_base/konomi_smoke_summary.json",
+        "sha256": "28cac24f5c11310e7a2ec42a4f80a57f1f6508fdd11241d6e5885aac1056829a"
+      },
+      "id": "artifact:out/tel_events_enriched_verify/konomi_smoke_base/konomi_smoke_summary.json",
+      "kind": "artifact"
+    },
+    {
+      "data": {
+        "path": "out/tel_events_enriched_verify/perturbations.json",
+        "sha256": "28edc1b32325392054c0124436f042c627cf8f99203d37f439fc1fc34f4a5f29"
+      },
+      "id": "artifact:out/tel_events_enriched_verify/perturbations.json",
+      "kind": "artifact"
+    },
+    {
+      "data": {
+        "path": "out/tel_events_enriched_verify/ucc_cov_out/audit_bundle.json",
+        "sha256": "64d0563c16ef098702149ad7c6f6dc294fb93ec0fdbb3651a1180f7160d41a5d"
+      },
+      "id": "artifact:out/tel_events_enriched_verify/ucc_cov_out/audit_bundle.json",
+      "kind": "artifact"
+    },
+    {
+      "data": {
+        "assumptions": [
+          "perturbations.json encodes the drift distances used to compute DeltaS/Lambda in run_wrapper"
+        ],
+        "confidence": 0.95,
+        "evidence": [
+          "out/tel_events_enriched_verify/perturbations.json"
+        ],
+        "id": "claim_demo_method_perturbations_v1",
+        "notes": "Demo claim: provenance-only (does not assert scientific truth, only derivation lineage).",
+        "statement": "DeltaS and Lambda in telemetry.metrics were derived from perturbations.json drift distances for this run.",
+        "type": "method"
+      },
+      "id": "claim:claim_demo_method_perturbations_v1",
+      "kind": "claim"
+    },
+    {
+      "data": {
+        "path": "C:/Users/pdxvo/Documents/Lean/CoherenceLattice/examples/submission_demo/runs/unguided"
+      },
+      "id": "run:tel_events_enriched_verify",
+      "kind": "run"
+    },
+    {
+      "data": {
+        "event": "step_start",
+        "name": "konomi_smoke_base",
+        "run_id": "tel_events_enriched_verify",
+        "ts": "2026-01-12T19:14:03.828742+00:00"
+      },
+      "id": "event:tel:0",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "details": {
+          "out": "konomi_smoke_base"
+        },
+        "duration_ms": 7317,
+        "event": "step_end",
+        "name": "konomi_smoke_base",
+        "run_id": "tel_events_enriched_verify",
+        "status": "ok",
+        "ts": "2026-01-12T19:14:11.146415+00:00"
+      },
+      "id": "event:tel:1",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "event": "step_start",
+        "name": "ucc_cov_base",
+        "run_id": "tel_events_enriched_verify",
+        "ts": "2026-01-12T19:14:11.147415+00:00"
+      },
+      "id": "event:tel:2",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "details": {
+          "out": "ucc_cov_out"
+        },
+        "duration_ms": 1004,
+        "event": "step_end",
+        "name": "ucc_cov_base",
+        "run_id": "tel_events_enriched_verify",
+        "status": "ok",
+        "ts": "2026-01-12T19:14:12.153118+00:00"
+      },
+      "id": "event:tel:3",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "event": "step_start",
+        "name": "konomi_smoke_perturb_1",
+        "run_id": "tel_events_enriched_verify",
+        "ts": "2026-01-12T19:14:12.212991+00:00"
+      },
+      "id": "event:tel:4",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "details": {
+          "i": 1,
+          "out": "konomi_smoke_perturb_1"
+        },
+        "duration_ms": 8211,
+        "event": "step_end",
+        "name": "konomi_smoke_perturb_1",
+        "run_id": "tel_events_enriched_verify",
+        "status": "ok",
+        "ts": "2026-01-12T19:14:20.424225+00:00"
+      },
+      "id": "event:tel:5",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "event": "step_start",
+        "name": "write_telemetry_json",
+        "run_id": "tel_events_enriched_verify",
+        "ts": "2026-01-12T19:14:20.805005+00:00"
+      },
+      "id": "event:tel:6",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "details": {
+          "path": "telemetry.json"
+        },
+        "duration_ms": 2,
+        "event": "step_end",
+        "name": "write_telemetry_json",
+        "run_id": "tel_events_enriched_verify",
+        "status": "ok",
+        "ts": "2026-01-12T19:14:20.807014+00:00"
+      },
+      "id": "event:tel:7",
+      "kind": "tel_event"
+    },
+    {
+      "data": {
+        "data": {
+          "name": null
+        },
+        "kind": "ucc_run_module_start",
+        "seq": 1
+      },
+      "id": "event:ucc:0",
+      "kind": "ucc_event"
+    },
+    {
+      "data": {
+        "data": {
+          "name": null,
+          "ok": true
+        },
+        "kind": "ucc_run_module_end",
+        "seq": 2
+      },
+      "id": "event:ucc:1",
+      "kind": "ucc_event"
+    },
+    {
+      "data": {
+        "data": {
+          "name": null
+        },
+        "kind": "ucc_run_module_start",
+        "seq": 1
+      },
+      "id": "event:ucc:2",
+      "kind": "ucc_event"
+    },
+    {
+      "data": {
+        "data": {
+          "name": null,
+          "ok": true
+        },
+        "kind": "ucc_run_module_end",
+        "seq": 2
+      },
+      "id": "event:ucc:3",
+      "kind": "ucc_event"
+    }
+  ],
+  "run_id": "tel_events_enriched_verify",
+  "schema": "epistemic_graph_v1"
+}
