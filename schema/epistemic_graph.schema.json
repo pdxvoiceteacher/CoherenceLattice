@@ -1,0 +1,39 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:epistemic_graph:v1",
+  "title": "CoherenceLattice Epistemic Graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "nodes", "edges"],
+  "properties": {
+    "schema": { "type": "string", "const": "epistemic_graph_v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["run", "artifact", "claim", "tel_event", "ucc_event"] },
+          "data": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["src", "dst", "kind"],
+        "properties": {
+          "src": { "type": "string" },
+          "dst": { "type": "string" },
+          "kind": { "type": "string", "enum": ["produced", "emitted", "evidenced_by", "asserted_in"] },
+          "data": { "type": ["object", "null"] }
+        }
+      }
+    }
+  }
+}
