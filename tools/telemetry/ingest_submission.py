@@ -31,14 +31,12 @@ def main() -> int:
     if not sub_json.exists():
         raise SystemExit(f"[ingest_submission] FAIL missing {sub_json}")
 
-    # venv python
     py = repo / ".venv" / "Scripts" / "python.exe"
     if not py.exists():
         py = repo / ".venv" / "bin" / "python"
     if not py.exists():
         raise SystemExit("[ingest_submission] FAIL cannot find .venv python")
 
-    # Validate submission schema
     sub_schema = load_json(repo / "schema" / "submission.schema.json")
     doc = load_json(sub_json)
     Draft202012Validator(sub_schema).validate(doc)
@@ -54,24 +52,18 @@ def main() -> int:
             continue
 
         try:
-            # Validate artifacts receipts
             run_py(py, ["tools/telemetry/verify_artifacts.py", str(tele), "--repo-root", str(repo)], cwd=repo)
-
-            # Validate claims (optional)
             run_py(py, ["tools/telemetry/validate_claims.py", str(tele), "--repo-root", str(repo)], cwd=repo)
 
-            # Validate JSONL (optional)
             tel_events = run_path / "tel_events.jsonl"
             if tel_events.exists():
                 run_py(py, ["tools/telemetry/validate_jsonl.py", str(tel_events), "--require-keys", "event,name,ts,run_id"], cwd=repo)
+
             ucc_events = run_path / "ucc_tel_events.jsonl"
             if ucc_events.exists():
                 run_py(py, ["tools/telemetry/validate_jsonl.py", str(ucc_events)], cwd=repo)
 
-            # Build epistemic graph
             run_py(py, ["tools/telemetry/build_epistemic_graph.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
-
-            # Sophia audit
             run_py(py, ["tools/telemetry/sophia_audit.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
 
             results.append({"label": label, "path": str(run_path), "status": "ok"})
