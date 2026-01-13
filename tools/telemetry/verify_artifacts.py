@@ -97,7 +97,7 @@ def main() -> int:
     else:
         repo_root = infer_repo_root(run_dir)
 
-    doc = json.loads(tele.read_text(encoding="utf-8"))
+    doc = json.loads(tele.read_text(encoding="utf-8-sig"))
 
     if not doc.get("flags", {}).get("telemetry_ok", False):
         print("[verify_artifacts] FAIL telemetry_ok is false")
@@ -135,5 +135,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 
