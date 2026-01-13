@@ -35,11 +35,23 @@ def main() -> int:
             raise SystemExit(f"[validate_claims] FAIL duplicate claim id: {cid}")
         seen.add(cid)
 
+            # Unique IDs + evidence existence
+    seen = set()
+    run_dir = tele_path.parent
+    for c in claims:
+        cid = c["id"]
+        if cid in seen:
+            raise SystemExit(f"[validate_claims] FAIL duplicate claim id: {cid}")
+        seen.add(cid)
+
         for key in ("evidence", "counterevidence"):
             for p in c.get(key, []) or []:
-                pp = (repo / p)
-                if not pp.exists():
-                    raise SystemExit(f"[validate_claims] FAIL missing {key} path: {p}")
+                # Accept evidence paths relative to repo root OR run_dir (portable submissions)
+                p_norm = str(p).replace("\\", "/")
+                pp_repo = (repo / p_norm)
+                pp_run = (run_dir / p_norm)
+                if not pp_repo.exists() and not pp_run.exists():
+                    raise SystemExit(f"[validate_claims] FAIL missing {key} path: {p_norm}")
 
     print(f"[validate_claims] OK claims={len(claims)}")
     return 0
@@ -47,4 +59,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
