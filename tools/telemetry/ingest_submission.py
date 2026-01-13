@@ -76,7 +76,7 @@ def main() -> int:
     except Exception as e:
         # Receipt generation should not hide failures; record it in results instead
         results.append({"label": "_receipt", "path": str(subdir), "status": "fail", "error": "receipt_generation_failed: " + repr(e)})
-report = \{
+report = {
         "schema": "ingest_report_v1",
         "submission": str(sub_json).replace("\\", "/"),
         "title": doc.get("title"),
@@ -92,4 +92,5 @@ report = \{
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
