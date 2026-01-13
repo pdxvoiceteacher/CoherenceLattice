@@ -107,7 +107,7 @@ circumference + area
 
 scaling laws: circumference scales linearly, area scales quadratically (k ≥ 0)
 
-Crop-circle pattern scaffolding:
+**Crop-circle pattern scaffolding:**
 
 rosette circle generation via List.range k
 
