@@ -1,9 +1,4 @@
-﻿# Canonical line endings for reproducible hashes
-*.json  text eol=lf
-*.jsonl text eol=lf
-*.yml   text eol=lf
-*.yaml  text eol=lf
-*.md    text eol=lf
-*.csv   text eol=lf
-# Keep example submission pack byte-stable across OS for reproducible SHA256 receipts
-examples/submission_demo/** -text
+*.py     text eol=lf
+*.json   text eol=lf
+*.jsonl  text eol=lf
+*.md     text eol=lf
