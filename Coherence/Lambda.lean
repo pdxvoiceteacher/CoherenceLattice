@@ -1,5 +1,4 @@
 import Mathlib
-import Mathlib.Data.Real.Basic
 
 set_option linter.style.commandStart false
 noncomputable section
@@ -28,11 +27,6 @@ def lambdaIndex (xs : List ℝ) (baseVar : ℝ) : ℝ :=
 def lambda01 (xs : List ℝ) (baseVar : ℝ) : ℝ :=
   max 0 (min 1 (lambdaIndex xs baseVar))
 
-/-!
-### Helper lemma: sum of squares is nonnegative
-We use an induction proof to avoid simp/type mismatches.
--/
-
 /-- For any μ, the sum of squared deviations is ≥ 0. -/
 theorem sum_sq_nonneg (μ : ℝ) (xs : List ℝ) :
     0 ≤ (xs.map (fun x => (x - μ)^2)).sum := by
@@ -40,10 +34,7 @@ theorem sum_sq_nonneg (μ : ℝ) (xs : List ℝ) :
   | nil =>
       simp
   | cons a xs ih =>
-      -- sum (a :: xs) = (a - μ)^2 + sum xs, both terms ≥ 0
       simp [List.sum_cons, ih, add_nonneg, sq_nonneg]
-
-/-! ### Tier-1 Lemmas (publish-safe) -/
 
 /-- Variance is always nonnegative. -/
 theorem listVar_nonneg (xs : List ℝ) : 0 ≤ listVar xs := by
@@ -51,22 +42,15 @@ theorem listVar_nonneg (xs : List ℝ) : 0 ≤ listVar xs := by
   | nil =>
       simp [listVar]
   | cons a xs =>
-      -- Numerator (sum of squared deviations) is nonnegative
-      have hnum : 0 ≤ ((a :: xs).map (fun x => (x - listMean (a :: xs))^2)).sum := by
+      have hnum :
+          0 ≤ ((a :: xs).map (fun x => (x - (listMean (a :: xs)))^2)).sum := by
         simpa using sum_sq_nonneg (listMean (a :: xs)) (a :: xs)
-
-      -- Denominator (list length as ℝ) is positive
-      have hlen : 0 < (List.length (a :: xs) : ℝ) := by
+      have hlen : 0 < ((List.length (a :: xs)) : ℝ) := by
         exact_mod_cast Nat.zero_lt_succ _
-
-      -- Use div_nonneg directly: numerator ≥ 0 and denominator > 0
       have : 0 ≤
-          ((a :: xs).map (fun x => (x - listMean (a :: xs))^2)).sum / (List.length (a :: xs) : ℝ) := by
+          ((a :: xs).map (fun x => (x - (listMean (a :: xs)))^2)).sum / (List.length (a :: xs) : ℝ) := by
         exact div_nonneg hnum (le_of_lt hlen)
-
-      -- Convert back to listVar definition
       simpa [listVar, listMean] using this
-
 
 /-- If baseline variance is positive, lambdaIndex is nonnegative. -/
 theorem lambdaIndex_nonneg (xs : List ℝ) (baseVar : ℝ) (hpos : 0 < baseVar) :
@@ -84,18 +68,19 @@ theorem lambdaIndex_le_one_of_le (xs : List ℝ) (baseVar : ℝ)
     lambdaIndex xs baseVar ≤ 1 := by
   unfold lambdaIndex
   by_cases hb : baseVar = 0
-  · -- contradiction with hpos
-    have h : (0 : ℝ) < 0 := by simpa [hb] using hpos
+  · have h : (0 : ℝ) < 0 := by simpa [hb] using hpos
     exact False.elim ((lt_irrefl 0) h)
-  ·
-    -- Divide `hle` by positive baseVar
-    have hdiv : listVar xs / baseVar ≤ baseVar / baseVar := by
-      -- div_le_div_right : a ≤ b → a / c ≤ b / c when 0 < c
-      exact div_le_div_right hpos |>.mpr hle
+  · have hbne : baseVar ≠ 0 := hb
+    -- Multiply inequality by inv(baseVar) ≥ 0
+    have hinv_nonneg : 0 ≤ baseVar⁻¹ := le_of_lt (inv_pos.2 hpos)
+    have hmul : listVar xs * baseVar⁻¹ ≤ baseVar * baseVar⁻¹ := by
+      exact mul_le_mul_of_nonneg_right hle hinv_nonneg
+    -- Rewrite division as multiplication by inverse, and baseVar*inv = 1
     have hdiv1 : listVar xs / baseVar ≤ 1 := by
-      simpa [hb] using hdiv
+      -- listVar/baseVar = listVar * baseVar⁻¹
+      -- baseVar * baseVar⁻¹ = 1 (since baseVar ≠ 0)
+      simpa [div_eq_mul_inv, hbne, mul_inv_cancel, mul_assoc] using hmul
     simp [hb, hdiv1]
-
 
 /-- lambda01 is always in [0,1] (unconditional boundedness). -/
 theorem lambda01_bounds (xs : List ℝ) (baseVar : ℝ) :

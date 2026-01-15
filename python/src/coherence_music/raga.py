@@ -1,14 +1,25 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
-from .core import Note, Phrase, clamp_int
+from .core import Note, Phrase, clamp01, clamp_int
+
+"""
+Raga profile + Bhairav default phrases.
+
+Appendix TAF includes example Bhairav base phrases and GUFT phrases
+(E/T/PSI/DELTA_S/E_SYM/LAMBDA), and describes the aleatoric-but-stable
+selection idea. :contentReference[oaicite:5]{index=5}
+
+We implement a semitone-quantized mapping of svaras to MIDI.
+(If you later want true microtonal support, add pitch-bend in midi.py or use music21.)
+"""
 
 # Minimal svara → semitone offsets relative to tonic (Sa)
 _SVARA_TO_SEMI = {
     "S": 0,
-    "r~": 1,   # komal re (flat 2)
+    "r~": 1,   # komal re ~ flat 2
     "R": 2,
     "g~": 3,
     "G": 4,
@@ -23,8 +34,8 @@ _SVARA_TO_SEMI = {
 
 def svara_to_midi(token: str, tonic_midi: int = 60) -> int:
     """
-    Tokens like '.S', 'S', "S'", '.r~', 'd~', etc.
-    '.' = lower octave, "'" = higher octave.
+    Parse tokens like '.S', 'S', "S'", '.r~', 'd~', etc.
+    Dot prefix means lower octave; apostrophe suffix means higher octave.
     """
     t = token.strip()
     octave_shift = 0
@@ -36,16 +47,16 @@ def svara_to_midi(token: str, tonic_midi: int = 60) -> int:
         t = t[:-1]
     if t not in _SVARA_TO_SEMI:
         raise ValueError(f"Unknown svara token: {token}")
-    return int(tonic_midi + octave_shift + _SVARA_TO_SEMI[t])
+    return tonic_midi + octave_shift + _SVARA_TO_SEMI[t]
 
 
 @dataclass(frozen=True)
 class RagaProfile:
     name: str
-    system: str
-    tonic_midi: int = 60
-    base_phrases: List[List[str]] = field(default_factory=list)
-    guft_phrases: Dict[str, List[List[str]]] = field(default_factory=dict)
+    system: str  # Hindustani / Carnatic etc.
+    tonic_midi: int = 60  # C4 default
+    base_phrases: List[List[str]] = None
+    guft_phrases: Dict[str, List[List[str]]] = None
 
     def phrase_from_tokens(
         self,
@@ -58,7 +69,7 @@ class RagaProfile:
         notes = [
             Note(
                 pitch=svara_to_midi(tok, tonic_midi=self.tonic_midi),
-                duration_beats=float(dur_beats),
+                duration_beats=dur_beats,
                 velocity=clamp_int(int(velocity), 1, 127),
             )
             for tok in tokens
@@ -67,24 +78,26 @@ class RagaProfile:
 
 
 def bhairav_profile(tonic_midi: int = 60) -> RagaProfile:
+    # Base phrases and GUFT phrases adapted from Appendix TAF snippet.
+    # (Semitone mapping: S=C, r~=Db, G=E, m=F, P=G, d~=Ab, N=B, S'=C+oct)
     base = [
-        [".S", ".r~", ".G", "m", "P"],
-        ["P", "d~", "N", "S"],
-        ["S", "r~", "G", "m", "P"],
-        ["P", "m", "G", "r~", "S"],
+        [".S", ".r~", ".G", "m", "P"],              # BASE1
+        ["P", "d~", "N", "S"],                      # BASE2
+        ["S", "r~", "G", "m", "P"],                 # BASE3
+        ["P", "m", "G", "r~", "S"],                 # BASE4
     ]
     guft = {
-        "E": [["S", "r~", "G", "r~"]],
-        "T": [["S", "P", "S'", "P"]],
-        "PSI": [["S", "r~", "P", "G"]],
-        "DELTA_S": [["S", "r~", "R", "g~"]],
-        "E_SYM": [["S", "G", "P", "G"]],
-        "LAMBDA": [["r~", "d~", "N", "r~"]],
+        "E": [["S", "r~", "G", "r~"]],              # Empathy
+        "T": [["S", "P", "S'", "P"]],               # Transparency
+        "PSI": [["S", "r~", "P", "G"]],             # Coherence
+        "DELTA_S": [["S", "r~", "R", "g~"]],        # Entropy spike (tense)
+        "E_SYM": [["S", "G", "P", "G"]],            # Ethical symmetry
+        "LAMBDA": [["r~", "d~", "N", "r~"]],        # Criticality
     }
     return RagaProfile(
         name="Bhairav",
         system="Hindustani",
-        tonic_midi=int(tonic_midi),
+        tonic_midi=tonic_midi,
         base_phrases=base,
         guft_phrases=guft,
     )

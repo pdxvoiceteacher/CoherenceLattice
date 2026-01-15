@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "module_id": "ucc.ethics.lambda_gate.v1",
+    "name": "Lambda Gate — Criticality Escalation",
+    "version": "1.0.0",
+    "domain": ["ai_governance", "safety", "telemetry"],
+    "jurisdiction": ["global"],
+    "description": "Escalate when Λ exceeds warning threshold. Mirrors Lean LambdaGate lemma."
+  },
+  "authorities": [
+    { "type": "policy", "id": "UVLM-DSYN-GUFT", "name": "ΔSyn/GUFT invariants (Λ as criticality)" }
+  ],
+  "tasks": [
+    { "id": "lambda_gate", "description": "Gate completion when criticality Λ is elevated." }
+  ],
+  "roles": ["ai_system", "human_reviewer"],
+  "reasoning_steps": [
+    "Read current telemetry coherence_metrics.Λ (lambda).",
+    "If Λ ≥ 0.80: mark Gate Decision = flag_for_review (or refuse if additional high-risk flags).",
+    "Else: continue."
+  ],
+  "validation_rules": [
+    {
+      "id": "must_compute_lambda_gate",
+      "description": "Output must include Lambda Gate decision and threshold used.",
+      "expression": "IF lambda_gate_missing = true THEN FLAG"
+    }
+  ],
+  "reporting": {
+    "sections": ["Risk Classification", "Lambda Gate", "Gate Decision", "Limitations", "Audit Seal"],
+    "disclaimers": [
+      "Lambda Gate enforces escalation when criticality Λ is elevated."
+    ]
+  },
+  "escalation_policy": [
+    { "condition": "lambda >= 0.80", "action": "flag_for_review" }
+  ]
+}

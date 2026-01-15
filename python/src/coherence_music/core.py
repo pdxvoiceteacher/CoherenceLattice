@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, List, Sequence as SeqT, Tuple
+from typing import Iterable, List, Optional, Sequence as SeqT, Tuple
 
 
 @dataclass(frozen=True)
@@ -21,7 +21,10 @@ class Note:
 
 @dataclass(frozen=True)
 class Phrase:
-    """Short motif/phrase."""
+    """
+    A short motif / phrase (often 1–2 bars).
+    category is useful for auditing (BASE/E/T/PSI/DELTA_S/E_SYM/LAMBDA etc.).
+    """
     label: str
     notes: List[Note]
     category: str = "BASE"
@@ -29,7 +32,7 @@ class Phrase:
 
 @dataclass(frozen=True)
 class Sequence:
-    """Realized musical sequence: ordered phrases plus metadata."""
+    """A realized musical sequence: ordered phrases plus metadata."""
     phrases: List[Phrase]
     bpm: int = 120
     name: str = "coherence_sequence"
@@ -40,6 +43,8 @@ class Sequence:
             out.extend(ph.notes)
         return out
 
+
+# --- Pitch helpers (very small, no external deps) ---
 
 _NOTE_TO_SEMITONE = {
     "C": 0, "C#": 1, "Db": 1,
@@ -53,15 +58,19 @@ _NOTE_TO_SEMITONE = {
 
 
 def midi_from_name(name: str) -> int:
-    """Convert pitch name like 'C4' or 'Db3' to MIDI number (C4=60)."""
+    """
+    Convert pitch name like 'C4' or 'Db3' to MIDI note number.
+    MIDI convention: C4 = 60.
+    """
     name = name.strip()
     if len(name) < 2:
         raise ValueError(f"Bad pitch name: {name}")
-
+    # split note part + octave (supports C#4, Db4)
     note_part = name[:-1]
     octave_part = name[-1]
-
     if name[-2].isdigit():
+        # octave has 2 digits (e.g. C10) – rare but handle
+        # find last digit run
         i = len(name) - 1
         while i >= 0 and name[i].isdigit():
             i -= 1
@@ -72,11 +81,15 @@ def midi_from_name(name: str) -> int:
         raise ValueError(f"Unknown note: {note_part}")
     octave = int(octave_part)
     semitone = _NOTE_TO_SEMITONE[note_part]
-    return 12 * (octave + 1) + semitone
+    return 12 * (octave + 1) + semitone  # C-1 = 0; C4=60
+
+
+def transpose_midi(pitch: int, semitones: int) -> int:
+    return int(pitch + semitones)
 
 
 def clamp_int(x: int, lo: int, hi: int) -> int:
-    return max(lo, min(hi, int(x)))
+    return max(lo, min(hi, x))
 
 
 def clamp01(x: float) -> float:

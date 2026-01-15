@@ -545,7 +545,7 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             _ucc_name = str(_m) if _m is not None else None
     except Exception:
         _ucc_name = None
-    emit_tel_event("ucc_run_module_start", {"name": _ucc_name, "metrics": context.get("metrics", {})})
+    
     _ucc_ok = True
     try:
         module_doc = load_yaml(module_path)
@@ -556,6 +556,10 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
         thresholds = mod.get("thresholds", {})
 
         context: Dict[str, Any] = {"input": None, "metrics": {}, "flags": {}, "output_files": []}
+    emit_tel_event(
+    "ucc_run_module_start",
+    {"name": _ucc_name, "metrics": context["metrics"]}
+)
 
         for step in module_doc["steps"]:
             stype = step["type"]
@@ -643,6 +647,10 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             elif stype == "compute_lambdaT":
                 if context["input"] is None:
                     raise ValueError("compute_lambdaT requires prior ingest step")
+    emit_tel_event(
+    "ucc_lambdaT_computed",
+    {"name": _ucc_name, "metrics": context["metrics"]}
+)
 
                 dT_design = float(params.get("dT_design_C", 1.0))
                 tau_res = float(params.get("tau_res_s", 1.0))

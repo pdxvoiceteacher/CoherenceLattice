@@ -13,11 +13,11 @@ module:
       - "Audit output is a proxy score; not a truth guarantee."
       - "High-stakes decisions require qualified human review."
   thresholds:
-    evidence_min: 0.2
-    traceability_min: 0.2
-    psi_min: 0.1
-    deltaS_max: 1.0
-    lambda_flip_max: 1.0
+    evidence_min: 0.8
+    traceability_min: 0.6
+    psi_min: 0.6
+    deltaS_max: 0.35
+    lambda_flip_max: 0.2
 
 steps:
   - type: ingest_json

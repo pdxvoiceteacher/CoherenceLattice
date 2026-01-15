@@ -7,8 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
 
-# Parses assertions embedded in claim text.
-# Supported patterns:
+# Supports:
 #   key = 1.23
 #   key == 1.23
 #   key: 1.23
@@ -19,7 +18,7 @@ from typing import Any, Dict, List, Tuple, Optional
 #   key < 0
 #   abs(key) <= 0.1
 #
-# Values: numbers or true/false
+# Values support: numbers or true/false
 _RE_ABS = re.compile(
     r"""abs\(\s*(?P<key>[A-Za-z][A-Za-z0-9_.]*)\s*\)\s*(?P<op>>=|<=|==|~=|=|>|<|:)\s*(?P<val>true|false|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)""",
     re.IGNORECASE,
@@ -44,12 +43,17 @@ def _nonempty_str(x: Any) -> bool:
 
 def _source_local_path(src: Dict[str, Any]) -> Optional[Path]:
     """
-    Resolve a local JSON path from a source entry.
+    Resolve a local JSON file path from a source entry.
     Prefers url like: local:C:/.../file.json
     """
     url = str(src.get("url", "") or "")
     if url.startswith("local:"):
-        return Path(url[len("local:") :])
+        p = url[len("local:") :]
+        # accept forward slashes on Windows
+        return Path(p)
+    # If url is already a path-like (rare)
+    if url and (":" in url or url.startswith("\\") or url.startswith("/")):
+        return Path(url)
     return None
 
 
@@ -59,6 +63,7 @@ def _load_json_file(path: Path) -> Optional[Dict[str, Any]]:
         obj = json.loads(txt)
         if isinstance(obj, dict):
             return obj
+        # Allow top-level arrays by wrapping
         return {"_root": obj}
     except Exception:
         return None
@@ -66,8 +71,7 @@ def _load_json_file(path: Path) -> Optional[Dict[str, Any]]:
 
 def _extract_values(doc: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Build a lookup of key -> value.
-    Includes:
+    Extract a lookup table of keys -> values, including:
       - top-level keys
       - metrics.<k> and <k> for doc["metrics"]
       - flags.<k> and <k> for doc["flags"]
@@ -75,6 +79,7 @@ def _extract_values(doc: Dict[str, Any]) -> Dict[str, Any]:
     out: Dict[str, Any] = {}
 
     def add(k: str, v: Any) -> None:
+        # Keep bool distinct from numeric
         if isinstance(v, bool):
             out[k] = v
             return
@@ -108,6 +113,7 @@ def _parse_val(raw: str) -> Any:
         return True
     if s == "false":
         return False
+    # numeric
     return float(raw)
 
 
@@ -120,6 +126,7 @@ def _cmp(actual: Any, op: str, expected: Any, abs_tol: float, rel_tol: float, us
     if op == ":":
         op = "="
 
+    # bool compare
     if isinstance(expected, bool):
         if not isinstance(actual, bool):
             return False
@@ -127,6 +134,7 @@ def _cmp(actual: Any, op: str, expected: Any, abs_tol: float, rel_tol: float, us
             return actual is expected
         return False
 
+    # numeric compare
     if isinstance(expected, (int, float)) and not isinstance(expected, bool):
         if not isinstance(actual, (int, float)) or isinstance(actual, bool):
             return False
@@ -147,6 +155,7 @@ def _cmp(actual: Any, op: str, expected: Any, abs_tol: float, rel_tol: float, us
             return a < e
         return False
 
+    # string compare (rare)
     if isinstance(expected, str):
         if not isinstance(actual, str):
             return False
@@ -175,7 +184,8 @@ def verify_json_assertions_task(
     name_md: str = "json_assertions.md",
 ) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
     """
-    Parses assertions in claim text and verifies them against cited local JSON sources.
+    Parses assertion expressions in claim text and verifies against cited JSON sources.
+    Updates metrics/flags for governance-grade traceability.
     """
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -191,6 +201,7 @@ def verify_json_assertions_task(
         if isinstance(s, dict) and _nonempty_str(s.get("id")):
             src_by_id[str(s["id"])] = s
 
+    # cache loaded JSON value maps per source id
     cache: Dict[str, Dict[str, Any]] = {}
 
     def values_for_source(sid: str) -> Optional[Dict[str, Any]]:
@@ -224,6 +235,7 @@ def verify_json_assertions_task(
         text = str(c.get("text", "") or "")
         cits = [str(x) for x in _as_list(c.get("citations")) if _nonempty_str(str(x))]
 
+        # find abs() assertions first, then plain
         matches: List[Tuple[str, str, str, bool]] = []
         for m in _RE_ABS.finditer(text):
             matches.append((m.group("key"), m.group("op"), m.group("val"), True))
@@ -237,6 +249,7 @@ def verify_json_assertions_task(
             assertions_total += 1
             expected = _parse_val(raw_val)
 
+            # resolve actual from cited JSON sources
             resolved = False
             actual = None
             used_source = None
@@ -245,6 +258,7 @@ def verify_json_assertions_task(
                 vals = values_for_source(sid)
                 if not vals:
                     continue
+                # direct key or metrics./flags. variants
                 if key in vals:
                     actual = vals[key]
                     resolved = True
@@ -263,11 +277,21 @@ def verify_json_assertions_task(
 
             if not resolved:
                 assertions_unresolved += 1
-                details.append({"claim_id": cid, "key": key, "op": op, "expected": expected, "resolved": False, "citations": cits})
+                details.append(
+                    {
+                        "claim_id": cid,
+                        "key": key,
+                        "op": op,
+                        "expected": expected,
+                        "resolved": False,
+                        "citations": cits,
+                    }
+                )
                 continue
 
             assertions_checked += 1
             ok = _cmp(actual, op, expected, abs_tol, rel_tol, use_abs)
+
             if ok:
                 assertions_passed += 1
             else:
@@ -313,7 +337,14 @@ def verify_json_assertions_task(
         p = outdir / name_json
         p.write_text(
             json.dumps(
-                {"schema_version": "0.1", "task": "verify_json_assertions", "metrics": metrics, "flags": flags, "details": details[:200], "details_truncated": len(details) > 200},
+                {
+                    "schema_version": "0.1",
+                    "task": "verify_json_assertions",
+                    "metrics": metrics,
+                    "flags": flags,
+                    "details": details[:200],
+                    "details_truncated": len(details) > 200,
+                },
                 indent=2,
                 sort_keys=True,
             ),
@@ -354,7 +385,3 @@ def verify_json_assertions_task(
         outputs.append(p)
 
     return metrics, flags, outputs
-
-
-# Alias
-verify_json_assertions = verify_json_assertions_task

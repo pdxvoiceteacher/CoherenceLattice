@@ -12,14 +12,12 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+(?:'[a-z0-9]+)?", re.IGNORECASE)
 
 
 def tokenize(text: str) -> List[str]:
-    """Lowercased word-ish tokens. Stable, dependency-free."""
     if not isinstance(text, str):
         return []
     return [t.lower() for t in _TOKEN_RE.findall(text)]
 
 
 def jaccard_distance(tokens_a: List[str], tokens_b: List[str]) -> float:
-    """1 - |A∩B|/|A∪B| ; returns 0 if both empty."""
     a = set(tokens_a)
     b = set(tokens_b)
     if not a and not b:
@@ -58,24 +56,35 @@ def _mode_label(labels: List[str]) -> Optional[str]:
     return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 
 
+def _get_text_by_path(artifact: Dict[str, Any], path: str) -> str:
+    """
+    Dot-path resolver:
+      - "answer" (default)
+      - "sections.summary"
+    If path missing or not a string, fall back to artifact["answer"].
+    """
+    if not path or path.strip() == "" or path.strip() == "answer":
+        return str(artifact.get("answer", "") or "")
+    cur: Any = artifact
+    for part in path.split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return str(artifact.get("answer", "") or "")
+    return str(cur) if isinstance(cur, str) else str(artifact.get("answer", "") or "")
+
+
 def _required_sections_coverage(
     artifact: Dict[str, Any], required: List[str]
 ) -> Tuple[List[str], List[str], List[str], float]:
-    """
-    A required section is present if:
-      - artifact["sections"][name] is a nonempty string, OR
-      - artifact[name] is a nonempty string (fallback).
-    """
     sec = _as_dict(artifact.get("sections"))
     present: List[str] = []
     missing: List[str] = []
-
     for name in required:
         if _nonempty_str(sec.get(name)) or _nonempty_str(artifact.get(name)):
             present.append(name)
         else:
             missing.append(name)
-
     cov = (len(present) / len(required)) if required else 1.0
     return required, present, missing, float(cov)
 
@@ -87,15 +96,8 @@ def _claim_metrics(
     sources_key: str,
     min_citations_per_claim: int,
 ) -> Tuple[float, float, List[Dict[str, Any]]]:
-    """
-    Returns:
-      - E_claim_coverage: fraction of claims with >= min citations
-      - E_source_resolve_rate: fraction of all cited ids that exist in sources
-      - claim_rows: details for csv/json
-    """
     claims = _as_list(artifact.get(claims_key))
     sources = _as_list(artifact.get(sources_key))
-
     source_ids = {str(s.get("id")) for s in sources if isinstance(s, dict) and _nonempty_str(s.get("id"))}
 
     good_claims = 0
@@ -148,9 +150,6 @@ def _evidence_links_ok(artifact: Dict[str, Any], evidence_key: str, min_links: i
 
 
 def _ethical_symmetry_proxy_ok(artifact: Dict[str, Any]) -> bool:
-    """
-    Proxy for E_s: ensure disclosure + reporting channel + escalation exist.
-    """
     sec = _as_dict(artifact.get("sections"))
     disclosure_ok = _nonempty_str(sec.get("disclosure")) or _nonempty_str(artifact.get("disclosure"))
     rc = _as_dict(artifact.get("reporting_channel"))
@@ -158,12 +157,11 @@ def _ethical_symmetry_proxy_ok(artifact: Dict[str, Any]) -> bool:
     return bool(disclosure_ok and channel_ok)
 
 
-def _compute_drift_token_jaccard(base_answer: str, perturbations: List[Dict[str, Any]]) -> Tuple[Optional[float], Optional[float], int]:
-    if not _nonempty_str(base_answer):
+def _compute_drift_token_jaccard(base_text: str, perturbations: List[Dict[str, Any]]) -> Tuple[Optional[float], Optional[float], int]:
+    if not _nonempty_str(base_text):
         return None, None, 0
-    base_t = tokenize(base_answer)
+    base_t = tokenize(base_text)
     ds: List[float] = []
-
     for p in perturbations:
         if not isinstance(p, dict):
             continue
@@ -171,7 +169,6 @@ def _compute_drift_token_jaccard(base_answer: str, perturbations: List[Dict[str,
         if not _nonempty_str(ans):
             continue
         ds.append(float(jaccard_distance(base_t, tokenize(str(ans)))))
-
     if not ds:
         return None, None, 0
     return float(mean(ds)), float(max(ds)), int(len(ds))
@@ -287,7 +284,8 @@ def _write_markdown(
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def coherence_audit_task(task_doc: Dict[str, Any],
+def coherence_audit_task(
+    task_doc: Dict[str, Any],
     outdir: Path,
     thresholds: Dict[str, Any],
     *,
@@ -303,20 +301,17 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     compute_drift: bool = True,
     compute_lambda: bool = True,
     drift_method: str = "token_jaccard",
+    drift_base_path: str = "answer",
+    min_perturbations: int = 0,
+    require_drift: bool = False,
+    require_lambda: bool = False,
     write_audit_json: bool = True,
     write_audit_md: bool = True,
     write_claims_csv: bool = True,
     name_audit_json: str = "coherence_audit.json",
     name_audit_md: str = "coherence_audit.md",
     name_claims_csv: str = "coherence_claims.csv",
-    drift_base_path=None,
-    min_perturbations=0,
-    require_drift=False,
-    require_lambda=False,
-    **kwargs) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
-    """
-    UCC step entry point: returns metrics, flags, output_paths
-    """
+) -> Tuple[Dict[str, Any], Dict[str, Any], List[Path]]:
     outdir.mkdir(parents=True, exist_ok=True)
 
     required_sections = required_sections or ["assumptions", "limitations", "uncertainty", "disclosure"]
@@ -325,7 +320,6 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     if not isinstance(artifact, dict):
         raise ValueError(f"coherence_audit expects a dict at task_doc['{sections_key}'].")
 
-    # Threshold defaults
     evidence_min = _get_threshold(thresholds, "evidence_min", 0.8)
     traceability_min = _get_threshold(thresholds, "traceability_min", 0.6)
     psi_min = _get_threshold(thresholds, "psi_min", 0.6)
@@ -336,14 +330,19 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     flags: Dict[str, Any] = {}
     outputs: List[Path] = []
 
-    # T: required sections coverage
+    flags["deltaS_required"] = bool(require_drift)
+    flags["lambda_required"] = bool(require_lambda)
+    metrics["drift_base_path"] = drift_base_path
+    metrics["min_perturbations_required"] = int(min_perturbations)
+
+    # T
     req, present, missing, T_cov = _required_sections_coverage(artifact, required_sections)
     metrics["required_sections"] = req
     metrics["present_sections"] = present
     metrics["missing_sections"] = missing
     metrics["T_required_sections_coverage"] = float(T_cov)
 
-    # E: claim coverage + source resolve rate
+    # E
     E_claim, E_resolve, claim_rows = _claim_metrics(
         artifact,
         claims_key=claims_key,
@@ -353,7 +352,7 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     metrics["E_claim_coverage"] = float(E_claim)
     metrics["E_source_resolve_rate"] = float(E_resolve)
 
-    # Evidence links
+    # evidence links
     links_count, links_min, links_ok = _evidence_links_ok(artifact, evidence_key, int(min_evidence_links))
     metrics["evidence_links_count"] = int(links_count)
     metrics["evidence_links_min_required"] = int(links_min)
@@ -367,20 +366,32 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     Es_ok = _ethical_symmetry_proxy_ok(artifact)
     metrics["Es_fields_ok"] = 1 if Es_ok else 0
 
-    # ΔS
     perturbations = _as_list(artifact.get(perturbations_key))
+
+    # ΔS
     delta_mean = delta_max = None
     if compute_drift:
         if drift_method != "token_jaccard":
             raise ValueError(f"Unsupported drift_method '{drift_method}'.")
-        base_answer = str(artifact.get("answer", "") or "")
-        delta_mean, delta_max, n_used = _compute_drift_token_jaccard(base_answer, perturbations)
+        base_text = _get_text_by_path(artifact, drift_base_path)
+        delta_mean, delta_max, n_used = _compute_drift_token_jaccard(base_text, perturbations)
         metrics["DeltaS_n"] = int(n_used)
-        metrics["DeltaS_mean"] = float(delta_mean) if delta_mean is not None else None
-        metrics["DeltaS_max"] = float(delta_max) if delta_max is not None else None
-        flags["deltaS_skipped"] = bool(delta_mean is None)
+
+        insufficient = (int(min_perturbations) > 0) and (n_used < int(min_perturbations))
+        flags["deltaS_insufficient_perturbations"] = bool(insufficient)
+
+        if insufficient:
+            flags["deltaS_skipped"] = True
+            metrics["DeltaS_mean"] = None
+            metrics["DeltaS_max"] = None
+        else:
+            flags["deltaS_skipped"] = bool(delta_mean is None)
+            metrics["DeltaS_mean"] = float(delta_mean) if delta_mean is not None else None
+            metrics["DeltaS_max"] = float(delta_max) if delta_max is not None else None
     else:
         flags["deltaS_skipped"] = True
+        flags["deltaS_insufficient_perturbations"] = False
+        metrics["DeltaS_n"] = 0
         metrics["DeltaS_mean"] = None
         metrics["DeltaS_max"] = None
 
@@ -391,21 +402,37 @@ def coherence_audit_task(task_doc: Dict[str, Any],
         flip_rate, mode_label, n_used = _compute_lambda_flip_rate(perturbations, decision_key=decision_key)
         metrics["Lambda_n"] = int(n_used)
         metrics["Lambda_mode_label"] = mode_label
-        metrics["Lambda_flip_rate"] = float(flip_rate) if flip_rate is not None else None
-        flags["lambda_skipped"] = bool(flip_rate is None)
+
+        insufficient = (int(min_perturbations) > 0) and (n_used < int(min_perturbations))
+        flags["lambda_insufficient_perturbations"] = bool(insufficient)
+
+        if insufficient:
+            flags["lambda_skipped"] = True
+            metrics["Lambda_flip_rate"] = None
+        else:
+            flags["lambda_skipped"] = bool(flip_rate is None)
+            metrics["Lambda_flip_rate"] = float(flip_rate) if flip_rate is not None else None
     else:
         flags["lambda_skipped"] = True
+        flags["lambda_insufficient_perturbations"] = False
+        metrics["Lambda_n"] = 0
         metrics["Lambda_flip_rate"] = None
 
-    # Flags vs thresholds
-    flags["pass_evidence"] = bool(
-        links_ok and (E_claim >= evidence_min) and (E_resolve >= evidence_min)
-    )
+    # pass/fail
+    flags["pass_evidence"] = bool(links_ok and (E_claim >= evidence_min) and (E_resolve >= evidence_min))
     flags["pass_traceability"] = bool(T_cov >= traceability_min)
     flags["pass_psi"] = bool(Psi >= psi_min)
 
-    flags["pass_deltaS"] = True if flags.get("deltaS_skipped", False) else bool((delta_max is not None) and (delta_max <= deltaS_max_thr))
-    flags["pass_lambda"] = True if flags.get("lambda_skipped", False) else bool((flip_rate is not None) and (flip_rate <= lambda_flip_max))
+    if flags.get("deltaS_skipped", False):
+        flags["pass_deltaS"] = (not require_drift)
+    else:
+        flags["pass_deltaS"] = bool((delta_max is not None) and (delta_max <= deltaS_max_thr))
+
+    if flags.get("lambda_skipped", False):
+        flags["pass_lambda"] = (not require_lambda)
+    else:
+        flags["pass_lambda"] = bool((flip_rate is not None) and (flip_rate <= lambda_flip_max))
+
     flags["pass_Es"] = bool(Es_ok)
 
     flags["overall_pass"] = bool(
@@ -417,7 +444,7 @@ def coherence_audit_task(task_doc: Dict[str, Any],
         and flags["pass_Es"]
     )
 
-    # Write artifacts
+    # write outputs
     if write_claims_csv:
         p = outdir / name_claims_csv
         _write_claims_csv(p, claim_rows)
@@ -454,11 +481,6 @@ def coherence_audit_task(task_doc: Dict[str, Any],
     return metrics, flags, outputs
 
 
-# Convenience alias (so either name works)
+# Alias convenience
 coherence_audit = coherence_audit_task
 
-
-
-# --- Safe alias (forward-compat) ---
-def coherence_audit(*args, **kwargs):
-    return coherence_audit_task(*args, **kwargs)

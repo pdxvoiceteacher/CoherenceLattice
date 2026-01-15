@@ -1,14 +1,14 @@
-﻿[
+[
   {
     "variant_id": "t_p1",
     "prompt_variant": "paraphrase-1",
-    "answer": "This audit checks TCHES comparator artifacts: comparison.json/.md and audit_bundle.json with deltas like delta_warn_LambdaT_steps and delta_mean_Ppump.",
+    "answer": "This audit checks the TCHES baseline-vs-lambda comparator artifacts and ensures claims map to the comparison report and audit bundle.",
     "decision_label": "accept"
   },
   {
     "variant_id": "t_p2",
     "prompt_variant": "paraphrase-2",
-    "answer": "We verify traceability of baseline vs lambda by linking claims to comparison.json and the provenance audit bundle outputs.",
+    "answer": "We validate traceability of the TCHES toy comparison by binding claims to the comparator summary and provenance bundle outputs.",
     "decision_label": "accept"
   }
 ]

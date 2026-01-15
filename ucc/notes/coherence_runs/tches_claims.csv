@@ -4,4 +4,4 @@ t2,"improved_warn_time flag is derived from delta_warn_LambdaT_steps (positive m
 t3,"audit_bundle.json binds the comparison to git_commit and includes sha256 hashes for module, task input, and emitted outputs.",t_audit
 t4,"The comparator module YAML and its sample task define the comparison configuration and are part of the reproducibility chain.",t_mod;t_task
 t5,"comparison.md provides a human-readable summary table (warn/alarm steps, max/mean ΛT, pump/chiller proxies) consistent with comparison.json.",t_cmp_md;t_cmp_json
-t7,"From audit_bundle.json: environment.git_commit ~ /^[0-9a-f]{40}$/i; module.sha256 ~ /^[0-9a-f]{64}$/i; input.sha256 ~ /^[0-9a-f]{64}$/i.",t_audit
+t6,"From comparison.json: delta_warn_LambdaT_steps >= 0; delta_alarm_LambdaT_steps = 0; delta_mean_Ppump >= 0.",t_cmp_json

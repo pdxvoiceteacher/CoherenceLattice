@@ -1,10 +1,10 @@
 """
 coherence_music: GUFT/TAF-inspired music engines (research tool).
 
-Design goals:
+Design goals (from repo docs):
 - Transparent mapping rules (T): auditable, deterministic options, logged motifs.
 - Expressive motifs (E): stable semantic hooks for GUFT metrics.
-- Lightweight core: no heavy deps required; MIDI writer included.
+- Optional heavier integrations (music21/mido) can be added later; core stays lightweight.
 """
 
 from .core import Note, Phrase, Sequence
