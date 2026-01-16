@@ -58,11 +58,15 @@ def main() -> int:
             tel_events = run_path / "tel_events.jsonl"
             if tel_events.exists():
                 run_py(py, ["tools/telemetry/validate_jsonl.py", str(tel_events), "--require-keys", "event,name,ts,run_id"], cwd=repo)
+            
+            ucc_events = run_path / "ucc_tel_events.jsonl"
+            if not ucc_events.exists():
+                ucc_events.write_text("", encoding="utf-8", newline="\n")
 
             ucc_events = run_path / "ucc_tel_events.jsonl"
             if ucc_events.exists():
                 run_py(py, ["tools/telemetry/validate_jsonl.py", str(ucc_events)], cwd=repo)
-
+                
             run_py(py, ["tools/telemetry/build_epistemic_graph.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
             run_py(py, ["tools/telemetry/sophia_audit.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
 

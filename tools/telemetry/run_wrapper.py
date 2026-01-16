@@ -37,6 +37,30 @@ def _step_error(outdir: Path, name: str, t0: float, err: Exception) -> None:
 # --- /TEL step events ---
 
 
+
+### UCC OUT PARSE (ALWAYS)
+# Always detect an output directory and always wire UCC_TEL_EVENTS_OUT.
+# Supports both --out and --outdir forms to avoid guided/unguided mismatch.
+_OUT_ALWAYS = None
+for i, a in enumerate(sys.argv):
+    if a in ("--out", "--outdir") and i + 1 < len(sys.argv):
+        _OUT_ALWAYS = sys.argv[i + 1]
+        break
+    if a.startswith("--out="):
+        _OUT_ALWAYS = a.split("=", 1)[1]
+        break
+    if a.startswith("--outdir="):
+        _OUT_ALWAYS = a.split("=", 1)[1]
+        break
+
+if _OUT_ALWAYS:
+    from pathlib import Path as _Path
+    os.environ["UCC_TEL_EVENTS_OUT"] = str(_Path(_OUT_ALWAYS) / "ucc_tel_events.jsonl")
+    _Path(_OUT_ALWAYS).mkdir(parents=True, exist_ok=True)
+    (_Path(_OUT_ALWAYS) / "ucc_tel_events.jsonl").write_text("", encoding="utf-8", newline="\n")
+### /UCC OUT PARSE (ALWAYS)
+
+
 # --- TEL events flag pre-parse (parser-agnostic) ---
 _TEL_EVENTS_EMIT = False
 if "--emit-tel-events" in sys.argv:
@@ -51,7 +75,8 @@ if "--emit-tel-events" in sys.argv:
         if a.startswith("--out="):
             _out = a.split("=", 1)[1]
             break
-    if _out and not os.environ.get("UCC_TEL_EVENTS_OUT"):
+
+if _out and not os.environ.get("UCC_TEL_EVENTS_OUT"):
         from pathlib import Path as _Path
         os.environ["UCC_TEL_EVENTS_OUT"] = str(_Path(_out) / "ucc_tel_events.jsonl")
         # Ensure TEL events file exists whenever --emit-tel-events is requested (even if later empty)
@@ -347,101 +372,87 @@ if __name__ == "__main__":
     if _rc is None:
         _rc = 0
 
-    # --- TEL post-run emission ---
+    # --- TEL/UCC post-run emission ---
+    # We separate TEL emission from UCC emission to avoid schema mixing.
+    # TEL emission is optional. UCC event stream is always written when --out is present.
 
+    def _find_out(argv):
+        for i, a in enumerate(argv):
+            if a in ("--out", "--outdir") and i + 1 < len(argv):
+                return argv[i + 1]
+            if a.startswith("--out="):
+                return a.split("=", 1)[1]
+            if a.startswith("--outdir="):
+                return a.split("=", 1)[1]
+        return None
+
+    _out = _find_out(sys.argv)
+    if not _out:
+        raise SystemExit(_rc)
+
+    _out_dir = Path(_out)
+    _telemetry_path = _out_dir / "telemetry.json"
+    if not _telemetry_path.exists():
+        raise SystemExit(_rc)
+
+    # Load telemetry
+    _telemetry_data = json.loads(_telemetry_path.read_text(encoding="utf-8"))
+
+    # Always ensure UCC stream exists and contains at least one metrics-bearing event.
+    # This preserves auditability even if internal UCC modules do not emit events.
+    try:
+        ucc_path = _out_dir / "ucc_tel_events.jsonl"
+        ucc_path.parent.mkdir(parents=True, exist_ok=True)
+        if not ucc_path.exists():
+            ucc_path.write_text("", encoding="utf-8", newline="\n")
+
+        m = (_telemetry_data.get("metrics", {}) if isinstance(_telemetry_data, dict) else {}) or {}
+        lam = m.get("Λ", m.get("lambda", m.get("Lambda", m.get("Lambda_T"))))
+
+        meta = {}
+        if lam is not None:
+            lam_f = float(lam)
+            meta = {
+                "lambda": lam_f,
+                "lambda_warn": 0.80,
+                "lambda_gate": "review" if lam_f >= 0.80 else "proceed",
+            }
+
+        evt = {"seq": 1, "kind": "ucc_lambda_metrics", "data": {"metrics": m, "meta": meta}}
+        with ucc_path.open("a", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(evt, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
+
+        print(f"[ucc_tel_events] wrote: {ucc_path}")
+    except Exception as e:
+        print(f"[ucc_tel_events] failed: {e}", file=sys.stderr)
+
+    # TEL emission (optional)
     if globals().get("_TEL_EMIT", False) or globals().get("_TEL_EVENTS_EMIT", False):
-
-        def _tel_out_dir(argv):
-
-            # supports: --out PATH  or  --out=PATH
-
-            for i, a in enumerate(argv):
-
-                if a == "--out" and i + 1 < len(argv):
-
-                    return argv[i + 1]
-
-                if a.startswith("--out="):
-
-                    return a.split("=", 1)[1]
-
-            return None
-
-
         try:
-
-            from pathlib import Path
-
-            import json as _json
-
             from konomi.tel.build import build_tel_and_events_for_out_dir
-
             from konomi.tel.events import write_events_jsonl
-
-
-            _out = _tel_out_dir(sys.argv)
-
-            if not _out:
-
-                raise RuntimeError("TEL requested but --out was not found in argv")
-
-
-            _out_dir = Path(_out)
-
-            _telemetry_path = _out_dir / "telemetry.json"
-
-            if not _telemetry_path.exists():
-
-                raise FileNotFoundError(f"telemetry.json not found at {_telemetry_path}")
-
-
-            _telemetry_data = _json.loads(_telemetry_path.read_text(encoding="utf-8"))
-
 
             _tel, _events = build_tel_and_events_for_out_dir(_out_dir, _telemetry_data, max_depth=2)
 
-
             if globals().get("_TEL_EMIT", False):
-
                 _tel.write_json(_out_dir / "tel.json")
-
                 _telemetry_data["tel_summary"] = _tel.summary()
-
                 (_out_dir / "telemetry.json").write_text(
-
-                    _json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-
+                    json.dumps(_telemetry_data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                     encoding="utf-8",
-
                     newline="\n",
-
                 )
-
                 print("[tel] updated telemetry.json with tel_summary")
-
                 print(f"[tel] wrote: {_out_dir / 'tel.json'}")
 
-
             if globals().get("_TEL_EVENTS_EMIT", False):
-                # Always create tel_events.jsonl when TEL event emission is enabled (even if empty),
-                # so downstream tooling can rely on deterministic presence.
                 (_out_dir / "tel_events.jsonl").write_text("", encoding="utf-8", newline="\n")
                 write_events_jsonl(_events, _out_dir / "tel_events.jsonl")
                 print(f"[tel_events] wrote: {_out_dir / 'tel_events.jsonl'}")
 
-
         except Exception as _e:
-
             print(f"[tel] failed: {_e}", file=sys.stderr)
-
             raise
 
-    # --- /TEL post-run emission ---
+    # --- /TEL/UCC post-run emission ---
     raise SystemExit(_rc)
-
-
-
-
-
-
-

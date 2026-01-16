@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-01-15T05:52:14.456324+00:00",
-  "file_count": 62,
+  "created_at": "2026-01-15T23:11:33.774284+00:00",
+  "file_count": 63,
   "manifest": [
     {
       "path": "runs/guided/epistemic_graph.json",
@@ -121,6 +121,10 @@
     {
       "path": "runs/guided/ucc_cov_perturb_1/report.json",
       "sha256": "586be639167547d8a7ef90d5b9106cef4599d6f0b61b7b1bdbcb3767c0ebf637"
+    },
+    {
+      "path": "runs/guided/ucc_tel_events.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "path": "runs/unguided/epistemic_graph.json",
@@ -252,5 +256,5 @@
     }
   ],
   "schema": "submission_receipt_v1",
-  "submission_sha256": "5faebdd01c3db4b3a2826a0fe6545a9f7b9e544548f7d32a3e73c0d46e015f1c"
+  "submission_sha256": "4a7622011d02202d995176306966165518ded43e071197ed023dd5803cff8a80"
 }
