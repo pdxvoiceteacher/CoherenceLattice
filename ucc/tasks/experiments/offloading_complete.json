@@ -1,0 +1,24 @@
+{
+  "coherence_artifact": {
+    "id": "offloading-complete",
+    "domain": "research",
+    "question": "Does the memo include evidence and required sections?",
+    "answer": "Guided mode reduced uncertainty with linked sources and full disclosure.",
+    "sections": {
+      "assumptions": "Toy memo; metrics are proxies.",
+      "limitations": "Small example; not a truth guarantee.",
+      "uncertainty": "Depends on chosen seeds and thresholds.",
+      "disclosure": "Research scaffold only."
+    },
+    "claims": [
+      {"id": "c1", "text": "Guided mode reduced uncertainty.", "citations": ["s1"]}
+    ],
+    "sources": [
+      {"id": "s1", "title": "Guided vs unguided telemetry", "url": "local:examples/submission_demo/runs/guided/telemetry.json"}
+    ],
+    "evidence": {
+      "links": ["https://github.com/pdxvoiceteacher/CoherenceLattice"],
+      "artifacts": ["telemetry.json"]
+    }
+  }
+}

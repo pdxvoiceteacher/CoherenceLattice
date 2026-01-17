@@ -16,9 +16,7 @@ steps:
   - id: extract_lambda_expected
     type: extract_json_fields
     params:
-      path: input.json_extract.source_json
-      fields:
-        lambda_expected: metrics.Lambda_T
+      sections_key: json_extract
 
   - id: apply_threshold_flags
     type: threshold_flags

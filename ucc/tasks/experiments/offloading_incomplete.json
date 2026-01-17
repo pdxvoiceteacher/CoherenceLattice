@@ -1,0 +1,22 @@
+{
+  "coherence_artifact": {
+    "id": "offloading-incomplete",
+    "domain": "research",
+    "question": "Does the memo include evidence and required sections?",
+    "answer": "The memo claims improvements without linking sources.",
+    "sections": {
+      "assumptions": "Toy memo; missing evidence links to illustrate exogenic offloading.",
+      "limitations": "",
+      "uncertainty": "",
+      "disclosure": "Research scaffold only."
+    },
+    "claims": [
+      {"id": "c1", "text": "Guided mode reduced uncertainty.", "citations": []}
+    ],
+    "sources": [],
+    "evidence": {
+      "links": [],
+      "artifacts": []
+    }
+  }
+}

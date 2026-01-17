@@ -1,0 +1,1 @@
+{"seq": 1, "kind": "ucc_lambda_metrics", "data": {"metrics": {"E": 0.62, "T": 0.71, "Es": 0.84, "Psi": 0.4402, "DeltaS": 0.08, "Lambda": 0.2}, "meta": {"lambda": 0.2, "lambda_warn": 0.8, "lambda_gate": "proceed"}}}

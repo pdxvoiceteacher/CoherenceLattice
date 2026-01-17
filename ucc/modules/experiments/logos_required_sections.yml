@@ -1,0 +1,34 @@
+ucc_version: "0.1"
+module:
+  id: "logos.required_sections.v0"
+  version: "0.1.0"
+  title: "Experiment 5: Logos Required Sections"
+  intent: "Enforce presence of required report sections in a structured output artifact."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: check_required_sections
+    id: required_sections
+    params:
+      sections_key: "logos_artifact"
+      required_sections:
+        - "Limitations"
+        - "Risk Classification"
+        - "Gate Decision"
+        - "Audit Seal"
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "report.json"
+
+  - type: emit_checklist
+    id: checklist
+    params:
+      checklist_md: "logos_required_sections_checklist.md"
+      title: "Logos Required Sections Checklist"
