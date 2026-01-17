@@ -1,0 +1,27 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.lambda_spike_2a"
+  version: "0.1.0"
+  title: "Experiment 2A: Synthetic Lambda Spike (Minimal)"
+  intent: "Inject Lambda_T and emit threshold outputs without coherence_audit."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  thresholds:
+    lambdaT_warn: 0.8
+    lambdaT_alarm: 1.0
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: threshold_flags
+    id: flags
+
+  - type: emit_threshold_table
+    id: thresholds
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

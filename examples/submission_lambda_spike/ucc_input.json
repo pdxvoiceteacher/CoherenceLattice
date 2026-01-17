@@ -1,9 +1,0 @@
-{
-  "json_extract": {
-    "source_json": {
-      "drift_values": [0.12, 0.18, 0.91, 0.15],
-      "lambda_expected": 0.91,
-      "description": "Synthetic drift series designed to exceed Lambda gate threshold deterministically."
-    }
-  }
-}

@@ -563,6 +563,10 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
 
             if stype == "ingest_json":
                 context["input"] = load_json(input_path)
+                if isinstance(context["input"], dict):
+                    metrics = context["input"].get("metrics", {})
+                    if isinstance(metrics, dict):
+                        context["metrics"].update(metrics)
 
             elif stype == "ingest_csv":
                 context["input"] = load_csv_table(input_path)
