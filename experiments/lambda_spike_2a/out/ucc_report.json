@@ -1,0 +1,15 @@
+{
+  "flags": {
+    "alarm_LambdaT": false,
+    "warn_LambdaT": true
+  },
+  "input_path": "experiments/lambda_spike_2a/ucc_input.json",
+  "metrics": {
+    "Lambda_T": 0.85
+  },
+  "module": {
+    "id": "experiments.lambda_spike_2a",
+    "title": "Experiment 2A: Synthetic Lambda Spike (Minimal)",
+    "version": "0.1.0"
+  }
+}

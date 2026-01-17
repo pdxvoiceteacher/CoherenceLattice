@@ -1,0 +1,35 @@
+{
+  "bundle_version": "0.1",
+  "environment": {
+    "git_commit": "dde637eefc219c7f948f70a68969cba9ec94ba7d",
+    "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+    "python_version": "3.10.19 (main, Jan 12 2026, 17:41:56) [GCC 13.3.0]"
+  },
+  "flags": {
+    "alarm_LambdaT": false,
+    "warn_LambdaT": true
+  },
+  "input": {
+    "path": "experiments/lambda_spike_2a/ucc_input.json",
+    "sha256": "12a247ddd1adf35a24ffeb8c0f9ee1208311055f59d818985a3e5f1d28af0740"
+  },
+  "metrics": {
+    "Lambda_T": 0.85
+  },
+  "module": {
+    "id": "experiments.lambda_spike_2a",
+    "path": "experiments/lambda_spike_2a/module.yml",
+    "sha256": "4121b9e67086441e7c59c7698ed180ced65ffc12ce1d7c3aaca61f99a4f33815",
+    "version": "0.1.0"
+  },
+  "notes": {
+    "runner": "ucc.core.run_module",
+    "schema": "ucc/schema/ucc_module.schema.json"
+  },
+  "outputs": {
+    "thresholds.csv": "a18dd3b50546f6323e04cea2078929916ba05706eab6112956da104bad87ed9d",
+    "thresholds.md": "6ecfc5f3e75de09d079af2e1c43a7664ceedf4414aea91bd0acf2a6f9ea2e237",
+    "ucc_report.json": "ad3055a2885f54fece4a2c6f4cb1652e92d1b5c41d093f94cfc29b8be2d47ab0"
+  },
+  "timestamp_utc": "2026-01-17T21:07:25.291514+00:00"
+}

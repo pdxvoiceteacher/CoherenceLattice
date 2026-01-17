@@ -14,6 +14,11 @@ dependencies = []
 dev = [
   "numpy>=1.24","pytest>=7", "hypothesis>=6"]
 viz = ["matplotlib>=3.8"]
+experiments = [
+  "numpy>=1.24",
+  "matplotlib>=3.8",
+  "torch>=2.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,0 +1,30 @@
+{
+  "schema_id": "coherencelattice.telemetry_run.v1",
+  "version": 1,
+  "run_id": "guided",
+  "created_at": "2026-01-17T20:54:07.041141+00:00",
+  "environment": {
+    "python": "3.10.19 (main, Jan 12 2026, 17:41:56) [GCC 13.3.0]",
+    "platform": "Linux-6.12.13-x86_64-with-glibc2.39",
+    "git_commit": "327b2593832d915ada8a3de1c3dbeab22d792f2e"
+  },
+  "metrics": {
+    "E": 0.62,
+    "T": 0.71,
+    "Es": 0.84,
+    "Psi": 0.4402,
+    "DeltaS": 0.08,
+    "Lambda": 0.85
+  },
+  "flags": {
+    "telemetry_ok": true,
+    "lambda_from_perturbations": 0.85
+  },
+  "artifacts": [
+    {
+      "path": "/workspace/CoherenceLattice/examples/submission_lambda_spike/artifacts/drift_series.json",
+      "sha256": "b16ba7d03137ae0e19ad67425ee95a358dc187593917eb6a75764e2fd844fece"
+    }
+  ],
+  "notes": "Synthetic Lambda spike run for experiment 2A."
+}
