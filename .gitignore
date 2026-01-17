@@ -75,9 +75,6 @@ python/kontainer/logs/
 .hypothesis/
 out/
 .tmp/
-out\
-\.hypothesis/
-\.hypothesis\
 out/_tmp/
 
 .venv/
@@ -99,7 +96,6 @@ build/
 # --- OS junk ---
 .DS_Store
 Thumbs.db
-
 
 
 

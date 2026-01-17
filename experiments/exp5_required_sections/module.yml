@@ -1,0 +1,34 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.exp5_required_sections"
+  version: "0.1.0"
+  title: "Experiment 5: Required Sections"
+  intent: "Check required report sections and emit a checklist."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: check_required_sections
+    id: required_sections
+    params:
+      sections_key: "sections"
+      required_sections:
+        - "Limitations"
+        - "Risk Classification"
+        - "Gate Decision"
+        - "Audit Seal"
+
+  - type: emit_checklist
+    id: checklist
+    params:
+      checklist_md: "required_sections_checklist.md"
+      title: "Required Sections Checklist"
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

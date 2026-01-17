@@ -1,0 +1,25 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.exp4_evidence_gate"
+  version: "0.1.0"
+  title: "Experiment 4: Evidence Gate"
+  intent: "Require DOI/URL evidence links in a governance profile."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: require_evidence_links
+    id: evidence
+    params:
+      sections_key: "genai_profile"
+      field_key: "EVALUATION_EVIDENCE"
+      min_links: 2
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

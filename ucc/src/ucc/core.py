@@ -563,6 +563,10 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
 
             if stype == "ingest_json":
                 context["input"] = load_json(input_path)
+                if isinstance(context["input"], dict):
+                    metrics = context["input"].get("metrics", {})
+                    if isinstance(metrics, dict):
+                        context["metrics"].update(metrics)
 
             elif stype == "ingest_csv":
                 context["input"] = load_csv_table(input_path)
@@ -711,6 +715,8 @@ def run_module(module_path: Path, input_path: Path, outdir: Path, schema_path: P
             elif stype == "coherence_audit":
                 if context["input"] is None or not isinstance(context["input"], dict):
                     raise ValueError("coherence_audit requires ingest_json of a dict")
+                params = params or {}
+                params.setdefault("sections_key", "sections")
                 m, fl, outs = coherence_audit_task(context["input"], outdir, thresholds, **params)
                 context["metrics"].update(m)
                 context["flags"].update(fl)

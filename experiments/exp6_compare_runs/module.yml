@@ -1,0 +1,24 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.exp6_compare_runs"
+  version: "0.1.0"
+  title: "Experiment 6: Compare Runs"
+  intent: "Compare baseline vs lambda TCHES runs using local fixtures."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  thresholds:
+    lambdaT_warn: 0.7
+    lambdaT_alarm: 1.0
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: compare_tches_runs
+    id: compare
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

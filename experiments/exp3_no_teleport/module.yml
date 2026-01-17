@@ -1,0 +1,21 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.exp3_no_teleport"
+  version: "0.1.0"
+  title: "Experiment 3: No-Teleport Lean Symbols"
+  intent: "Check No-Teleport symbols are present in Lean sources."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: check_lean_symbols
+    id: lean_symbols
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

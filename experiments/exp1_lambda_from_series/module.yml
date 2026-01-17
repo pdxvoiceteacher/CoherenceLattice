@@ -1,0 +1,30 @@
+ucc_version: "0.1"
+module:
+  id: "experiments.exp1_lambda_from_series"
+  version: "0.1.0"
+  title: "Experiment 1: Lambda_T from Series"
+  intent: "Compute Lambda_T from a temperature series and apply thresholds."
+  authors:
+    - name: "Thomas Prislac"
+    - name: "Envoy Echo"
+  thresholds:
+    lambdaT_warn: 0.8
+    lambdaT_alarm: 1.0
+
+steps:
+  - type: ingest_json
+    id: ingest
+
+  - type: compute_lambdaT
+    id: compute_lambda
+
+  - type: threshold_flags
+    id: flags
+
+  - type: emit_threshold_table
+    id: thresholds
+
+  - type: emit_report
+    id: report
+    params:
+      report_name: "ucc_report.json"

@@ -1,0 +1,11 @@
+{
+  "json_extract": {
+    "source_json": "examples/submission_lambda_spike/artifacts/drift_series.json",
+    "fields": [
+      {"id": "lambda_expected", "path": "lambda_expected", "type": "number", "required": true}
+    ],
+    "out_json": "extracted_metrics.json",
+    "out_csv": "extracted_metrics.csv",
+    "out_md": "extracted_metrics.md"
+  }
+}

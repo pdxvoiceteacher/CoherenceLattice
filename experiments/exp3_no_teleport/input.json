@@ -1,0 +1,8 @@
+{
+  "import_module": "CoherenceLattice.Coherence.NoTeleport",
+  "symbols": [
+    "validTransition_of_abs_lt_tau0"
+  ],
+  "strict": false,
+  "timeout_s": 30
+}

@@ -1,20 +1,15 @@
 {
-  "schema": "submission.v1",
-  "title": "Synthetic Lambda Spike Demonstration",
-  "runs": [
-    {
-      "label": "unguided",
-      "guided": false,
-      "input": {
-        "artifact_path": "artifacts/synthetic_drift.json"
-      }
-    },
-    {
-      "label": "guided",
-      "guided": true,
-      "input": {
-        "artifact_path": "artifacts/synthetic_drift.json"
-      }
-    }
-  ]
+  "schema": "coherencelattice_submission_v1",
+  "title": "Experiment 2A: Synthetic Lambda Spike",
+  "description": "Guided run injects Lambda>=0.80 to exercise lambda_gate behavior.",
+  "domain_tags": ["telemetry", "lambda", "experiment"],
+  "guidance": {
+    "unguided_label": "unguided",
+    "guided_label": "guided",
+    "notes": "Populate runs via tools/telemetry/generate_lambda_spike.py."
+  },
+  "runs": {
+    "unguided": { "path": "runs/unguided" },
+    "guided": { "path": "runs/guided" }
+  }
 }
