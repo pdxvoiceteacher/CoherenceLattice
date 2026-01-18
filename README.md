@@ -38,6 +38,242 @@ State: points (E,T) in the unit square [0,1]×[0,1]
 
 Coherence: psi = E*T
 
+Experiment Suite Overview
+
+The CoherenceLattice experiment suite provides a concrete, runnable pathway for verifying formal invariants, governance gates, and telemetry behavior.
+
+Each experiment is intentionally small, deterministic, and audit-producing, yielding machine-verifiable artifacts rather than narrative claims.
+
+All experiments can be run locally from the repository root and emit cryptographically hashed audit bundles.
+
+Experiment 0 — Build & Verify
+
+“The project is real”
+
+Purpose
+
+Confirm that the repository builds
+
+Lean proofs compile
+
+Python validation layer passes
+
+Procedure
+# Lean proofs
+lake build
+
+# Python tests
+python -m pytest
+
+Expected Results
+
+lake build succeeds (Lean proofs verify)
+
+pytest passes
+
+Formal and runtime layers are internally consistent
+
+Experiment 1 — Lambda_T from Series
+
+Computed Gate
+
+Purpose
+
+Compute Λ (Lambda_T) from a numeric time series
+
+Verify threshold gating behavior
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\exp1_lambda_from_series\module.yml `
+  --input experiments\exp1_lambda_from_series\input.json `
+  --outdir out\exp1_test
+
+Expected Artifacts
+
+ucc_report.json
+
+thresholds.csv
+
+thresholds.md
+
+audit_bundle.json
+
+Interpretation
+
+Λ is computed directly from the input series
+
+warn_LambdaT or alarm_LambdaT flags reflect configured thresholds
+
+Experiment 2 — Λ Gate Trigger
+
+Deterministic
+
+Experiment 2A — Synthetic Lambda Spike (Low Compute)
+Purpose
+
+Demonstrate deterministic Λ-gate activation using a known injected value
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\lambda_spike_2a\module.yml `
+  --input experiments\lambda_spike_2a\ucc_input.json `
+  --outdir out\lambda_spike_2a_test
+
+Expected Artifacts
+
+ucc_report.json
+
+thresholds.csv
+
+thresholds.md
+
+audit_bundle.json
+
+Interpretation
+
+Λ ≥ configured warning threshold
+
+warn_LambdaT: true
+
+alarm_LambdaT: false (unless thresholds are changed)
+
+This experiment provides a minimal, reproducible proof of operational gating.
+
+Experiment 3 — No-Teleport Regime Adjacency
+
+Lean ↔ Runtime
+
+Purpose
+
+Verify that bounded updates respect regime adjacency (“no teleport”)
+
+Corresponds directly to Lean invariants
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\exp3_no_teleport\module.yml `
+  --input experiments\exp3_no_teleport\input.json `
+  --outdir out\exp3_test
+
+Expected Artifacts
+
+ucc_report.json
+
+audit_bundle.json
+
+ScratchLeanSymbols.lean
+
+lean_check.log
+
+Notes
+
+If lake is not on PATH, the Lean check returns skip, not failure
+
+With Lean installed, symbols are verified directly against source proofs
+
+Experiment 4 — Evidence Gate
+
+ΔSyn / Exogenic Offloading Proxy
+
+Purpose
+
+Verify that required DOI / URL evidence is present
+
+Ensure evidence is machine-extractable
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\exp4_evidence_gate\module.yml `
+  --input experiments\exp4_evidence_gate\input.json `
+  --outdir out\exp4_test
+
+Expected Artifacts
+
+ucc_report.json
+
+audit_bundle.json
+
+Interpretation
+
+Evidence links are extracted
+
+evidence_links_ok: true when minimum requirements are met
+
+Experiment 5 — Required Sections & Checklist
+
+Structure Enforcement
+
+Purpose
+
+Enforce required structured sections
+
+Emit a human-readable governance checklist
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\exp5_required_sections\module.yml `
+  --input experiments\exp5_required_sections\input.json `
+  --outdir out\exp5_test
+
+Expected Artifacts
+
+ucc_report.json
+
+required_sections_checklist.md
+
+audit_bundle.json
+
+Interpretation
+
+Section coverage is computed
+
+Checklist serves as an explicit governance artifact
+
+Experiment 6 — Comparator
+
+Baseline vs Lambda Runs
+
+Purpose
+
+Compare two telemetry runs
+
+Quantify improvement or degradation
+
+Procedure (Windows PowerShell)
+.\.venv\Scripts\python.exe -m ucc.cli run `
+  experiments\exp6_compare_runs\module.yml `
+  --input experiments\exp6_compare_runs\input.json `
+  --outdir out\exp6_test
+
+Expected Artifacts
+
+ucc_report.json
+
+comparison.json
+
+comparison.md
+
+audit_bundle.json
+
+Interpretation
+
+Differences in Λ warnings, pump power, and charge metrics are quantified
+
+Flags such as improved_warn_time summarize outcome
+
+Summary
+
+All experiments are runnable, deterministic, and audit-producing
+
+Outputs are artifacts, not screenshots or claims
+
+Lean proofs (Experiment 0) anchor the formal layer
+
+Runtime experiments (1–6) demonstrate operational correspondence
+
+For exact commands, see experiments/README.md.
+
 # Proofs include:
 
 psi_nonneg and psi_le_one → 0 ≤ psi ≤ 1
