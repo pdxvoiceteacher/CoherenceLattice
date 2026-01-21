@@ -1,0 +1,17 @@
+{
+  "thresholds": {
+    "Psi_drop_warn": 0.05,
+    "Lambda_spike_warn": 0.08
+  },
+  "memory": {
+    "alpha": 0.2,
+    "Psi_drift_warn": 0.1,
+    "Lambda_drift_warn": 0.1
+  },
+  "ethics": {
+    "Es_min": 1.0
+  },
+  "trajectory": {
+    "bounds_path": "sophia-core/config/trajectories/psi_lambda_bounds.json"
+  }
+}
