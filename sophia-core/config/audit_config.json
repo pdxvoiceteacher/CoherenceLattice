@@ -1,0 +1,6 @@
+{
+  "thresholds": {
+    "Psi_drop_warn": 0.05,
+    "Lambda_spike_warn": 0.08
+  }
+}
