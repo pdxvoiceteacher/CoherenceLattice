@@ -9,13 +9,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-_run_audit_v3 = None
-_run_audit_v2 = None
-_run_basic_audit = None
-if importlib.util.find_spec("sophia_core.audit") is not None:
-    from sophia_core.audit import run_audit_v3 as _run_audit_v3
-    from sophia_core.audit import run_audit_v2 as _run_audit_v2
+try:
     from sophia_core.audit import run_basic_audit as _run_basic_audit
+except Exception:  # pragma: no cover - fallback for environments without sophia_core
+    _run_basic_audit = None
 
 from jsonschema import Draft202012Validator
 
@@ -29,25 +26,18 @@ def main() -> int:
     ap.add_argument("--run-dir", required=True, help="Run directory containing telemetry.json and epistemic_graph.json")
     ap.add_argument("--repo-root", default=".")
     ap.add_argument("--diff-report", default="", help="Optional guidance_diff report.json")
-    ap.add_argument("--schema", default="schema/sophia_audit_v3.schema.json")
+    ap.add_argument("--schema", default="schema/sophia_audit.schema.json")
     ap.add_argument(
         "--audit-sophia",
         action="store_true",
         help="Emit Sophia TEL events to <run-dir>/ucc_tel_events.jsonl.",
     )
-    ap.add_argument("--audit-config", default="", help="Optional Sophia audit config JSON path.")
-    ap.add_argument("--blockchain-commit", action="store_true", help="Anchor the audit report hash to a ledger.")
-    ap.add_argument("--calibrate-trajectories", action="store_true", help="Enable trajectory phase checks.")
-    ap.add_argument("--ethics-check", action="store_true", help="Enable ethical symmetry checks.")
-    ap.add_argument("--memory-aware", action="store_true", help="Enable causal memory drift checks.")
     ap.add_argument("--out", default="", help="Output path (default: <run-dir>/sophia_audit.json)")
     args = ap.parse_args()
 
     repo = Path(args.repo_root).resolve()
     run_dir = Path(args.run_dir).resolve()
     run_basic_audit = _run_basic_audit
-    run_audit_v2 = _run_audit_v2
-    run_audit_v3 = _run_audit_v3
 
     if run_basic_audit is None:
         sophia_src = repo / "sophia-core" / "src"
@@ -55,15 +45,12 @@ def main() -> int:
             import sys
 
             sys.path.insert(0, str(sophia_src))
-            if importlib.util.find_spec("sophia_core.audit") is not None:
-                module = importlib.import_module("sophia_core.audit")
-                run_audit_v3 = getattr(module, "run_audit_v3", None)
-                run_audit_v2 = getattr(module, "run_audit_v2", None)
-                run_basic_audit = getattr(module, "run_basic_audit", None)
-            else:
-                run_audit_v3 = None
-                run_audit_v2 = None
+            try:
+                from sophia_core.audit import run_basic_audit as imported_run_basic_audit
+            except Exception:
                 run_basic_audit = None
+            else:
+                run_basic_audit = imported_run_basic_audit
 
     tele = load_json(run_dir / "telemetry.json")
     graph = load_json(run_dir / "epistemic_graph.json")
@@ -190,6 +177,30 @@ def main() -> int:
             for s in audit.repair_suggestions
         ]
     elif run_basic_audit is not None:
+        audit = run_basic_audit(tele, graph)
+        findings = [
+            {
+                "id": f.id,
+                "severity": f.severity,
+                "type": f.type,
+                "message": f.message,
+                "data": f.data,
+            }
+            for f in audit.findings
+        ]
+        repairs = [
+            {
+                "id": r.id,
+                "priority": r.priority,
+                "action": r.action,
+                "details": r.details,
+            }
+            for r in audit.repairs
+        ]
+    else:
+        claims = tele.get("claims") or []
+
+    if run_basic_audit is not None:
         audit = run_basic_audit(tele, graph)
         findings = [
             {
