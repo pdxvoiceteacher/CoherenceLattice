@@ -7,6 +7,9 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional
 import json
 
 from sophia_core.tel import TelEvent, TelHook, emit_hook_event, emit_sophia_event
+from sophia_core.causal_memory import detect_drift, update_kernel
+from sophia_core.ethics import compute_es
+from sophia_core.trajectory_monitor import determine_phase
 
 
 @dataclass(frozen=True)
@@ -61,6 +64,21 @@ class AuditReportV2:
     repair_suggestions: List[RepairSuggestion] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class AuditReportV3:
+    decision: str
+    findings: List[Finding] = field(default_factory=list)
+    repairs: List[Repair] = field(default_factory=list)
+    trend_summary: Dict[str, Any] = field(default_factory=dict)
+    contradictions: List[Contradiction] = field(default_factory=list)
+    repair_suggestions: List[RepairSuggestion] = field(default_factory=list)
+    trajectory_phase: str = "unknown"
+    ethical_symmetry: Optional[float] = None
+    memory_kernel: Dict[str, float] = field(default_factory=dict)
+    memory_drift_flag: bool = False
+    metrics_snapshot: Dict[str, Any] = field(default_factory=dict)
+
+
 DEFAULT_THRESHOLDS = {
     "Psi_drop_warn": 0.05,
     "Lambda_spike_warn": 0.08,
@@ -93,6 +111,14 @@ def _metric_map(metrics: Mapping[str, Any]) -> Dict[str, float]:
             except (TypeError, ValueError):
                 continue
     return values
+
+
+def _metrics_snapshot(metrics: Mapping[str, Any]) -> Dict[str, Any]:
+    snapshot = {}
+    for key in ("E", "T", "Psi", "DeltaS", "Lambda", "Es", "L_info", "L_agent"):
+        if key in metrics:
+            snapshot[key] = metrics.get(key)
+    return snapshot
 
 
 def _update_history(history_path: Path, run_id: str, metrics: Dict[str, float]) -> Dict[str, Any]:
@@ -399,4 +425,112 @@ def run_audit_v2(
         trend_summary=trend_summary,
         contradictions=contradictions,
         repair_suggestions=repair_suggestions,
+    )
+
+
+def run_audit_v3(
+    telemetry: Mapping[str, Any],
+    epistemic_graph: Mapping[str, Any],
+    *,
+    repo_root: Optional[Path] = None,
+    audit_config_path: Optional[Path] = None,
+    history_path: Optional[Path] = None,
+    kernel_path: Optional[Path] = None,
+    tel_hook: Optional[TelHook] = None,
+    emit_repair_events: bool = False,
+    calibrate_trajectories: bool = False,
+    ethics_check: bool = False,
+    memory_aware: bool = False,
+) -> AuditReportV3:
+    base = run_audit_v2(
+        telemetry,
+        epistemic_graph,
+        repo_root=repo_root,
+        audit_config_path=audit_config_path,
+        history_path=history_path,
+        tel_hook=tel_hook,
+        emit_repair_events=emit_repair_events,
+    )
+    findings = list(base.findings)
+    repairs = list(base.repairs)
+    repo_root = repo_root or Path(".").resolve()
+    config = load_audit_config(repo_root, audit_config_path)
+
+    metrics = _metric_map(telemetry.get("metrics", {}) or {})
+    if "Psi" not in metrics and "E" in metrics and "T" in metrics:
+        metrics["Psi"] = float(metrics["E"]) * float(metrics["T"])
+    metrics_snapshot = _metrics_snapshot(telemetry.get("metrics", {}) or {})
+
+    trajectory_phase = "unknown"
+    if calibrate_trajectories:
+        bounds_path = config.get("trajectory", {}).get("bounds_path")
+        bounds_path = Path(bounds_path) if bounds_path else None
+        trajectory_phase = determine_phase(metrics, bounds_path)
+        if trajectory_phase in ("warning", "critical"):
+            findings.append(
+                Finding(
+                    id="finding_trajectory_phase",
+                    severity="warn" if trajectory_phase == "warning" else "fail",
+                    type="coherence_drift",
+                    message=f"Trajectory phase flagged as {trajectory_phase}.",
+                    data={"trajectory_phase": trajectory_phase},
+                )
+            )
+
+    ethical_symmetry = None
+    if ethics_check:
+        ethical_symmetry = compute_es(metrics)
+        es_min = float(config.get("ethics", {}).get("Es_min", 1.0))
+        if ethical_symmetry < es_min:
+            findings.append(
+                Finding(
+                    id="finding_ethical_symmetry",
+                    severity="warn",
+                    type="ethical_symmetry_violation",
+                    message=f"Ethical symmetry below threshold ({ethical_symmetry:.3f} < {es_min}).",
+                    data={"Es": ethical_symmetry, "Es_min": es_min},
+                )
+            )
+
+    memory_kernel: Dict[str, float] = {}
+    memory_drift_flag = False
+    if memory_aware:
+        kernel_path = kernel_path or (repo_root / "runs" / "history" / "causal_memory.json")
+        memory_cfg = config.get("memory", {})
+        alpha = float(memory_cfg.get("alpha", 0.2))
+        memory_kernel = update_kernel(kernel_path, metrics, alpha)
+        thresholds = {
+            "Psi": float(memory_cfg.get("Psi_drift_warn", 0.1)),
+            "Lambda": float(memory_cfg.get("Lambda_drift_warn", 0.1)),
+        }
+        memory_drift_flag, deltas = detect_drift(memory_kernel, metrics, thresholds)
+        if memory_drift_flag:
+            findings.append(
+                Finding(
+                    id="finding_memory_deviation",
+                    severity="warn",
+                    type="memory_deviation",
+                    message="Current metrics deviate from causal memory kernel.",
+                    data={"deltas": deltas},
+                )
+            )
+
+    decision = base.decision
+    if any(f.severity == "fail" for f in findings):
+        decision = "fail"
+    elif any(f.severity == "warn" for f in findings):
+        decision = "warn"
+
+    return AuditReportV3(
+        decision=decision,
+        findings=findings,
+        repairs=repairs,
+        trend_summary=base.trend_summary,
+        contradictions=base.contradictions,
+        repair_suggestions=base.repair_suggestions,
+        trajectory_phase=trajectory_phase,
+        ethical_symmetry=ethical_symmetry,
+        memory_kernel=memory_kernel,
+        memory_drift_flag=memory_drift_flag,
+        metrics_snapshot=metrics_snapshot,
     )

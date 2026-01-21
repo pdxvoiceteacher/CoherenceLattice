@@ -45,3 +45,7 @@ The baseline audit currently validates evidence references and highlights missin
 ## Extended audit (v2)
 
 The v2 audit adds history-aware trend summaries, contradiction detection, and repair suggestions. Defaults are driven by `sophia-core/config/audit_config.json`.
+
+## Extended audit (v3)
+
+The v3 audit layers in trajectory phase checks, ethical symmetry monitoring, and causal memory drift detection. It is configured via the same audit config plus `sophia-core/config/trajectories/psi_lambda_bounds.json`.

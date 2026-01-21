@@ -9,9 +9,11 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
+_run_audit_v3 = None
 _run_audit_v2 = None
 _run_basic_audit = None
 if importlib.util.find_spec("sophia_core.audit") is not None:
+    from sophia_core.audit import run_audit_v3 as _run_audit_v3
     from sophia_core.audit import run_audit_v2 as _run_audit_v2
     from sophia_core.audit import run_basic_audit as _run_basic_audit
 
@@ -27,13 +29,17 @@ def main() -> int:
     ap.add_argument("--run-dir", required=True, help="Run directory containing telemetry.json and epistemic_graph.json")
     ap.add_argument("--repo-root", default=".")
     ap.add_argument("--diff-report", default="", help="Optional guidance_diff report.json")
-    ap.add_argument("--schema", default="schema/sophia_audit_v2.schema.json")
+    ap.add_argument("--schema", default="schema/sophia_audit_v3.schema.json")
     ap.add_argument(
         "--audit-sophia",
         action="store_true",
         help="Emit Sophia TEL events to <run-dir>/ucc_tel_events.jsonl.",
     )
     ap.add_argument("--audit-config", default="", help="Optional Sophia audit config JSON path.")
+    ap.add_argument("--blockchain-commit", action="store_true", help="Anchor the audit report hash to a ledger.")
+    ap.add_argument("--calibrate-trajectories", action="store_true", help="Enable trajectory phase checks.")
+    ap.add_argument("--ethics-check", action="store_true", help="Enable ethical symmetry checks.")
+    ap.add_argument("--memory-aware", action="store_true", help="Enable causal memory drift checks.")
     ap.add_argument("--out", default="", help="Output path (default: <run-dir>/sophia_audit.json)")
     args = ap.parse_args()
 
@@ -41,6 +47,7 @@ def main() -> int:
     run_dir = Path(args.run_dir).resolve()
     run_basic_audit = _run_basic_audit
     run_audit_v2 = _run_audit_v2
+    run_audit_v3 = _run_audit_v3
 
     if run_basic_audit is None:
         sophia_src = repo / "sophia-core" / "src"
@@ -50,9 +57,11 @@ def main() -> int:
             sys.path.insert(0, str(sophia_src))
             if importlib.util.find_spec("sophia_core.audit") is not None:
                 module = importlib.import_module("sophia_core.audit")
+                run_audit_v3 = getattr(module, "run_audit_v3", None)
                 run_audit_v2 = getattr(module, "run_audit_v2", None)
                 run_basic_audit = getattr(module, "run_basic_audit", None)
             else:
+                run_audit_v3 = None
                 run_audit_v2 = None
                 run_basic_audit = None
 
@@ -75,10 +84,68 @@ def main() -> int:
     trend_summary: Dict[str, Any] = {}
     contradictions: List[Dict[str, Any]] = []
     repair_suggestions: List[Dict[str, Any]] = []
+    metrics_snapshot: Dict[str, Any] = {}
+    trajectory_phase = "unknown"
+    ethical_symmetry: Any = None
+    memory_kernel: Dict[str, Any] = {}
+    memory_drift_flag = False
+    blockchain_anchor_hash = None
 
     audit_config_path = Path(args.audit_config).resolve() if args.audit_config else None
 
-    if run_audit_v2 is not None:
+    if run_audit_v3 is not None:
+        audit = run_audit_v3(
+            tele,
+            graph,
+            repo_root=repo,
+            audit_config_path=audit_config_path,
+            tel_hook=None,
+            emit_repair_events=args.audit_sophia,
+            calibrate_trajectories=args.calibrate_trajectories,
+            ethics_check=args.ethics_check,
+            memory_aware=args.memory_aware,
+        )
+        findings = [
+            {
+                "id": f.id,
+                "severity": f.severity,
+                "type": f.type,
+                "message": f.message,
+                "data": f.data,
+            }
+            for f in audit.findings
+        ]
+        repairs = [
+            {
+                "id": r.id,
+                "priority": r.priority,
+                "action": r.action,
+                "details": r.details,
+            }
+            for r in audit.repairs
+        ]
+        trend_summary = audit.trend_summary
+        contradictions = [
+            {"statements": c.statements, "kind": c.kind, "key": c.key} for c in audit.contradictions
+        ]
+        repair_suggestions = [
+            {
+                "id": s.id,
+                "priority": s.priority,
+                "suggestion": s.suggestion,
+                "reason": s.reason,
+                "target_module": s.target_module,
+                "target_file": s.target_file,
+                "justification": s.justification,
+            }
+            for s in audit.repair_suggestions
+        ]
+        metrics_snapshot = audit.metrics_snapshot
+        trajectory_phase = audit.trajectory_phase
+        ethical_symmetry = audit.ethical_symmetry
+        memory_kernel = audit.memory_kernel
+        memory_drift_flag = audit.memory_drift_flag
+    elif run_audit_v2 is not None:
         audit = run_audit_v2(
             tele,
             graph,
@@ -216,7 +283,13 @@ def main() -> int:
     elif any(f["severity"] == "warn" for f in findings):
         decision = "warn"
 
-    schema_id = "sophia_audit_v2" if "v2" in Path(args.schema).name else "sophia_audit_v1"
+    schema_name = Path(args.schema).name
+    if "v3" in schema_name:
+        schema_id = "sophia_audit_v3"
+    elif "v2" in schema_name:
+        schema_id = "sophia_audit_v2"
+    else:
+        schema_id = "sophia_audit_v1"
 
     report = {
         "schema": schema_id,
@@ -235,8 +308,29 @@ def main() -> int:
                 "repair_suggestions": repair_suggestions,
             }
         )
+    if schema_id == "sophia_audit_v3":
+        report.update(
+            {
+                "metrics_snapshot": metrics_snapshot,
+                "trend_summary": trend_summary,
+                "contradictions": contradictions,
+                "repair_suggestions": repair_suggestions,
+                "trajectory_phase": trajectory_phase,
+                "ethical_symmetry": ethical_symmetry,
+                "memory_kernel": memory_kernel,
+                "memory_drift_flag": memory_drift_flag,
+                "blockchain_anchor_hash": blockchain_anchor_hash,
+            }
+        )
 
     outp = Path(args.out) if args.out else (run_dir / "sophia_audit.json")
+    if args.blockchain_commit and schema_id == "sophia_audit_v3":
+        from tools.telemetry.blockchain_anchor import anchor_report
+
+        ledger_path = repo / "runs" / "history" / "blockchain_anchors.jsonl"
+        blockchain_anchor_hash = anchor_report(report, ledger_path)
+        report["blockchain_anchor_hash"] = blockchain_anchor_hash
+
     outp.write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     # Validate schema

@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coherencelattice:schema:sophia_audit:v3",
+  "title": "Sophia Audit Report v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "decision", "findings", "repairs"],
+  "properties": {
+    "schema": { "type": "string", "const": "sophia_audit_v3" },
+    "run_id": { "type": "string" },
+    "decision": { "type": "string", "enum": ["pass", "warn", "fail"] },
+    "summary": { "type": "string" },
+    "metrics_snapshot": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "trend_summary": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "trajectory_phase": { "type": "string" },
+    "ethical_symmetry": { "type": "number" },
+    "blockchain_anchor_hash": { "type": ["string", "null"] },
+    "memory_kernel": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "memory_drift_flag": { "type": "boolean" },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["statements", "kind", "key"],
+        "properties": {
+          "statements": { "type": "array", "items": { "type": "string" } },
+          "kind": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      }
+    },
+    "repair_suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "priority", "suggestion", "reason", "target_module", "target_file"],
+        "properties": {
+          "id": { "type": "string" },
+          "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+          "suggestion": { "type": "string" },
+          "reason": { "type": "string" },
+          "target_module": { "type": "string" },
+          "target_file": { "type": "string" },
+          "justification": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "type", "message"],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["info", "warn", "fail"] },
+          "type": {
+            "type": "string",
+            "enum": [
+              "missing_evidence",
+              "missing_counterevidence",
+              "confidence_miscalibration",
+              "telemetry_regression_risk",
+              "schema_gap",
+              "event_stream_gap",
+              "artifact_receipt_gap",
+              "coherence_regression",
+              "contradiction",
+              "coherence_drift",
+              "ethical_symmetry_violation",
+              "memory_deviation"
+            ]
+          },
+          "message": { "type": "string" },
+          "data": { "type": ["object", "null"] }
+        }
+      }
+    },
+    "repairs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "priority", "action"],
+        "properties": {
+          "id": { "type": "string" },
+          "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+          "action": { "type": "string" },
+          "details": { "type": ["object", "null"] }
+        }
+      }
+    }
+  }
+}
