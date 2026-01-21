@@ -1,0 +1,10 @@
+{
+  "Psi": {
+    "warning_min": 0.6,
+    "critical_min": 0.5
+  },
+  "Lambda": {
+    "warning_max": 0.6,
+    "critical_max": 0.8
+  }
+}

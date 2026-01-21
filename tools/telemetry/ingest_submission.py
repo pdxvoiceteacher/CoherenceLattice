@@ -68,7 +68,16 @@ def main() -> int:
                 run_py(py, ["tools/telemetry/validate_jsonl.py", str(ucc_events)], cwd=repo)
                 
             run_py(py, ["tools/telemetry/build_epistemic_graph.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
-            run_py(py, ["tools/telemetry/sophia_audit.py", "--run-dir", str(run_path), "--repo-root", str(repo)], cwd=repo)
+            sophia_args = [
+                "tools/telemetry/sophia_audit.py",
+                "--run-dir",
+                str(run_path),
+                "--repo-root",
+                str(repo),
+            ]
+            if spec.get("audit_sophia"):
+                sophia_args.append("--audit-sophia")
+            run_py(py, sophia_args, cwd=repo)
 
             results.append({"label": label, "path": str(run_path), "status": "ok"})
         except Exception as e:
