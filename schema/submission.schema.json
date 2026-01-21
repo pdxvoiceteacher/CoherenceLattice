@@ -31,7 +31,8 @@
           "required": ["path"],
           "properties": {
             "path": { "type": "string", "minLength": 1 },
-            "notes": { "type": "string" }
+            "notes": { "type": "string" },
+            "audit_sophia": { "type": "boolean", "default": false }
           }
         }
       }

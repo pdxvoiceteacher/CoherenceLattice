@@ -3,8 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List
+
+try:
+    from sophia_core.audit import run_basic_audit as _run_basic_audit
+except Exception:  # pragma: no cover - fallback for environments without sophia_core
+    _run_basic_audit = None
 
 from jsonschema import Draft202012Validator
 
@@ -19,14 +25,36 @@ def main() -> int:
     ap.add_argument("--repo-root", default=".")
     ap.add_argument("--diff-report", default="", help="Optional guidance_diff report.json")
     ap.add_argument("--schema", default="schema/sophia_audit.schema.json")
+    ap.add_argument(
+        "--audit-sophia",
+        action="store_true",
+        help="Emit Sophia TEL events to <run-dir>/ucc_tel_events.jsonl.",
+    )
     ap.add_argument("--out", default="", help="Output path (default: <run-dir>/sophia_audit.json)")
     args = ap.parse_args()
 
     repo = Path(args.repo_root).resolve()
     run_dir = Path(args.run_dir).resolve()
+    run_basic_audit = _run_basic_audit
+
+    if run_basic_audit is None:
+        sophia_src = repo / "sophia-core" / "src"
+        if sophia_src.exists():
+            import sys
+
+            sys.path.insert(0, str(sophia_src))
+            try:
+                from sophia_core.audit import run_basic_audit as imported_run_basic_audit
+            except Exception:
+                run_basic_audit = None
+            else:
+                run_basic_audit = imported_run_basic_audit
 
     tele = load_json(run_dir / "telemetry.json")
     graph = load_json(run_dir / "epistemic_graph.json")
+
+    if args.audit_sophia:
+        os.environ.setdefault("UCC_TEL_EVENTS_OUT", str(run_dir / "ucc_tel_events.jsonl"))
 
     # Build artifact set from graph nodes
     artifacts = set()
@@ -39,48 +67,70 @@ def main() -> int:
     findings: List[Dict[str, Any]] = []
     repairs: List[Dict[str, Any]] = []
 
-    claims = tele.get("claims") or []
+    if run_basic_audit is not None:
+        audit = run_basic_audit(tele, graph)
+        findings = [
+            {
+                "id": f.id,
+                "severity": f.severity,
+                "type": f.type,
+                "message": f.message,
+                "data": f.data,
+            }
+            for f in audit.findings
+        ]
+        repairs = [
+            {
+                "id": r.id,
+                "priority": r.priority,
+                "action": r.action,
+                "details": r.details,
+            }
+            for r in audit.repairs
+        ]
+    else:
+        claims = tele.get("claims") or []
 
-    # 1) Evidence integrity
-    for c in claims:
-        cid = c.get("id", "unknown")
-        for ev in c.get("evidence", []) or []:
-            evp = str(ev).replace("\\", "/")
-            if evp not in artifacts:
-                findings.append({
-                    "id": f"finding_missing_evidence_{cid}",
-                    "severity": "fail",
-                    "type": "missing_evidence",
-                    "message": f"Claim {cid} references evidence not present in graph artifacts: {evp}",
-                    "data": {"claim_id": cid, "evidence": evp}
-                })
-                repairs.append({
-                    "id": f"repair_add_artifact_{cid}",
-                    "priority": "high",
-                    "action": "Ensure evidence paths are included in telemetry.artifacts and epistemic graph artifact nodes.",
-                    "details": {"missing_evidence": evp}
-                })
+        # 1) Evidence integrity
+        for c in claims:
+            cid = c.get("id", "unknown")
+            for ev in c.get("evidence", []) or []:
+                evp = str(ev).replace("\\", "/")
+                if evp not in artifacts:
+                    findings.append({
+                        "id": f"finding_missing_evidence_{cid}",
+                        "severity": "fail",
+                        "type": "missing_evidence",
+                        "message": f"Claim {cid} references evidence not present in graph artifacts: {evp}",
+                        "data": {"claim_id": cid, "evidence": evp}
+                    })
+                    repairs.append({
+                        "id": f"repair_add_artifact_{cid}",
+                        "priority": "high",
+                        "action": "Ensure evidence paths are included in telemetry.artifacts and epistemic graph artifact nodes.",
+                        "details": {"missing_evidence": evp}
+                    })
 
-    # 2) Counterevidence expectation
-    for c in claims:
-        ctype = c.get("type")
-        conf = float(c.get("confidence", 0.0))
-        if ctype in ("causal", "predictive") and conf >= 0.7:
-            if not (c.get("counterevidence") or []):
-                cid = c.get("id", "unknown")
-                findings.append({
-                    "id": f"finding_missing_counter_{cid}",
-                    "severity": "warn",
-                    "type": "missing_counterevidence",
-                    "message": f"Claim {cid} is {ctype} with confidence {conf:.2f} but has no counterevidence listed.",
-                    "data": {"claim_id": cid, "confidence": conf}
-                })
-                repairs.append({
-                    "id": f"repair_add_counter_{cid}",
-                    "priority": "medium",
-                    "action": "Add at least one counterevidence path or reduce confidence / add assumptions.",
-                    "details": {"claim_id": cid}
-                })
+        # 2) Counterevidence expectation
+        for c in claims:
+            ctype = c.get("type")
+            conf = float(c.get("confidence", 0.0))
+            if ctype in ("causal", "predictive") and conf >= 0.7:
+                if not (c.get("counterevidence") or []):
+                    cid = c.get("id", "unknown")
+                    findings.append({
+                        "id": f"finding_missing_counter_{cid}",
+                        "severity": "warn",
+                        "type": "missing_counterevidence",
+                        "message": f"Claim {cid} is {ctype} with confidence {conf:.2f} but has no counterevidence listed.",
+                        "data": {"claim_id": cid, "confidence": conf}
+                    })
+                    repairs.append({
+                        "id": f"repair_add_counter_{cid}",
+                        "priority": "medium",
+                        "action": "Add at least one counterevidence path or reduce confidence / add assumptions.",
+                        "details": {"claim_id": cid}
+                    })
 
     # 3) Optional guidance diff tradeoff warning
     if args.diff_report:
