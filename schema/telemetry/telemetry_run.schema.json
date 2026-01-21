@@ -94,7 +94,13 @@
                                                                      "type":  "number",
                                                                      "minimum":  0.0,
                                                                      "maximum":  1.0
-                                                                 }
+                                                                 },
+                                                          "L_info": {
+                                                                         "type": "number"
+                                                                     },
+                                                          "L_agent": {
+                                                                          "type": "number"
+                                                                      }
                                                       }
                                    },
                        "flags":  {
@@ -157,4 +163,3 @@
                                   }
                    }
 }
-
